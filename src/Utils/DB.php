@@ -6,23 +6,49 @@ use PDOException;
 
 class DB {
     private static $instance = null;
+    private $connection;
+
+    private function __construct() {
+        $config = require __DIR__ . '/../Config/database.php';
+        try {
+            $dsn = "pgsql:host={$config['host']};dbname={$config['dbname']};port={$config['port']}";
+            $this->connection = new PDO($dsn, $config['user'], $config['password'], [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]);
+        } catch (PDOException $e) {
+            throw $e;
+        }
+    }
 
     public static function getInstance() {
         if (self::$instance === null) {
-            $config = require __DIR__ . '/../Config/database.php';
-            try {
-                // For this environment, we might need to handle the missing driver.
-                // In production, this would be pgsql.
-                $dsn = "pgsql:host={$config['host']};dbname={$config['dbname']};port={$config['port']}";
-                self::$instance = new PDO($dsn, $config['user'], $config['password'], [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                ]);
-            } catch (PDOException $e) {
-                // Log or handle error
-                throw $e;
-            }
+            self::$instance = new self();
         }
         return self::$instance;
+    }
+
+    public function getConnection() {
+        return $this->connection;
+    }
+
+    public function beginTransaction() {
+        return $this->connection->beginTransaction();
+    }
+
+    public function commit() {
+        return $this->connection->commit();
+    }
+
+    public function rollBack() {
+        return $this->connection->rollBack();
+    }
+
+    public function prepare($sql) {
+        return $this->connection->prepare($sql);
+    }
+
+    public function query($sql) {
+        return $this->connection->query($sql);
     }
 }

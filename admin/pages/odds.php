@@ -1,37 +1,34 @@
-<h3>赔率设置</h3>
-<div class="card shadow-sm border-0 rounded-3">
-    <div class="card-body">
-        <form method="POST">
-            <table class="table align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>玩法名称</th>
-                        <th>标识符</th>
-                        <th>当前赔率</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>大 / 小</td>
-                        <td><code>big</code> / <code>small</code></td>
-                        <td><input type="number" step="0.001" value="2.000" class="form-control form-control-sm w-50"></td>
-                        <td><button type="submit" class="btn btn-sm btn-primary">保存</button></td>
-                    </tr>
-                    <tr>
-                        <td>单 / 双</td>
-                        <td><code>single</code> / <code>double</code></td>
-                        <td><input type="number" step="0.001" value="2.000" class="form-control form-control-sm w-50"></td>
-                        <td><button type="submit" class="btn btn-sm btn-primary">保存</button></td>
-                    </tr>
-                    <tr>
-                        <td>大单 / 大双</td>
-                        <td><code>big_single</code> / <code>big_double</code></td>
-                        <td><input type="number" step="0.001" value="3.800" class="form-control form-control-sm w-50"></td>
-                        <td><button type="submit" class="btn btn-sm btn-primary">保存</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </form>
+<?php
+require_once __DIR__ . '/../../src/Utils/DB.php';
+$db = \App\Utils\DB::getInstance()->getConnection();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = $_POST['id'];
+    $odds = $_POST['odds'];
+    $stmt = $db->prepare("UPDATE odds_config SET odds = :odds WHERE id = :id");
+    $stmt->execute(['odds' => $odds, 'id' => $id]);
+    echo "<div class='alert alert-success'>赔率更新成功</div>";
+}
+
+$odds_list = $db->query("SELECT * FROM odds_config ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+?>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">赔率设置</h1>
+</div>
+
+<div class="row">
+    <?php foreach ($odds_list as $item): ?>
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="card-title text-muted text-uppercase small"><?php echo htmlspecialchars($item['play_type']); ?></h6>
+                <form method="POST" class="d-flex gap-2">
+                    <input type="hidden" name="id" value="<?php echo $item['id']; ?>">
+                    <input type="number" step="0.001" name="odds" class="form-control form-control-sm" value="<?php echo $item['odds']; ?>">
+                    <button type="submit" class="btn btn-sm btn-primary">保存</button>
+                </form>
+            </div>
+        </div>
     </div>
+    <?php endforeach; ?>
 </div>

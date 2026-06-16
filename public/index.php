@@ -1,13 +1,10 @@
 <?php
 session_start();
-// Basic routing for API/Pages
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-if ($uri === '/api/login') {
-    // Handle login
-} elseif ($uri === '/api/bet') {
-    // Handle bet
-} else {
-    // Load frontend
-    include __DIR__ . '/index.html';
+// Handle login state for main page
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /login.html');
+    die();
 }
+
+include __DIR__ . '/index.html';

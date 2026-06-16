@@ -3,141 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>加拿大28 - 专业预测与开奖</title>
+    <title>游戏大厅</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', 'PingFang SC', sans-serif; background-color: #f8fafc; }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .bet-button { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .bet-button:active { transform: scale(0.95); }
-        .gradient-bg { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+        body { background-color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .tab-active { color: #f59e0b; }
+        .game-card { background: white; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
+        .banner-container { background: #5b21b6; }
     </style>
 </head>
 <body class="pb-20">
     <!-- Header -->
-    <header class="gradient-bg text-white px-6 py-8 rounded-b-3xl shadow-lg">
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight">加拿大 28</h1>
-                <p class="text-slate-400 text-sm">官方授权 开奖及时</p>
-            </div>
-            <div class="text-right">
-                <div class="text-slate-400 text-xs uppercase tracking-widest mb-1">可用余额</div>
-                <div class="text-xl font-bold text-emerald-400">¥ 12,580.00</div>
-            </div>
-        </div>
-
-        <!-- Latest Draw -->
-        <div class="bg-white/10 rounded-2xl p-4 flex items-center justify-between">
-            <div>
-                <div class="text-xs text-slate-300 mb-1">第 20240616-088 期</div>
-                <div class="flex gap-2">
-                    <span class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold">5</span>
-                    <span class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold">8</span>
-                    <span class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold">3</span>
-                    <span class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center font-bold">= 16</span>
-                </div>
-            </div>
-            <div class="text-right">
-                <div class="text-xs text-slate-300 mb-1">距离下期</div>
-                <div class="text-lg font-mono font-bold text-orange-400">02:45</div>
-            </div>
-        </div>
+    <header class="bg-white py-3 px-4 flex justify-between items-center border-b">
+        <div class="w-8"></div>
+        <h1 class="text-lg font-bold">游戏大厅</h1>
+        <a href="/api/logout.php" class="text-gray-400"><i class="fas fa-sign-out-alt"></i></a>
     </header>
 
-    <!-- Betting Section -->
-    <main class="px-4 mt-6">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-bold text-slate-800">快速投注</h2>
-            <button class="text-sm text-indigo-600 font-medium">玩法说明 <i class="fas fa-chevron-right text-xs"></i></button>
+    <!-- Banner -->
+    <div class="banner-container p-2">
+        <div class="rounded-xl overflow-hidden shadow-lg border border-white/20">
+            <img src="https://img.zcool.cn/community/01783d59648232a8012193a382f6e9.jpg@1280w_1l_2o_100sh.jpg" alt="Banner" class="w-full h-40 object-cover">
+        </div>
+    </div>
+
+    <!-- Notice Bar -->
+    <div class="bg-amber-50 px-4 py-2 flex items-center gap-2 border-b">
+        <i class="fas fa-volume-up text-orange-400"></i>
+        <marquee class="text-sm text-orange-700">桃子暂停收米！！！ 欢迎来到专业加拿大28平台，祝各位老板好运连连！</marquee>
+    </div>
+
+    <!-- Game Selection -->
+    <div class="grid grid-cols-2 bg-white">
+        <!-- Canada 28 -->
+        <a href="game.html" class="game-card p-6 flex items-center gap-4 active:bg-gray-50 transition-colors">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xl relative ring-4 ring-purple-100">
+                <i class="fas fa-dice text-2xl"></i>
+                <div class="absolute -top-1 -right-1 text-xs">👑</div>
+            </div>
+            <div>
+                <div class="font-black text-gray-800 text-sm">加拿大28</div>
+            </div>
+        </a>
+
+        <!-- Canada 28 High Odds -->
+        <a href="game.html?type=high" class="game-card p-6 flex items-center gap-4 active:bg-gray-50 transition-colors">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-xl relative ring-4 ring-rose-100">
+                <i class="fas fa-fire text-2xl"></i>
+                <div class="absolute -top-1 -right-1 text-xs">👑</div>
+            </div>
+            <div>
+                <div class="font-black text-gray-800 text-sm">加拿大28高赔率</div>
+            </div>
+        </a>
+
+        <!-- PG Games -->
+        <div class="game-card p-6 flex items-center gap-4 active:bg-gray-50 opacity-60 grayscale">
+            <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-inner">
+                <i class="fas fa-puzzle-piece text-2xl"></i>
+            </div>
+            <div>
+                <div class="font-black text-gray-800 text-sm">PG电子游戏</div>
+                <div class="text-[10px] text-gray-400">维护中</div>
+            </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-            <div class="glass-card p-4 rounded-2xl text-center shadow-sm bet-button">
-                <div class="text-xl font-bold text-slate-800">大</div>
-                <div class="text-xs text-slate-400 mt-1">赔率 2.000</div>
-            </div>
-            <div class="glass-card p-4 rounded-2xl text-center shadow-sm bet-button">
-                <div class="text-xl font-bold text-slate-800">小</div>
-                <div class="text-xs text-slate-400 mt-1">赔率 2.000</div>
-            </div>
-            <div class="glass-card p-4 rounded-2xl text-center shadow-sm bet-button">
-                <div class="text-xl font-bold text-slate-800 text-rose-500">单</div>
-                <div class="text-xs text-slate-400 mt-1">赔率 2.000</div>
-            </div>
-            <div class="glass-card p-4 rounded-2xl text-center shadow-sm bet-button">
-                <div class="text-xl font-bold text-slate-800 text-indigo-500">双</div>
-                <div class="text-xs text-slate-400 mt-1">赔率 2.000</div>
-            </div>
+        <div class="game-card p-6 flex items-center justify-center">
+             <i class="fas fa-plus text-gray-200 text-2xl"></i>
         </div>
+    </div>
 
-        <div class="grid grid-cols-4 gap-2 mt-3">
-            <div class="bg-slate-800 text-white p-2 rounded-xl text-center text-xs bet-button">大单 3.8</div>
-            <div class="bg-slate-800 text-white p-2 rounded-xl text-center text-xs bet-button">大双 3.8</div>
-            <div class="bg-slate-800 text-white p-2 rounded-xl text-center text-xs bet-button">小单 3.8</div>
-            <div class="bg-slate-800 text-white p-2 rounded-xl text-center text-xs bet-button">小双 3.8</div>
-        </div>
+    <!-- Spacer -->
+    <div class="h-60 bg-gray-50"></div>
 
-        <!-- History -->
-        <h2 class="text-lg font-bold text-slate-800 mt-8 mb-4">开奖历史</h2>
-        <div class="space-y-3">
-            <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100">
-                <div class="text-sm font-medium text-slate-500">087 期</div>
-                <div class="flex items-center gap-4">
-                    <div class="flex gap-1">
-                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs flex items-center justify-center">1</span>
-                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs flex items-center justify-center">2</span>
-                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs flex items-center justify-center">4</span>
-                    </div>
-                    <div class="font-bold text-slate-800">7 (小单)</div>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100">
-                <div class="text-sm font-medium text-slate-500">086 期</div>
-                <div class="flex items-center gap-4">
-                    <div class="flex gap-1">
-                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs flex items-center justify-center">9</span>
-                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs flex items-center justify-center">8</span>
-                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs flex items-center justify-center">5</span>
-                    </div>
-                    <div class="font-bold text-slate-800">22 (大双)</div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Nav Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-8 py-3 flex justify-between items-center z-50">
-        <div class="text-indigo-600 flex flex-col items-center">
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-3 z-50 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+        <div class="flex flex-col items-center tab-active">
             <i class="fas fa-home text-xl"></i>
-            <span class="text-[10px] mt-1 font-bold">首页</span>
+            <span class="text-[11px] mt-1 font-bold">首页</span>
         </div>
-        <div class="text-slate-400 flex flex-col items-center">
-            <i class="fas fa-chart-line text-xl"></i>
-            <span class="text-[10px] mt-1 font-medium">走势</span>
-        </div>
-        <div class="text-slate-400 flex flex-col items-center">
+        <div class="flex flex-col items-center text-gray-400">
             <i class="fas fa-wallet text-xl"></i>
-            <span class="text-[10px] mt-1 font-medium">充提</span>
+            <span class="text-[11px] mt-1 font-medium">钱包</span>
         </div>
-        <div class="text-slate-400 flex flex-col items-center">
+        <div class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-users text-xl"></i>
+            <span class="text-[11px] mt-1 font-medium">群聊</span>
+        </div>
+        <div class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-headset text-xl"></i>
+            <span class="text-[11px] mt-1 font-medium">客服</span>
+        </div>
+        <div class="flex flex-col items-center text-gray-400">
             <i class="fas fa-user text-xl"></i>
-            <span class="text-[10px] mt-1 font-medium">我的</span>
+            <span class="text-[11px] mt-1 font-medium">我的</span>
         </div>
     </nav>
-<script>
-    function startCountdown(seconds) {
-        let timer = seconds;
-        setInterval(() => {
-            const minutes = Math.floor(timer / 60);
-            const secs = timer % 60;
-            document.querySelector(".font-mono").textContent =
-                `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-            if (--timer < 0) timer = 300;
-        }, 1000);
-    }
-    startCountdown(165);
-</script></body>
+</body>
 </html>

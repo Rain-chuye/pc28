@@ -2,19 +2,19 @@
 namespace App\Model;
 
 use App\Utils\DB;
+use PDO;
 
 class Lottery {
     public static function getLatest() {
-        $db = DB::getInstance();
-        $stmt = $db->query("SELECT * FROM lottery_results ORDER BY open_time DESC LIMIT 1");
-        return $stmt->fetch();
+        $db = DB::getInstance()->getConnection();
+        return $db->query("SELECT * FROM lottery_results ORDER BY id DESC LIMIT 1")->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function getHistory($limit = 20) {
-        $db = DB::getInstance();
-        $stmt = $db->prepare("SELECT * FROM lottery_results ORDER BY open_time DESC LIMIT :limit");
-        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+    public static function getHistory($limit = 10) {
+        $db = DB::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT * FROM lottery_results ORDER BY id DESC LIMIT :limit");
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
