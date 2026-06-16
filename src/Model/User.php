@@ -8,14 +8,14 @@ class User {
     public static function getById($id) {
         $db = DB::getInstance()->getConnection();
         $stmt = $db->prepare("SELECT * FROM users WHERE id = :id");
-        $stmt->execute(['id' => $id]);
+        $stmt->execute(array('id' => $id));
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public static function updateBalance($userId, $amount) {
         $db = DB::getInstance()->getConnection();
         $stmt = $db->prepare("UPDATE users SET balance = balance + :amount WHERE id = :id");
-        return $stmt->execute(['amount' => $amount, 'id' => $userId]);
+        return $stmt->execute(array('amount' => $amount, 'id' => $userId));
     }
 
     public static function getAll() {

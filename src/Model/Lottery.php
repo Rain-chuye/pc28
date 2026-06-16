@@ -12,8 +12,7 @@ class Lottery {
 
     public static function getHistory($limit = 10) {
         $db = DB::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT * FROM lottery_results ORDER BY id DESC LIMIT :limit");
-        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt = $db->prepare("SELECT * FROM lottery_results ORDER BY id DESC LIMIT " . (int)$limit);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

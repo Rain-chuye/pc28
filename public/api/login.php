@@ -3,12 +3,12 @@ session_start();
 require_once __DIR__ . '/../../src/Utils/DB.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
+    $username = isset($_POST['username']) ? $_POST['username'] : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
 
     $db = \App\Utils\DB::getInstance()->getConnection();
     $stmt = $db->prepare("SELECT id, username, password, role FROM users WHERE username = :username");
-    $stmt->execute(['username' => $username]);
+    $stmt->execute(array('username' => $username));
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['password'])) {

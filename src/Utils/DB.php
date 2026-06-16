@@ -11,10 +11,11 @@ class DB {
     private function __construct() {
         $config = require __DIR__ . '/../Config/database.php';
         try {
-            $dsn = "pgsql:host={$config['host']};dbname={$config['dbname']};port={$config['port']}";
+            $dsn = "{$config['driver']}:host={$config['host']};dbname={$config['dbname']};port={$config['port']};charset=utf8";
             $this->connection = new PDO($dsn, $config['user'], $config['password'], [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
             ]);
         } catch (PDOException $e) {
             throw $e;

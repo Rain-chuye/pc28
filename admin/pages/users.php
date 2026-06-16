@@ -34,7 +34,7 @@ $users = \App\Model\User::getAll();
                             <span class="badge bg-danger">锁定</span>
                         <?php endif; ?>
                     </td>
-                    <td><?php echo date('Y-m-d', strtotime($user['created_at'])); ?></td>
+                    <td><?php echo $user['created_at']; ?></td>
                     <td>
                         <button class="btn btn-sm btn-outline-danger">冻结</button>
                         <button class="btn btn-sm btn-outline-primary">充值</button>

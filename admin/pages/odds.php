@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'];
     $odds = $_POST['odds'];
     $stmt = $db->prepare("UPDATE odds_config SET odds = :odds WHERE id = :id");
-    $stmt->execute(['odds' => $odds, 'id' => $id]);
+    $stmt->execute(array('odds' => $odds, 'id' => $id));
     echo "<div class='alert alert-success'>赔率更新成功</div>";
 }
 
