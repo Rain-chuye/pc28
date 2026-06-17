@@ -10,14 +10,11 @@ class Bet {
         $conn = $db->getConnection();
         $conn->beginTransaction();
         try {
-            // Check balance
             $stmt = $conn->prepare("SELECT balance FROM users WHERE id = ? FOR UPDATE");
             $stmt->execute(array($userId));
             $balance = $stmt->fetchColumn();
 
-            if ($balance < $amount) {
-                throw new Exception("余额不足");
-            }
+            if ($balance < $amount) throw new Exception("余额不足");
 
             // Get odds
             $oddsField = $oddsType === 'high' ? 'odds_high' : 'odds_low';
@@ -25,19 +22,20 @@ class Bet {
             $stmt->execute(array($playType));
             $odds = $stmt->fetchColumn();
 
-            if (!$odds) {
-                throw new Exception("无效的玩法");
+            // If it's a number bet and not explicitly configured, default to 12
+            if (!$odds && is_numeric($playType)) {
+                $num = (int)$playType;
+                if ($num >= 0 && $num <= 27) $odds = 12.00;
             }
 
-            // Deduct balance
+            if (!$odds) throw new Exception("无效的玩法");
+
             $stmt = $conn->prepare("UPDATE users SET balance = balance - ? WHERE id = ?");
             $stmt->execute(array($amount, $userId));
 
-            // Insert bet
             $stmt = $conn->prepare("INSERT INTO bets (user_id, issue_no, play_type, odds_type, bet_amount, odds) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute(array($userId, $issueNo, $playType, $oddsType, $amount, $odds));
 
-            // Update user turnover
             $stmt = $conn->prepare("UPDATE users SET daily_turnover = daily_turnover + ?, total_turnover = total_turnover + ? WHERE id = ?");
             $stmt->execute(array($amount, $amount, $userId));
 

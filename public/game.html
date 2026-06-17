@@ -126,11 +126,51 @@
 
         <!-- Numbers Grid -->
         <div>
+        <!-- Banker/Player/Tie -->
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">庄闲和</h3>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'banker')">
+                    <div class="text-xl font-black text-rose-600">庄</div>
+                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="banker">3.00</span></div>
+                </div>
+                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'tie')">
+                    <div class="text-xl font-black text-emerald-600">和</div>
+                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="tie">10.00</span></div>
+                </div>
+                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'player')">
+                    <div class="text-xl font-black text-indigo-600">闲</div>
+                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="player">3.00</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Plays -->
+        <div class="mt-8">
+            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">组合玩法</h3>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'triple')">
+                    <div class="text-sm font-black">豹子</div>
+                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="triple">66.00</span></div>
+                </div>
+                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'straight')">
+                    <div class="text-sm font-black">顺子</div>
+                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="straight">10.00</span></div>
+                </div>
+                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'pair')">
+                    <div class="text-sm font-black">对子</div>
+                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="pair">3.00</span></div>
+                </div>
+            </div>
+        </div>
             <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">精准定位 (0-27)</h3>
             <div class="grid grid-cols-7 gap-2">
                 <script>
                     for(let i=0; i<=27; i++) {
-                        document.write(`<div class="bet-item bg-white dark:bg-slate-900 w-full aspect-square rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-center text-xs font-black shadow-sm cursor-pointer" onclick="selectBet(this, '${i}')">${i}</div>`);
+                        const oddsMap = {0:888, 1:488, 2:288, 3:45, 4:35, 27:888};
+ document.write(`<div class="bet-item bg-white dark:bg-slate-900 w-full aspect-square rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-center text-xs font-black shadow-sm cursor-pointer" onclick="selectBet(this, '${i}')">${i} <div class='text-[8px] opacity-50'>${oddsMap[i] || 12}x</div></div>`);
                     }
                 </script>
             </div>

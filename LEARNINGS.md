@@ -12,3 +12,8 @@
 ## Deployment Best Practices
 - **Baota (BT-Panel) Optimization**: Sticking to PHP 7.2 and MySQL 5.6 ensures compatibility with standard Asian hosting environments often used for these platforms.
 - **Cron Job Automation**: Offloading heavy tasks (scraping, settling, bot betting, red packet generation) to separate scripts triggered by system crons keeps the web interface responsive.
+
+## Custom Odds & Banker Logic
+- **Flexible Play Types**: Implementing "Banker/Player/Tie" based on ball positions (1st vs 3rd) adds professional depth to the PC28 variant.
+- **Extreme Payouts**: Support for 888x payouts requires careful precision in decimal handling (DECIMAL(15,2)) to prevent floating point errors.
+- **Dynamic UI Mapping**: Using a JS-based `oddsMap` to label number buttons allows the UI to stay synced with backend logic without hardcoding every button.
