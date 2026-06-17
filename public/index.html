@@ -11,11 +11,12 @@
         .tab-active { color: #f59e0b; }
         .game-card { background: white; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
         .banner-container { background: #5b21b6; }
+        .cs-float { position: fixed; right: 20px; bottom: 100px; width: 50px; height: 50px; background: #f59e0b; border-radius: 50%; display: flex; items-center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; cursor: pointer; }
     </style>
 </head>
 <body class="pb-20">
     <!-- Header -->
-    <header class="bg-white py-3 px-4 flex justify-between items-center border-b">
+    <header class="bg-white py-3 px-4 flex justify-between items-center border-b sticky top-0 z-50">
         <div class="w-8"></div>
         <h1 class="text-lg font-bold">游戏大厅</h1>
         <a href="/api/logout.php" class="text-gray-400"><i class="fas fa-sign-out-alt"></i></a>
@@ -31,12 +32,22 @@
     <!-- Notice Bar -->
     <div class="bg-amber-50 px-4 py-2 flex items-center gap-2 border-b">
         <i class="fas fa-volume-up text-orange-400"></i>
-        <marquee class="text-sm text-orange-700">桃子暂停收米！！！ 欢迎来到专业加拿大28平台，祝各位老板好运连连！</marquee>
+        <marquee class="text-sm text-orange-700">【福利】新人首充21送20！联系客服领取。 桃子暂停收米！！！ 欢迎来到专业加拿大28平台，祝各位老板好运连连！</marquee>
+    </div>
+
+    <!-- Promotion Section -->
+    <div class="p-3">
+        <div class="bg-gradient-to-r from-rose-500 to-orange-500 rounded-xl p-4 text-white shadow-md flex justify-between items-center">
+            <div>
+                <div class="text-lg font-black">新人专享福利</div>
+                <div class="text-xs opacity-90">首充 21 元 立送 20 元</div>
+            </div>
+            <button onclick="window.location.href='https://t.me/customer_service'" class="bg-white text-rose-500 px-4 py-1 rounded-full text-xs font-bold">立即领取</button>
+        </div>
     </div>
 
     <!-- Game Selection -->
     <div class="grid grid-cols-2 bg-white">
-        <!-- Canada 28 -->
         <a href="game.html" class="game-card p-6 flex items-center gap-4 active:bg-gray-50 transition-colors">
             <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xl relative ring-4 ring-purple-100">
                 <i class="fas fa-dice text-2xl"></i>
@@ -47,7 +58,6 @@
             </div>
         </a>
 
-        <!-- Canada 28 High Odds -->
         <a href="game.html?type=high" class="game-card p-6 flex items-center gap-4 active:bg-gray-50 transition-colors">
             <div class="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-xl relative ring-4 ring-rose-100">
                 <i class="fas fa-fire text-2xl"></i>
@@ -58,7 +68,6 @@
             </div>
         </a>
 
-        <!-- PG Games -->
         <div class="game-card p-6 flex items-center gap-4 active:bg-gray-50 opacity-60 grayscale">
             <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-inner">
                 <i class="fas fa-puzzle-piece text-2xl"></i>
@@ -74,8 +83,10 @@
         </div>
     </div>
 
-    <!-- Spacer -->
-    <div class="h-60 bg-gray-50"></div>
+    <!-- Customer Service -->
+    <div class="cs-float" onclick="window.location.href='https://t.me/customer_service'">
+        <i class="fas fa-headset text-xl"></i>
+    </div>
 
     <!-- Bottom Nav -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-3 z-50 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
@@ -91,7 +102,7 @@
             <i class="fas fa-users text-xl"></i>
             <span class="text-[11px] mt-1 font-medium">群聊</span>
         </div>
-        <div class="flex flex-col items-center text-gray-400">
+        <div class="flex flex-col items-center text-gray-400" onclick="window.location.href='https://t.me/customer_service'">
             <i class="fas fa-headset text-xl"></i>
             <span class="text-[11px] mt-1 font-medium">客服</span>
         </div>

@@ -1,5 +1,22 @@
 <?php
 require_once __DIR__ . '/../../src/Model/User.php';
+require_once __DIR__ . '/../../src/Utils/DB.php';
+
+$db = \App\Utils\DB::getInstance()->getConnection();
+
+if (isset($_POST['action'])) {
+    $uid = $_POST['user_id'];
+    if ($_POST['action'] === 'bonus') {
+        $amount = 20.00;
+        $stmt = $db->prepare("UPDATE users SET balance = balance + :amt WHERE id = :id");
+        $stmt->execute(array('amt' => $amount, 'id' => $uid));
+        echo "<div class='alert alert-success'>已为用户 ID: $uid 发送新人福利 (20元)</div>";
+    } elseif ($_POST['action'] === 'toggle') {
+        $stmt = $db->prepare("UPDATE users SET status = 1 - status WHERE id = :id");
+        $stmt->execute(array('id' => $uid));
+    }
+}
+
 $users = \App\Model\User::getAll();
 ?>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -36,8 +53,11 @@ $users = \App\Model\User::getAll();
                     </td>
                     <td><?php echo $user['created_at']; ?></td>
                     <td>
-                        <button class="btn btn-sm btn-outline-danger">冻结</button>
-                        <button class="btn btn-sm btn-outline-primary">充值</button>
+                        <form method="POST" style="display:inline">
+                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                            <button name="action" value="toggle" class="btn btn-sm btn-outline-warning">切换状态</button>
+                            <button name="action" value="bonus" class="btn btn-sm btn-outline-success">送20福利</button>
+                        </form>
                     </td>
                 </tr>
                 <?php endforeach; ?>
