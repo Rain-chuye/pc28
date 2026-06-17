@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS users (
     inviter_id INT(11) DEFAULT NULL,
     daily_turnover DECIMAL(15, 2) DEFAULT 0.00,
     total_turnover DECIMAL(15, 2) DEFAULT 0.00,
+    total_deposit DECIMAL(15, 2) DEFAULT 0.00,
+    total_bonus DECIMAL(15, 2) DEFAULT 0.00,
     is_robot TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),

@@ -18,6 +18,18 @@ class User {
         return $stmt->execute(array('amount' => $amount, 'id' => $userId));
     }
 
+    public static function addDeposit($userId, $amount) {
+        $db = DB::getInstance()->getConnection();
+        $stmt = $db->prepare("UPDATE users SET balance = balance + :amount, total_deposit = total_deposit + :amount WHERE id = :id");
+        return $stmt->execute(array('amount' => $amount, 'id' => $userId));
+    }
+
+    public static function addBonus($userId, $amount) {
+        $db = DB::getInstance()->getConnection();
+        $stmt = $db->prepare("UPDATE users SET balance = balance + :amount, total_bonus = total_bonus + :amount WHERE id = :id");
+        return $stmt->execute(array('amount' => $amount, 'id' => $userId));
+    }
+
     public static function getAll() {
         $db = DB::getInstance()->getConnection();
         return $db->query("SELECT * FROM users ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);

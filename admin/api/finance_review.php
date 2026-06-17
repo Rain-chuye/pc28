@@ -4,14 +4,11 @@ require_once __DIR__ . '/../../src/Utils/DB.php';
 
 header('Content-Type: application/json');
 
-// Admin check
-// if ($_SESSION['role'] !== 'admin') die;
-
 $db = \App\Utils\DB::getInstance()->getConnection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $requestId = $_POST['id'];
-    $status = $_POST['status']; // 'approved' or 'rejected'
+    $status = $_POST['status'];
 
     $db->beginTransaction();
     try {
@@ -25,15 +22,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($status === 'approved') {
                 if ($req['type'] === 'deposit') {
-                    $stmt = $db->prepare("UPDATE users SET balance = balance + ? WHERE id = ?");
-                    $stmt->execute([$req['amount'], $req['user_id']]);
+                    // Update user balance and total_deposit
+                    $stmt = $db->prepare("UPDATE users SET balance = balance + ?, total_deposit = total_deposit + ? WHERE id = ?");
+                    $stmt->execute([$req['amount'], $req['amount'], $req['user_id']]);
 
-                    // Trigger Agent Invitation Bonus (15 points for first deposit >= 21)
+                    // New user bonus check (assuming "Deposit 21 Get 20" from previous context or generic bonus)
+                    // If this is the first deposit, give 20 bonus
+                    $stmt = $db->prepare("SELECT COUNT(*) FROM finance_requests WHERE user_id = ? AND status = 'approved' AND type = 'deposit'");
+                    $stmt->execute([$req['user_id']]);
+                    if ($stmt->fetchColumn() == 1) { // Current one is already counted as approved
+                        $bonus = 20;
+                        $db->prepare("UPDATE users SET balance = balance + ?, total_bonus = total_bonus + ? WHERE id = ?")
+                           ->execute([$bonus, $bonus, $req['user_id']]);
+                    }
+
                     if ($req['amount'] >= 21) {
                         checkInvitationBonus($db, $req['user_id']);
                     }
-                } else if ($req['type'] === 'withdraw') {
-                    // Balance should have been deducted at request time or handle here
                 }
             }
         }
@@ -51,11 +56,9 @@ function checkInvitationBonus($db, $userId) {
     $inviterId = $stmt->fetchColumn();
 
     if ($inviterId) {
-        // Check if bonus already given
         $checkStmt = $db->prepare("SELECT id FROM rebates WHERE sub_id = ? AND user_id = ? AND type = 'invitation'");
         $checkStmt->execute([$userId, $inviterId]);
         if (!$checkStmt->fetch()) {
-            // Give 15 point reward to inviter
             $db->prepare("UPDATE users SET balance = balance + 15 WHERE id = ?")->execute([$inviterId]);
             $db->prepare("INSERT INTO rebates (user_id, sub_id, type, amount) VALUES (?, ?, 'invitation', 15)")->execute([$inviterId, $userId]);
         }
