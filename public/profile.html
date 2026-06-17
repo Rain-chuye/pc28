@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 加拿大 28</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 pb-20">
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white p-8 pb-12 rounded-b-[3rem] shadow-xl">
+        <div class="flex justify-between items-center mb-8">
+            <button onclick="history.back()"><i class="fas fa-chevron-left"></i></button>
+            <h1 class="font-black tracking-widest">我的账户</h1>
+            <button onclick="location.href='/api/logout.php'"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-black">
+                <span id="user-initial">U</span>
+            </div>
+            <div>
+                <h2 class="text-xl font-black" id="username-display">加载中...</h2>
+                <p class="text-indigo-200 text-xs">ID: <span id="user-id">0000</span></p>
+            </div>
+        </div>
+    </header>
+
+    <div class="px-6 -mt-8 space-y-6">
+        <!-- Balance Card -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex justify-between items-center">
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">当前可用余额</p>
+                <h3 class="text-3xl font-black text-slate-900 mt-1">¥ <span id="balance">0.00</span></h3>
+            </div>
+            <button onclick="location.href='/recharge.html'" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-indigo-200">充值</button>
+        </div>
+
+        <!-- Turnover Progress -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest">提现流水进度</h4>
+                <span class="text-[10px] font-bold text-indigo-600" id="turnover-percent">0%</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-3">
+                <div id="turnover-bar" class="bg-indigo-600 h-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[10px] font-bold">
+                <span class="text-slate-400">当前流水: <span id="current-turnover" class="text-slate-900">0.00</span></span>
+                <span class="text-slate-400">提现门槛: <span id="required-turnover" class="text-slate-900">0.00</span></span>
+            </div>
+            <p class="text-[9px] text-slate-300 mt-4 leading-relaxed">提示：需达到 (充值 + 新人福利) 的 4 倍流水方可提现。当前差额：<span id="turnover-diff" class="text-rose-500">0.00</span></p>
+        </div>
+
+        <!-- Referral Tools -->
+        <div class="bg-indigo-50 rounded-3xl p-6 border border-indigo-100">
+            <h4 class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4">推广赚金</h4>
+            <div class="space-y-4">
+                <div class="bg-white rounded-2xl p-4 flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] text-slate-400">专属邀请码</p>
+                        <p class="font-black text-indigo-600" id="invite-code">---</p>
+                    </div>
+                    <button onclick="copyInvite()" class="text-xs font-bold text-slate-400 uppercase">复制</button>
+                </div>
+                <p class="text-[10px] text-indigo-400/80">成功邀请好友首充 ≥ 21，即可获得 15 积分奖励。</p>
+            </div>
+        </div>
+
+        <!-- Menu -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-4 border-b border-slate-50 flex items-center justify-between cursor-pointer" onclick="alert('即将上线')">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400"><i class="fas fa-history text-sm"></i></div>
+                    <span class="text-sm font-bold">投注记录</span>
+                </div>
+                <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+            </div>
+            <div class="p-4 border-b border-slate-50 flex items-center justify-between cursor-pointer" onclick="location.href='/withdraw.html'">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400"><i class="fas fa-wallet text-sm"></i></div>
+                    <span class="text-sm font-bold">提现申请</span>
+                </div>
+                <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex justify-around py-3">
+        <button onclick="location.href='/game.html'" class="flex flex-col items-center gap-1 text-slate-300">
+            <i class="fas fa-gamepad text-lg"></i>
+            <span class="text-[10px] font-bold">大厅</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-indigo-600">
+            <i class="fas fa-user text-lg"></i>
+            <span class="text-[10px] font-bold">我的</span>
+        </button>
+    </nav>
+
+    <script>
+        async function loadProfile() {
+            const res = await fetch('/api/user_info.php');
+            const data = await res.json();
+            if(data.success) {
+                const u = data.user;
+                document.getElementById('username-display').innerText = u.username;
+                document.getElementById('user-initial').innerText = u.username[0].toUpperCase();
+                document.getElementById('user-id').innerText = String(u.id).padStart(4, '0');
+                document.getElementById('balance').innerText = parseFloat(u.balance).toLocaleString();
+                document.getElementById('invite-code').innerText = u.id;
+
+                // Turnover Progress
+                const current = parseFloat(u.total_turnover);
+                const required = (parseFloat(u.total_deposit) + parseFloat(u.total_bonus)) * 4;
+                document.getElementById('current-turnover').innerText = current.toFixed(2);
+                document.getElementById('required-turnover').innerText = required.toFixed(2);
+
+                let percent = required > 0 ? (current / required) * 100 : 100;
+                if(percent > 100) percent = 100;
+                document.getElementById('turnover-percent').innerText = percent.toFixed(1) + '%';
+                document.getElementById('turnover-bar').style.width = percent + '%';
+
+                const diff = required - current;
+                document.getElementById('turnover-diff').innerText = (diff > 0 ? diff : 0).toFixed(2);
+            } else {
+                location.href = '/login.html';
+            }
+        }
+
+        function copyInvite() {
+            const code = document.getElementById('invite-code').innerText;
+            navigator.clipboard.writeText(code);
+            alert('邀请码已复制到剪贴板');
+        }
+
+        loadProfile();
+    </script>
+</body>
+</html>
