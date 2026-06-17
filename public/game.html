@@ -3,150 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>加拿大28 - 投注</title>
+    <title>加拿大28 - 投注大厅</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#f59e0b',
+                        dark: '#0f172a',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: -apple-system, sans-serif; background-color: #0f172a; color: white; }
-        .bet-item { background: #1e293b; border: 1px solid #334155; cursor: pointer; }
-        .bet-item.active { border-color: #f59e0b; background: #334155; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
-        .open-sound-btn { position: absolute; right: 10px; top: 10px; color: #475569; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+        body { font-family: 'Noto Sans SC', sans-serif; transition: background-color 0.3s; }
+        .bet-item { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bet-item:active { transform: scale(0.92); }
+        .bet-item.active { @apply border-primary ring-2 ring-primary/20 bg-primary/10; }
+        .ball-shadow { box-shadow: inset -4px -4px 8px rgba(0,0,0,0.2), inset 4px 4px 8px rgba(255,255,255,0.2); }
+        .theme-transition { transition: background-color 0.5s, color 0.5s, border-color 0.5s; }
     </style>
 </head>
-<body class="pb-24">
-    <!-- Audio Elements -->
+<body class="theme-transition bg-slate-50 dark:bg-dark text-slate-900 dark:text-slate-100 pb-28">
     <audio id="sound-bet" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
     <audio id="sound-open" src="https://assets.mixkit.co/active_storage/sfx/2014/2014-preview.mp3"></audio>
 
-    <!-- Top Bar -->
-    <div class="flex items-center justify-between p-4 bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-        <a href="index.html" class="text-gray-400"><i class="fas fa-chevron-left text-lg"></i></a>
-        <h1 class="text-lg font-bold" id="game-title">加拿大 28</h1>
-        <div class="flex gap-4">
-            <button class="text-gray-400" onclick="toggleSound()"><i id="sound-icon" class="fas fa-volume-up"></i></button>
-            <button class="text-gray-400"><i class="fas fa-history"></i></button>
+    <!-- Header -->
+    <header class="bg-white dark:bg-slate-900 py-4 px-5 flex justify-between items-center shadow-sm sticky top-0 z-50">
+        <a href="index.html" class="p-2 -ml-2 text-slate-400"><i class="fas fa-chevron-left text-lg"></i></a>
+        <h1 class="text-base font-black tracking-widest uppercase" id="game-title">加拿大 28</h1>
+        <div class="flex items-center gap-4">
+             <button id="theme-toggle" class="text-slate-400">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:block"></i>
+            </button>
+            <button class="text-slate-400"><i class="fas fa-history"></i></button>
         </div>
-    </div>
+    </header>
 
-    <!-- Balance & Result -->
-    <div class="p-4 bg-slate-900 mb-2 relative">
-        <div class="flex justify-between items-center mb-4">
-            <span class="text-slate-400 text-sm">可用余额: <span class="text-emerald-400 font-bold" id="user-balance">¥ 12,580.00</span></span>
-            <div class="flex gap-2">
-                <button class="bg-slate-800 text-white px-3 py-1 rounded-full text-xs border border-slate-700">规则</button>
-                <button class="bg-amber-500 text-black px-4 py-1 rounded-full text-xs font-bold">充值</button>
-            </div>
-        </div>
-        <div class="bg-slate-800 rounded-xl p-4 flex items-center justify-between border border-slate-700/50">
-            <div>
-                <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">20240616-088 期 开奖</div>
-                <div class="flex gap-2 items-center">
-                    <span class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold shadow-lg num-ball">?</span>
-                    <span class="text-slate-500 font-bold">+</span>
-                    <span class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold shadow-lg num-ball">?</span>
-                    <span class="text-slate-500 font-bold">+</span>
-                    <span class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold shadow-lg num-ball">?</span>
-                    <span class="text-xl font-black text-amber-500 ml-2" id="total-result">= ?</span>
+    <!-- Result Area -->
+    <div class="p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
+            <div class="flex justify-between items-center mb-6">
+                <div class="px-4 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter" id="issue-display">20240616-088 期</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-clock text-primary text-xs"></i>
+                    <span class="text-lg font-mono font-black text-primary" id="timer">02:45</span>
                 </div>
             </div>
-            <div class="text-right border-l border-slate-700 pl-4">
-                <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">距离下期</div>
-                <div class="text-xl font-mono font-bold text-orange-400" id="timer">02:45</div>
+
+            <div class="flex items-center justify-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xl font-black ball-shadow num-ball">?</div>
+                <i class="fas fa-plus text-slate-300 dark:text-slate-700"></i>
+                <div class="w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xl font-black ball-shadow num-ball">?</div>
+                <i class="fas fa-plus text-slate-300 dark:text-slate-700"></i>
+                <div class="w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xl font-black ball-shadow num-ball">?</div>
+                <i class="fas fa-equals text-slate-300 dark:text-slate-700"></i>
+                <div class="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-black ball-shadow" id="total-result">?</div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center px-2">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-xs font-bold text-slate-400">实时可用: <span class="text-emerald-500 font-black" id="user-balance">¥ 12,580.00</span></span>
+                </div>
+                <button class="text-xs font-bold text-primary underline">走势图表</button>
             </div>
         </div>
     </div>
 
     <!-- Betting Grid -->
-    <div class="px-4 py-2">
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="bet-item p-4 rounded-xl text-center shadow-lg active:scale-95 transition-all" onclick="selectBet(this, 'big')">
-                <div class="text-2xl font-black">大</div>
-                <div class="text-xs text-slate-400 mt-1 odds-val">1.95</div>
+    <div class="px-5 py-2 space-y-8">
+        <!-- Major Markets -->
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">基础玩法</h3>
+                <span class="text-[10px] text-slate-300">赔率公开透明</span>
             </div>
-            <div class="bet-item p-4 rounded-xl text-center shadow-lg active:scale-95 transition-all" onclick="selectBet(this, 'small')">
-                <div class="text-2xl font-black">小</div>
-                <div class="text-xs text-slate-400 mt-1 odds-val">1.95</div>
-            </div>
-            <div class="bet-item p-4 rounded-xl text-center shadow-lg active:scale-95 transition-all" onclick="selectBet(this, 'single')">
-                <div class="text-2xl font-black text-rose-500">单</div>
-                <div class="text-xs text-slate-400 mt-1 odds-val">1.95</div>
-            </div>
-            <div class="bet-item p-4 rounded-xl text-center shadow-lg active:scale-95 transition-all" onclick="selectBet(this, 'double')">
-                <div class="text-2xl font-black text-indigo-400">双</div>
-                <div class="text-xs text-slate-400 mt-1 odds-val">1.95</div>
-            </div>
-        </div>
-
-        <!-- Additional Markets -->
-        <div class="grid grid-cols-4 gap-2 mb-8">
-            <div class="bet-item p-2 rounded-lg text-center text-xs" onclick="selectBet(this, 'big_single')">
-                <div>大单</div>
-                <div class="text-[10px] text-slate-500 odds-val">3.7</div>
-            </div>
-            <div class="bet-item p-2 rounded-lg text-center text-xs" onclick="selectBet(this, 'big_double')">
-                <div>大双</div>
-                <div class="text-[10px] text-slate-500 odds-val">3.7</div>
-            </div>
-            <div class="bet-item p-2 rounded-lg text-center text-xs" onclick="selectBet(this, 'small_single')">
-                <div>小单</div>
-                <div class="text-[10px] text-slate-500 odds-val">3.7</div>
-            </div>
-            <div class="bet-item p-2 rounded-lg text-center text-xs" onclick="selectBet(this, 'small_double')">
-                <div>小双</div>
-                <div class="text-[10px] text-slate-500 odds-val">3.7</div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm" onclick="selectBet(this, 'big')">
+                    <div class="text-2xl font-black">大</div>
+                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val">1.95</span></div>
+                </div>
+                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm" onclick="selectBet(this, 'small')">
+                    <div class="text-2xl font-black">小</div>
+                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val">1.95</span></div>
+                </div>
+                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm" onclick="selectBet(this, 'single')">
+                    <div class="text-2xl font-black text-rose-500">单</div>
+                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val">1.95</span></div>
+                </div>
+                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm" onclick="selectBet(this, 'double')">
+                    <div class="text-2xl font-black text-indigo-500">双</div>
+                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val">1.95</span></div>
+                </div>
             </div>
         </div>
 
-        <!-- Numbers Grid 0-27 -->
-        <div class="grid grid-cols-7 gap-2">
-            <script>
-                for(let i=0; i<=27; i++) {
-                    document.write(`<div class="bet-item w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold" onclick="selectBet(this, '${i}')">${i}</div>`);
-                }
-            </script>
+        <!-- Numbers Grid -->
+        <div>
+            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">精准定位 (0-27)</h3>
+            <div class="grid grid-cols-7 gap-2">
+                <script>
+                    for(let i=0; i<=27; i++) {
+                        document.write(`<div class="bet-item bg-white dark:bg-slate-900 w-full aspect-square rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-center text-xs font-black shadow-sm" onclick="selectBet(this, '${i}')">${i}</div>`);
+                    }
+                </script>
+            </div>
         </div>
     </div>
 
-    <!-- Betting Footer -->
-    <div class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 p-4 flex gap-4 items-center z-50 shadow-2xl">
-        <div class="flex-1 bg-slate-800 rounded-full px-4 py-2 flex items-center gap-2 border border-slate-700">
-            <span class="text-slate-500 text-xs">金额:</span>
-            <input type="number" id="bet-amount" placeholder="输入金额" class="bg-transparent border-none focus:outline-none text-white text-sm w-full">
+    <!-- Bet Input Section -->
+    <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 glass-nav z-50">
+        <div class="max-w-md mx-auto flex gap-4 items-center bg-white dark:bg-slate-900 p-2 pl-6 rounded-full shadow-2xl border border-slate-100 dark:border-slate-800">
+            <div class="flex-1 flex items-center gap-3">
+                <i class="fas fa-coins text-primary"></i>
+                <input type="number" id="bet-amount" placeholder="投注金额" class="bg-transparent border-none focus:outline-none text-sm font-bold w-full dark:text-white">
+            </div>
+            <button onclick="submitBet()" class="bg-primary text-white h-12 px-8 rounded-full font-black shadow-lg shadow-primary/30 active:scale-95 transition-transform">
+                确认下单
+            </button>
         </div>
-        <button class="bg-amber-500 text-black px-8 py-2 rounded-full font-bold shadow-lg active:scale-95 transition-transform" onclick="submitBet()">下注</button>
     </div>
 
     <script>
         let selectedType = null;
         let soundEnabled = true;
-        const urlParams = new URLSearchParams(window.location.search);
-        const type = urlParams.get('type');
+        const html = document.documentElement;
 
-        if (type === 'high') {
+        // Theme Loader
+        if (localStorage.getItem('theme') === 'dark') html.classList.add('dark');
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+        });
+
+        // Odds adjustment for High Mode
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('type') === 'high') {
             document.getElementById('game-title').innerText = '加拿大 28 (高赔率)';
             document.querySelectorAll('.odds-val').forEach(el => {
                 const val = parseFloat(el.innerText);
                 if (val === 1.95) el.innerText = '2.05';
-                if (val === 3.7) el.innerText = '4.1';
             });
         }
 
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            document.getElementById('sound-icon').className = soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute text-slate-600';
-        }
-
         function playSound(id) {
-            if (soundEnabled) {
-                const s = document.getElementById(id);
-                s.currentTime = 0;
-                s.play().catch(e => console.log('Audio blocked'));
-            }
+            const s = document.getElementById(id);
+            s.currentTime = 0;
+            s.play().catch(e => {});
         }
 
         function selectBet(el, playType) {
-            document.querySelectorAll('.bet-item').forEach(item => item.classList.remove('active'));
-            el.classList.add('active');
+            document.querySelectorAll('.bet-item').forEach(item => item.classList.remove('active', 'border-primary', 'ring-2', 'ring-primary/20', 'bg-primary/10'));
+            el.classList.add('active', 'border-primary', 'ring-2', 'ring-primary/20', 'bg-primary/10');
             selectedType = playType;
             playSound('sound-bet');
         }
@@ -164,31 +181,30 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    alert('投注成功！');
+                    alert('🎉 投注成功！祝您红单！');
                     location.reload();
                 } else {
-                    alert('错误: ' + data.message);
+                    alert('❌ 错误: ' + data.message);
                 }
             } catch (e) {
                 alert('网络连接失败');
             }
         }
 
-        function simulateOpen() {
-            const balls = document.querySelectorAll('.num-ball');
-            let count = 0;
-            const timer = setInterval(() => {
-                balls.forEach(b => b.innerText = Math.floor(Math.random() * 10));
-                if (count++ > 20) {
-                    clearInterval(timer);
-                    const n1 = 3, n2 = 7, n3 = 10;
-                    balls[0].innerText = n1;
-                    balls[1].innerText = n2;
-                    balls[2].innerText = n3;
-                    document.getElementById('total-result').innerText = '= ' + (n1+n2+n3);
-                    playSound('sound-open');
+        async function refreshData() {
+            try {
+                const res = await fetch('/api/lottery.php');
+                const data = await res.json();
+                if (data.latest) {
+                    document.getElementById('issue-display').innerText = data.latest.issue_no + ' 期';
+                    const nums = data.latest.numbers.split(',');
+                    const balls = document.querySelectorAll('.num-ball');
+                    balls[0].innerText = nums[0];
+                    balls[1].innerText = nums[1];
+                    balls[2].innerText = nums[2];
+                    document.getElementById('total-result').innerText = data.latest.total_sum;
                 }
-            }, 100);
+            } catch (e) {}
         }
 
         let time = 165;
@@ -196,9 +212,14 @@
             const m = Math.floor(time / 60);
             const s = time % 60;
             document.getElementById('timer').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            if(time === 10) simulateOpen();
+            if (time === 0) {
+                setTimeout(refreshData, 5000);
+                playSound('sound-open');
+            }
             if (--time < 0) time = 300;
         }, 1000);
+
+        refreshData();
     </script>
 </body>
 </html>
