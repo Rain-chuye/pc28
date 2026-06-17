@@ -2,174 +2,18 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>加拿大28 - 官方大厅</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>加拿大 28 - 入口</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#f59e0b',
-                        dark: '#0f172a',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans SC', sans-serif; transition: background-color 0.3s; }
-        .glass-nav { backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.8); }
-        .dark .glass-nav { background: rgba(15, 23, 42, 0.8); border-top: 1px solid rgba(255,255,255,0.05); }
-        .game-card { transition: all 0.2s ease-out; }
-        .game-card:active { transform: scale(0.96); }
-        .theme-transition { transition: background-color 0.5s, color 0.5s, border-color 0.5s; }
-    </style>
 </head>
-<body class="theme-transition bg-slate-50 text-slate-900 dark:bg-dark dark:text-slate-100 pb-24">
-    <!-- Header -->
-    <header class="bg-white dark:bg-slate-900 py-4 px-6 flex justify-between items-center shadow-sm sticky top-0 z-50">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg rotate-3">
-                <i class="fas fa-dice text-2xl text-white -rotate-3"></i>
-            </div>
-            <h1 class="text-xl font-black tracking-tight">加拿大<span class="text-primary">28</span></h1>
-        </div>
-        <div class="flex items-center gap-4">
-            <button id="theme-toggle" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-                <i class="fas fa-moon dark:hidden"></i>
-                <i class="fas fa-sun hidden dark:block"></i>
-            </button>
-            <a href="/api/logout.php" class="text-slate-400 hover:text-rose-500"><i class="fas fa-power-off text-lg"></i></a>
-        </div>
-    </header>
-
-    <!-- Banner -->
-    <div class="p-4">
-        <div class="rounded-3xl overflow-hidden shadow-2xl relative">
-            <img src="https://img.zcool.cn/community/01783d59648232a8012193a382f6e9.jpg@1280w_1l_2o_100sh.jpg" alt="Banner" class="w-full h-44 object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6">
-                <div class="text-white text-lg font-black">全球领先 · 赔率最高</div>
-                <div class="text-slate-200 text-xs mt-1 italic">Professional Canada 28 Platform</div>
-            </div>
+<body class="bg-indigo-600 flex items-center justify-center min-h-screen text-white p-6">
+    <div class="text-center">
+        <h1 class="text-5xl font-black mb-4">CANADA 28</h1>
+        <p class="text-indigo-200 mb-12">最专业、最公平的加拿大 28 预测投注平台</p>
+        <div class="space-y-4">
+            <a href="/login.html" class="block w-64 bg-white text-indigo-600 py-4 rounded-full font-bold shadow-xl">立即登录</a>
+            <a href="/register.html" class="block w-64 bg-indigo-500 text-white py-4 rounded-full font-bold border border-indigo-400">注册账号</a>
         </div>
     </div>
-
-    <!-- Notice Bar -->
-    <div class="px-4">
-        <div class="bg-amber-50 dark:bg-slate-800 px-4 py-2 flex items-center gap-3 rounded-full border border-amber-100 dark:border-slate-700">
-            <i class="fas fa-bullhorn text-primary animate-pulse"></i>
-            <marquee class="text-xs text-amber-800 dark:text-amber-400 font-medium">【限时特惠】新人首充21送20！联系客服立即到账。欢迎来到专业预测平台，祝各位老板红利滚滚！</marquee>
-        </div>
-    </div>
-
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-2 gap-4 p-4">
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
-            <div class="text-[10px] text-slate-400 font-bold uppercase mb-1">今日流水</div>
-            <div class="text-lg font-black text-slate-800 dark:text-white">¥ 1,280,552</div>
-        </div>
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
-            <div class="text-[10px] text-slate-400 font-bold uppercase mb-1">活跃玩家</div>
-            <div class="text-lg font-black text-slate-800 dark:text-white">12,458 <span class="text-emerald-500 text-[10px]">+245</span></div>
-        </div>
-    </div>
-
-    <!-- Game List -->
-    <div class="px-4 space-y-4">
-        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest px-1">精彩游戏</h2>
-
-        <!-- Standard -->
-        <a href="game.html" class="game-card flex items-center justify-between bg-white dark:bg-slate-900 p-5 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800">
-            <div class="flex items-center gap-5">
-                <div class="w-16 h-16 rounded-3xl bg-indigo-500 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20">
-                    <i class="fas fa-dice-six text-3xl"></i>
-                </div>
-                <div>
-                    <div class="text-lg font-black">加拿大 28</div>
-                    <div class="text-[10px] text-slate-400 font-bold mt-0.5">标准赔率 · 极速开奖</div>
-                </div>
-            </div>
-            <div class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-300">
-                <i class="fas fa-chevron-right text-xs"></i>
-            </div>
-        </a>
-
-        <!-- High Odds -->
-        <a href="game.html?type=high" class="game-card flex items-center justify-between bg-white dark:bg-slate-900 p-5 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800">
-            <div class="flex items-center gap-5">
-                <div class="w-16 h-16 rounded-3xl bg-rose-500 flex items-center justify-center text-white shadow-xl shadow-rose-500/20">
-                    <i class="fas fa-fire-alt text-3xl"></i>
-                </div>
-                <div>
-                    <div class="text-lg font-black">加拿大 28 <span class="text-rose-500 text-[10px]">高赔率</span></div>
-                    <div class="text-[10px] text-slate-400 font-bold mt-0.5">大神推荐 · 财富密码</div>
-                </div>
-            </div>
-            <div class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-300">
-                <i class="fas fa-chevron-right text-xs"></i>
-            </div>
-        </a>
-
-        <!-- PG Slot -->
-        <div class="flex items-center justify-between bg-white/50 dark:bg-slate-900/50 p-5 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 grayscale">
-            <div class="flex items-center gap-5">
-                <div class="w-16 h-16 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-300">
-                    <i class="fas fa-puzzle-piece text-3xl"></i>
-                </div>
-                <div>
-                    <div class="text-lg font-black text-slate-400">PG 电子</div>
-                    <div class="text-[10px] text-slate-400 font-bold mt-0.5">系统升级中</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Customer Service Float -->
-    <div onclick="window.location.href='https://t.me/customer_service'" class="fixed right-6 bottom-32 w-14 h-14 bg-primary text-white rounded-2xl shadow-2xl shadow-primary/40 flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95 transition-transform z-50">
-        <i class="fas fa-headset text-2xl"></i>
-    </div>
-
-    <!-- Bottom Nav -->
-    <nav class="fixed bottom-0 left-0 right-0 glass-nav border-t border-slate-100 dark:border-slate-800 flex justify-around py-4 z-50 px-6">
-        <div class="flex flex-col items-center text-primary">
-            <i class="fas fa-th-large text-xl"></i>
-            <span class="text-[10px] mt-1 font-black">首页</span>
-        </div>
-        <div class="flex flex-col items-center text-slate-400 dark:text-slate-600">
-            <i class="fas fa-wallet text-xl"></i>
-            <span class="text-[10px] mt-1 font-bold">钱包</span>
-        </div>
-        <div class="flex flex-col items-center text-slate-400 dark:text-slate-600">
-            <i class="fas fa-comments text-xl"></i>
-            <span class="text-[10px] mt-1 font-bold">群聊</span>
-        </div>
-        <div class="flex flex-col items-center text-slate-400 dark:text-slate-600" onclick="window.location.href='https://t.me/customer_service'">
-            <i class="fas fa-user-headset text-xl"></i>
-            <span class="text-[10px] mt-1 font-bold">客服</span>
-        </div>
-        <div class="flex flex-col items-center text-slate-400 dark:text-slate-600">
-            <i class="fas fa-user text-xl"></i>
-            <span class="text-[10px] mt-1 font-bold">我的</span>
-        </div>
-    </nav>
-
-    <script>
-        const themeToggle = document.getElementById('theme-toggle');
-        const html = document.documentElement;
-
-        // Load saved theme
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            html.classList.add('dark');
-        }
-
-        themeToggle.addEventListener('click', () => {
-            html.classList.toggle('dark');
-            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-        });
-    </script>
 </body>
 </html>

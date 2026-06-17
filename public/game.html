@@ -3,46 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>加拿大28 - 投注大厅</title>
+    <title>加拿大 28 - 专业投注平台</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#f59e0b',
-                        dark: '#0f172a',
-                    }
+                    colors: { primary: '#6366f1', secondary: '#4f46e5' },
+                    fontFamily: { sans: ['Inter', 'Noto Sans SC', 'sans-serif'] }
                 }
             }
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
-        body { font-family: 'Noto Sans SC', sans-serif; transition: background-color 0.3s; }
-        .bet-item { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
-        .bet-item:active { transform: scale(0.92); }
-        .bet-item.active { @apply border-primary ring-2 ring-primary/20 bg-primary/10; }
-        .ball-shadow { box-shadow: inset -4px -4px 8px rgba(0,0,0,0.2), inset 4px 4px 8px rgba(255,255,255,0.2); }
-        .theme-transition { transition: background-color 0.5s, color 0.5s, border-color 0.5s; }
+        .ball-shadow { box-shadow: inset 0 -4px 10px rgba(0,0,0,0.2), 0 4px 12px rgba(99, 102, 241, 0.4); }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+        .dark .glass-nav { background: rgba(15, 23, 42, 0.8); }
+        body { -webkit-tap-highlight-color: transparent; }
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .animate-pulse-soft { animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
 </head>
-<body class="theme-transition bg-slate-50 dark:bg-dark text-slate-900 dark:text-slate-100 pb-28">
-    <audio id="sound-bet" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
-    <audio id="sound-open" src="https://assets.mixkit.co/active_storage/sfx/2014/2014-preview.mp3"></audio>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-32">
 
     <!-- Header -->
-    <header class="bg-white dark:bg-slate-900 py-4 px-5 flex justify-between items-center shadow-sm sticky top-0 z-50">
-        <a href="index.html" class="p-2 -ml-2 text-slate-400"><i class="fas fa-chevron-left text-lg"></i></a>
+    <header class="flex justify-between items-center px-6 py-4 sticky top-0 z-50 glass-nav">
         <h1 class="text-base font-black tracking-widest uppercase" id="game-title">加拿大 28</h1>
         <div class="flex items-center gap-4">
              <button id="theme-toggle" class="text-slate-400">
                 <i class="fas fa-moon dark:hidden"></i>
                 <i class="fas fa-sun hidden dark:block"></i>
             </button>
-            <button class="text-slate-400"><i class="fas fa-history"></i></button>
+            <button onclick="toggleChat()" class="text-slate-400 relative">
+                <i class="fas fa-comment-dots"></i>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full"></span>
+            </button>
         </div>
     </header>
 
@@ -51,11 +49,11 @@
         <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
             <div class="flex justify-between items-center mb-6">
                 <div class="px-4 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
-                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter" id="issue-display">20240616-088 期</span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter" id="issue-display">加载中...</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <i class="fas fa-clock text-primary text-xs"></i>
-                    <span class="text-lg font-mono font-black text-primary" id="timer">02:45</span>
+                    <span class="text-lg font-mono font-black text-primary" id="timer">00:00</span>
                 </div>
             </div>
 
@@ -72,11 +70,31 @@
             <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center px-2">
                 <div class="flex items-center gap-2">
                     <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="text-xs font-bold text-slate-400">实时可用: <span class="text-emerald-500 font-black" id="user-balance">¥ 12,580.00</span></span>
+                    <span class="text-xs font-bold text-slate-400">可用余额: <span class="text-emerald-500 font-black" id="user-balance">¥ 0.00</span></span>
                 </div>
-                <button class="text-xs font-bold text-primary underline">走势图表</button>
+                <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full" onclick="location.href='/recharge.html'">充值</button>
+                    <button class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-black rounded-full" onclick="location.href='/withdraw.html'">提现</button>
+                </div>
             </div>
         </div>
+    </div>
+
+    <!-- Live Betting Feed -->
+    <div class="px-5 mb-6">
+        <div class="bg-slate-100 dark:bg-slate-800/50 rounded-2xl p-3 flex items-center gap-3 overflow-hidden">
+            <div class="text-[10px] font-black bg-primary text-white px-2 py-1 rounded-md shrink-0">实时动态</div>
+            <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate" id="live-feed">正在加载投注动态...</div>
+        </div>
+    </div>
+
+    <!-- Odds Selector -->
+    <div class="px-5 mb-4">
+        <div class="flex bg-white dark:bg-slate-900 rounded-2xl p-1 border border-slate-100 dark:border-slate-800">
+            <button onclick="setOddsMode('low')" id="mode-low" class="flex-1 py-3 text-xs font-black rounded-xl transition-all bg-primary text-white">低赔率模式</button>
+            <button onclick="setOddsMode('high')" id="mode-high" class="flex-1 py-3 text-xs font-black rounded-xl transition-all text-slate-400">高赔率模式</button>
+        </div>
+        <p id="mode-desc" class="text-[9px] text-slate-400 mt-2 px-2">低赔率：13、14固定吃本；高赔率：豹子对子顺子13、14回本。</p>
     </div>
 
     <!-- Betting Grid -->
@@ -85,24 +103,23 @@
         <div>
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">基础玩法</h3>
-                <span class="text-[10px] text-slate-300">赔率公开透明</span>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm" onclick="selectBet(this, 'big')">
+                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'big')">
                     <div class="text-2xl font-black">大</div>
-                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val">1.95</span></div>
+                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val" data-play="big">2.00</span></div>
                 </div>
-                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm" onclick="selectBet(this, 'small')">
+                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'small')">
                     <div class="text-2xl font-black">小</div>
-                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val">1.95</span></div>
+                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val" data-play="small">2.00</span></div>
                 </div>
-                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm" onclick="selectBet(this, 'single')">
+                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'single')">
                     <div class="text-2xl font-black text-rose-500">单</div>
-                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val">1.95</span></div>
+                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val" data-play="single">2.00</span></div>
                 </div>
-                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm" onclick="selectBet(this, 'double')">
+                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'double')">
                     <div class="text-2xl font-black text-indigo-500">双</div>
-                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val">1.95</span></div>
+                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val" data-play="double">2.00</span></div>
                 </div>
             </div>
         </div>
@@ -113,7 +130,7 @@
             <div class="grid grid-cols-7 gap-2">
                 <script>
                     for(let i=0; i<=27; i++) {
-                        document.write(`<div class="bet-item bg-white dark:bg-slate-900 w-full aspect-square rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-center text-xs font-black shadow-sm" onclick="selectBet(this, '${i}')">${i}</div>`);
+                        document.write(`<div class="bet-item bg-white dark:bg-slate-900 w-full aspect-square rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-center text-xs font-black shadow-sm cursor-pointer" onclick="selectBet(this, '${i}')">${i}</div>`);
                     }
                 </script>
             </div>
@@ -121,7 +138,7 @@
     </div>
 
     <!-- Bet Input Section -->
-    <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 glass-nav z-50">
+    <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 glass-nav z-40">
         <div class="max-w-md mx-auto flex gap-4 items-center bg-white dark:bg-slate-900 p-2 pl-6 rounded-full shadow-2xl border border-slate-100 dark:border-slate-800">
             <div class="flex-1 flex items-center gap-3">
                 <i class="fas fa-coins text-primary"></i>
@@ -133,9 +150,29 @@
         </div>
     </div>
 
+    <!-- Private Chat UI (Hidden by default) -->
+    <div id="chat-overlay" class="fixed inset-0 bg-black/50 z-[100] hidden flex flex-col justify-end">
+        <div class="bg-white dark:bg-slate-900 h-3/4 rounded-t-[2.5rem] flex flex-col">
+            <div class="p-6 border-b dark:border-slate-800 flex justify-between items-center">
+                <h2 class="font-black">在线客服</h2>
+                <button onclick="toggleChat()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-4">
+                <!-- Messages -->
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/50">
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" class="flex-1 bg-white dark:bg-slate-900 rounded-full px-4 py-2 text-sm outline-none" placeholder="输入消息...">
+                    <button onclick="sendMessage()" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let selectedType = null;
-        let soundEnabled = true;
+        let oddsMode = 'low';
+        let currentIssue = '';
         const html = document.documentElement;
 
         // Theme Loader
@@ -145,27 +182,23 @@
             localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
         });
 
-        // Odds adjustment for High Mode
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('type') === 'high') {
-            document.getElementById('game-title').innerText = '加拿大 28 (高赔率)';
-            document.querySelectorAll('.odds-val').forEach(el => {
-                const val = parseFloat(el.innerText);
-                if (val === 1.95) el.innerText = '2.05';
-            });
-        }
+        function setOddsMode(mode) {
+            oddsMode = mode;
+            document.getElementById('mode-low').className = mode === 'low' ? 'flex-1 py-3 text-xs font-black rounded-xl transition-all bg-primary text-white' : 'flex-1 py-3 text-xs font-black rounded-xl transition-all text-slate-400';
+            document.getElementById('mode-high').className = mode === 'high' ? 'flex-1 py-3 text-xs font-black rounded-xl transition-all bg-primary text-white' : 'flex-1 py-3 text-xs font-black rounded-xl transition-all text-slate-400';
 
-        function playSound(id) {
-            const s = document.getElementById(id);
-            s.currentTime = 0;
-            s.play().catch(e => {});
+            // Update UI Odds Display
+            const oddsData = mode === 'low' ? {big: '2.00', small: '2.00', single: '2.00', double: '2.00'} : {big: '1.95', small: '1.95', single: '1.95', double: '1.95'};
+            document.querySelectorAll('.odds-val').forEach(el => {
+                const play = el.getAttribute('data-play');
+                if(oddsData[play]) el.innerText = oddsData[play];
+            });
         }
 
         function selectBet(el, playType) {
             document.querySelectorAll('.bet-item').forEach(item => item.classList.remove('active', 'border-primary', 'ring-2', 'ring-primary/20', 'bg-primary/10'));
             el.classList.add('active', 'border-primary', 'ring-2', 'ring-primary/20', 'bg-primary/10');
             selectedType = playType;
-            playSound('sound-bet');
         }
 
         async function submitBet() {
@@ -177,14 +210,19 @@
                 const res = await fetch('/api/bet.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ play_type: selectedType, amount: parseFloat(amount) })
+                    body: JSON.stringify({
+                        play_type: selectedType,
+                        amount: parseFloat(amount),
+                        odds_type: oddsMode,
+                        issue_no: currentIssue
+                    })
                 });
                 const data = await res.json();
                 if (data.success) {
-                    alert('🎉 投注成功！祝您红单！');
-                    location.reload();
+                    alert('🎉 投注成功！');
+                    refreshUserData();
                 } else {
-                    alert('❌ 错误: ' + data.message);
+                    alert('❌ ' + data.message);
                 }
             } catch (e) {
                 alert('网络连接失败');
@@ -196,7 +234,8 @@
                 const res = await fetch('/api/lottery.php');
                 const data = await res.json();
                 if (data.latest) {
-                    document.getElementById('issue-display').innerText = data.latest.issue_no + ' 期';
+                    currentIssue = data.latest.issue_no;
+                    document.getElementById('issue-display').innerText = currentIssue + ' 期';
                     const nums = data.latest.numbers.split(',');
                     const balls = document.querySelectorAll('.num-ball');
                     balls[0].innerText = nums[0];
@@ -204,22 +243,63 @@
                     balls[2].innerText = nums[2];
                     document.getElementById('total-result').innerText = data.latest.total_sum;
                 }
+
+                // Update live feed
+                const feedRes = await fetch('/api/live_bets.php');
+                const feedData = await feedRes.json();
+                if(feedData.data && feedData.data.length > 0) {
+                    const bet = feedData.data[0];
+                    document.getElementById('live-feed').innerText = `用户 ${bet.username} 刚刚下注了 ${bet.play_type} ¥${bet.bet_amount}`;
+                }
             } catch (e) {}
         }
 
-        let time = 165;
-        setInterval(() => {
-            const m = Math.floor(time / 60);
-            const s = time % 60;
-            document.getElementById('timer').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            if (time === 0) {
-                setTimeout(refreshData, 5000);
-                playSound('sound-open');
-            }
-            if (--time < 0) time = 300;
-        }, 1000);
+        async function refreshUserData() {
+            try {
+                const res = await fetch('/api/user_info.php');
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('user-balance').innerText = '¥ ' + parseFloat(data.user.balance).toLocaleString();
+                }
+            } catch(e) {}
+        }
 
+        // Chat Logic
+        function toggleChat() {
+            document.getElementById('chat-overlay').classList.toggle('hidden');
+            if(!document.getElementById('chat-overlay').classList.contains('hidden')) loadMessages();
+        }
+
+        async function loadMessages() {
+            const res = await fetch('/api/chat.php');
+            const data = await res.json();
+            const box = document.getElementById('chat-box');
+            box.innerHTML = data.data.map(m => `
+                <div class="flex ${m.sender_id == 1 ? '' : 'justify-end'}">
+                    <div class="${m.sender_id == 1 ? 'bg-slate-100 dark:bg-slate-800' : 'bg-primary text-white'} px-4 py-2 rounded-2xl max-w-[80%] text-sm">
+                        ${m.message}
+                    </div>
+                </div>
+            `).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value;
+            if(!msg) return;
+            await fetch('/api/chat.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: msg})
+            });
+            input.value = '';
+            loadMessages();
+        }
+
+        setInterval(refreshData, 10000);
         refreshData();
+        refreshUserData();
     </script>
 </body>
 </html>

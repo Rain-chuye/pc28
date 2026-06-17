@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>充值中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 p-6">
+    <div class="max-w-md mx-auto">
+        <header class="flex items-center gap-4 mb-8">
+            <button onclick="history.back()" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center"><i class="fas fa-arrow-left"></i></button>
+            <h1 class="text-xl font-bold">充值中心</h1>
+        </header>
+
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 mb-6">
+            <p class="text-xs text-slate-400 mb-2">充值金额 (首充≥21送邀请奖励)</p>
+            <div class="flex items-center gap-2 border-b-2 border-slate-100 pb-2 focus-within:border-indigo-500 transition-colors">
+                <span class="text-2xl font-bold">¥</span>
+                <input type="number" id="amount" class="w-full text-2xl font-bold outline-none" placeholder="0.00">
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 mt-6">
+                <button onclick="setAmount(50)" class="py-2 bg-slate-50 rounded-xl text-sm font-bold active:bg-indigo-50 active:text-indigo-600">50</button>
+                <button onclick="setAmount(100)" class="py-2 bg-slate-50 rounded-xl text-sm font-bold active:bg-indigo-50 active:text-indigo-600">100</button>
+                <button onclick="setAmount(500)" class="py-2 bg-slate-50 rounded-xl text-sm font-bold active:bg-indigo-50 active:text-indigo-600">500</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 mb-8 text-center">
+            <p class="text-sm font-bold mb-4">扫码支付 (手动模式)</p>
+            <img src="/assets/qr_placeholder.png" alt="QR" class="mx-auto w-48 h-48 bg-slate-100 rounded-2xl mb-4">
+            <p class="text-xs text-slate-400">请扫码支付后点击下方按钮提交审核</p>
+        </div>
+
+        <button onclick="submit()" class="w-full bg-indigo-600 text-white py-4 rounded-full font-bold shadow-lg shadow-indigo-200">提交充值申请</button>
+    </div>
+
+    <script>
+        function setAmount(a) { document.getElementById('amount').value = a; }
+        async function submit() {
+            const amount = document.getElementById('amount').value;
+            if(!amount) return alert('请输入金额');
+            const fd = new FormData();
+            fd.append('amount', amount);
+            const res = await fetch('/api/finance.php?action=deposit', { method: 'POST', body: fd });
+            const data = await res.json();
+            alert(data.message);
+            if(data.success) location.href = '/game.html';
+        }
+    </script>
+</body>
+</html>

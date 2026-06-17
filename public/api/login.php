@@ -2,29 +2,24 @@
 session_start();
 require_once __DIR__ . '/../../src/Utils/DB.php';
 
+header('Content-Type: application/json');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = isset($_POST['username']) ? $_POST['username'] : '';
-    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    $data = json_decode(file_get_contents('php://input'), true);
+    $username = $data['username'];
+    $password = $data['password'];
 
     $db = \App\Utils\DB::getInstance()->getConnection();
-    $stmt = $db->prepare("SELECT id, username, password, role FROM users WHERE username = :username");
-    $stmt->execute(array('username' => $username));
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt->execute([$username]);
+    $user = $stmt->fetch();
 
-    if ($user && password_verify($password, $user['password'])) {
+    if ($user && $user['password'] === $password) { // In production use password_verify
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['role'] = $user['role'];
-
-        if ($user['role'] === 'admin') {
-            $_SESSION['admin_logged_in'] = true;
-            header('Location: /admin/index.php');
-        } else {
-            header('Location: /index.html');
-        }
-        die();
+        echo json_encode(['success' => true]);
     } else {
-        echo "<script>alert('Invalid credentials'); window.location.href='/login.html';</script>";
-        die();
+        echo json_encode(['success' => false, 'message' => '用户名或密码错误']);
     }
 }

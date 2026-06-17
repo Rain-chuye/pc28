@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 加拿大 28</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen p-6">
+    <div class="w-full max-w-md bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100">
+        <h1 class="text-3xl font-black text-indigo-600 mb-2">开启账号</h1>
+        <p class="text-slate-400 text-sm mb-10">加入最专业的 PC28 社区</p>
+
+        <div class="space-y-6">
+            <div>
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">用户名</label>
+                <input type="text" id="username" class="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-2 ring-indigo-500/20 transition-all" placeholder="输入用户名">
+            </div>
+            <div>
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">设置密码</label>
+                <input type="password" id="password" class="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-2 ring-indigo-500/20 transition-all" placeholder="设置密码">
+            </div>
+            <div>
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">邀请码 (可选)</label>
+                <input type="text" id="inviter_id" class="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-2 ring-indigo-500/20 transition-all" placeholder="输入邀请人 ID">
+            </div>
+            <button onclick="register()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black shadow-lg shadow-slate-200 active:scale-95 transition-all">创建账号</button>
+        </div>
+
+        <p class="mt-10 text-center text-sm text-slate-400">已有账号？ <a href="/login.html" class="text-indigo-600 font-bold">登录</a></p>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('ref')) document.getElementById('inviter_id').value = urlParams.get('ref');
+
+        async function register() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const ref = document.getElementById('inviter_id').value;
+            const res = await fetch('/api/register.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: u, password: p, inviter_id: ref})
+            });
+            const data = await res.json();
+            if(data.success) {
+                alert('注册成功，请登录');
+                location.href = '/login.html';
+            } else alert(data.message);
+        }
+    </script>
+</body>
+</html>
