@@ -67,8 +67,10 @@
                 body: JSON.stringify({username: u, password: p})
             });
             const data = await res.json();
-            if(data.success) location.href = '/';
-            else alert(data.message);
+            if(data.success) {
+                if(data.role === 'admin') location.href = '/admin/index.php';
+                else location.href = '/';
+            } else alert(data.message);
         }
     </script>
 </body>
