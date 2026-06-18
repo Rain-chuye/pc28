@@ -11,16 +11,12 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    $playType = isset($data['play_type']) ? $data['play_type'] : '';
-    $amount = isset($data['amount']) ? (float)$data['amount'] : 0;
-    $issueNo = isset($data['issue_no']) ? $data['issue_no'] : '';
-    $oddsType = isset($data['odds_type']) ? $data['odds_type'] : 'low';
+    $input = json_decode(file_get_contents('php://input'), true);
 
-    if ($amount < 2) {
-        echo json_encode(array('success' => false, 'message' => '最低起投 2 元'));
-        die();
-    }
+    // Support both single bet and array of bets
+    $bets = isset($input['bets']) ? $input['bets'] : [$input];
+    $issueNo = isset($input['issue_no']) ? $input['issue_no'] : '';
+    $oddsType = isset($input['odds_type']) ? $input['odds_type'] : 'low';
 
     if (empty($issueNo)) {
         echo json_encode(array('success' => false, 'message' => '期号缺失'));
@@ -30,67 +26,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $db = \App\Utils\DB::getInstance()->getConnection();
     $userId = $_SESSION['user_id'];
 
-    // --- Validation Logic ---
-
-    // 1. Fetch current bets for this issue
+    // 1. Fetch existing bets for this issue to check conflicts
     $stmt = $db->prepare("SELECT play_type FROM bets WHERE user_id = ? AND issue_no = ? AND status = 0");
     $stmt->execute([$userId, $issueNo]);
-    $currentBets = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    $allTypes = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-    // 2. Prohibit Single and Double simultaneously
-    if ($playType === 'single' && in_array('double', $currentBets)) {
-        echo json_encode(array('success' => false, 'message' => '禁止同时下注单和双'));
-        die();
-    }
-    if ($playType === 'double' && in_array('single', $currentBets)) {
-        echo json_encode(array('success' => false, 'message' => '禁止同时下注单和双'));
-        die();
-    }
+    // Validate each bet in the batch
+    foreach ($bets as $b) {
+        $playType = $b['play_type'];
+        $amount = (float)$b['amount'];
 
-    // 3. Prohibit Big and Small simultaneously
-    if ($playType === 'big' && in_array('small', $currentBets)) {
-        echo json_encode(array('success' => false, 'message' => '禁止同时下注大和小'));
-        die();
-    }
-    if ($playType === 'small' && in_array('big', $currentBets)) {
-        echo json_encode(array('success' => false, 'message' => '禁止同时下注大和小'));
-        die();
-    }
-
-    // 4. Prohibit 4-gate coverage (BigSingle, SmallSingle, BigDouble, SmallDouble)
-    $fourGates = ['big_single', 'small_single', 'big_double', 'small_double'];
-    if (in_array($playType, $fourGates)) {
-        $existingGates = array_intersect($currentBets, $fourGates);
-        if (count($existingGates) >= 3 && !in_array($playType, $existingGates)) {
-            echo json_encode(array('success' => false, 'message' => '禁止对“大单、小单、大双、小双”进行四门全包'));
+        if ($amount < 2) {
+            echo json_encode(array('success' => false, 'message' => "下注金额 [$playType] 低于最低限制 2 元"));
             die();
         }
-    }
 
-    // 5. Limit specific number (0-27) bets to 4 per issue
-    if (is_numeric($playType)) {
-        $numericBets = array_filter($currentBets, 'is_numeric');
-        if (count(array_unique($numericBets)) >= 4 && !in_array($playType, $numericBets)) {
-            echo json_encode(array('success' => false, 'message' => '特码数字每期最多只能选4个'));
+        // Prohibit Single and Double simultaneously
+        if (($playType === 'single' && in_array('double', $allTypes)) ||
+            ($playType === 'double' && in_array('single', $allTypes))) {
+            echo json_encode(array('success' => false, 'message' => '禁止同时下注单和双'));
             die();
         }
+
+        // Prohibit Big and Small simultaneously
+        if (($playType === 'big' && in_array('small', $allTypes)) ||
+            ($playType === 'small' && in_array('big', $allTypes))) {
+            echo json_encode(array('success' => false, 'message' => '禁止同时下注大和小'));
+            die();
+        }
+
+        // Prohibit 4-gate coverage
+        $fourGates = ['big_single', 'small_single', 'big_double', 'small_double'];
+        if (in_array($playType, $fourGates)) {
+            $currentGates = array_intersect($allTypes, $fourGates);
+            if (count($currentGates) >= 3 && !in_array($playType, $currentGates)) {
+                echo json_encode(array('success' => false, 'message' => '禁止对“大单、小单、大双、小双”进行四门全包'));
+                die();
+            }
+        }
+
+        // Limit specific number (0-27) bets to 4 per issue
+        if (is_numeric($playType)) {
+            $numericBets = array_filter($allTypes, 'is_numeric');
+            if (count(array_unique($numericBets)) >= 4 && !in_array($playType, $numericBets)) {
+                echo json_encode(array('success' => false, 'message' => '特码数字每期最多只能选4个'));
+                die();
+            }
+        }
+
+        $allTypes[] = $playType;
     }
 
-    // 6. Anti-Double Betting Logic (Keep existing 1.5x constraint for safety)
-    $stmt = $db->prepare("SELECT bet_amount FROM bets WHERE user_id = ? AND play_type = ? ORDER BY id DESC LIMIT 1");
-    $stmt->execute([$userId, $playType]);
-    $lastBetAmount = $stmt->fetchColumn();
-
-    if ($lastBetAmount && $amount > ($lastBetAmount * 1.5)) {
-        echo json_encode(array('success' => false, 'message' => '为了风控安全，本次投注金额不能超过上次同玩法金额的1.5倍（禁止倍投）'));
-        die();
-    }
-
+    // Process all bets in a transaction
+    $db->beginTransaction();
     try {
-        if (\App\Model\Bet::place($userId, $issueNo, $playType, $amount, $oddsType)) {
-            echo json_encode(array('success' => true, 'message' => '下注成功'));
+        foreach ($bets as $b) {
+            if (!\App\Model\Bet::place($userId, $issueNo, $b['play_type'], $b['amount'], $oddsType, true)) {
+                throw new Exception("下注失败");
+            }
         }
+        $db->commit();
+        echo json_encode(array('success' => true, 'message' => '下注成功'));
     } catch (\Exception $e) {
+        $db->rollBack();
         echo json_encode(array('success' => false, 'message' => $e->getMessage()));
     }
 }

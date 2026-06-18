@@ -5,10 +5,12 @@ use App\Utils\DB;
 use Exception;
 
 class Bet {
-    public static function place($userId, $issueNo, $playType, $amount, $oddsType = 'low') {
+    public static function place($userId, $issueNo, $playType, $amount, $oddsType = 'low', $inTransaction = false) {
         $db = DB::getInstance();
         $conn = $db->getConnection();
-        $conn->beginTransaction();
+
+        if (!$inTransaction) $conn->beginTransaction();
+
         try {
             $stmt = $conn->prepare("SELECT balance FROM users WHERE id = ? FOR UPDATE");
             $stmt->execute(array($userId));
@@ -28,7 +30,7 @@ class Bet {
                 if ($num >= 0 && $num <= 27) $odds = 12.00;
             }
 
-            if (!$odds) throw new Exception("无效的玩法");
+            if (!$odds) throw new Exception("无效的玩法: " . $playType);
 
             $stmt = $conn->prepare("UPDATE users SET balance = balance - ? WHERE id = ?");
             $stmt->execute(array($amount, $userId));
@@ -39,10 +41,10 @@ class Bet {
             $stmt = $conn->prepare("UPDATE users SET daily_turnover = daily_turnover + ?, total_turnover = total_turnover + ? WHERE id = ?");
             $stmt->execute(array($amount, $amount, $userId));
 
-            $conn->commit();
+            if (!$inTransaction) $conn->commit();
             return true;
         } catch (Exception $e) {
-            $conn->rollBack();
+            if (!$inTransaction) $conn->rollBack();
             throw $e;
         }
     }

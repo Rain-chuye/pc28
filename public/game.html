@@ -39,7 +39,7 @@
         ::-webkit-scrollbar { width: 0px; background: transparent; }
     </style>
 </head>
-<body class="bg-dark text-white min-h-screen pb-40">
+<body class="bg-dark text-white min-h-screen pb-48">
     <!-- Header -->
     <header class="fixed top-0 left-0 right-0 z-50 glass-header p-4 flex justify-between items-center">
         <div class="flex items-center gap-3">
@@ -95,54 +95,54 @@
         <!-- Betting Panes -->
         <div id="pane-basic" class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
-                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center group active:scale-95 transition-all" onclick="selectBet(this, 'big')">
+                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center group active:scale-95 transition-all" onclick="toggleBet(this, 'big')">
                     <div class="text-lg font-black mb-1">大</div>
                     <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="big">2.00</span></div>
                 </div>
-                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="selectBet(this, 'small')">
+                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="toggleBet(this, 'small')">
                     <div class="text-lg font-black mb-1">小</div>
                     <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="small">2.00</span></div>
                 </div>
-                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="selectBet(this, 'single')">
+                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="toggleBet(this, 'single')">
                     <div class="text-lg font-black mb-1">单</div>
                     <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="single">2.00</span></div>
                 </div>
-                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="selectBet(this, 'double')">
+                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="toggleBet(this, 'double')">
                     <div class="text-lg font-black mb-1">双</div>
                     <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="double">2.00</span></div>
                 </div>
             </div>
 
             <div class="grid grid-cols-4 gap-2">
-                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="selectBet(this, 'big_single')">大单</div>
-                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="selectBet(this, 'big_double')">大双</div>
-                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="selectBet(this, 'small_single')">小单</div>
-                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="selectBet(this, 'small_double')">小双</div>
+                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="toggleBet(this, 'big_single')">大单</div>
+                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="toggleBet(this, 'big_double')">大双</div>
+                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="toggleBet(this, 'small_single')">小单</div>
+                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="toggleBet(this, 'small_double')">小双</div>
             </div>
         </div>
 
         <div id="pane-special" class="hidden grid grid-cols-3 gap-3">
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'triple')">
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'triple')">
                 <div class="text-sm font-black">豹子</div>
                 <div class="text-[9px] text-slate-500 mt-1">66x</div>
             </div>
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'straight')">
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'straight')">
                 <div class="text-sm font-black">顺子</div>
                 <div class="text-[9px] text-slate-500 mt-1">10x</div>
             </div>
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'pair')">
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'pair')">
                 <div class="text-sm font-black">对子</div>
                 <div class="text-[9px] text-slate-500 mt-1">3x</div>
             </div>
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'banker')">
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'banker')">
                 <div class="text-sm font-black">庄</div>
                 <div class="text-[9px] text-slate-500 mt-1">2x</div>
             </div>
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'player')">
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'player')">
                 <div class="text-sm font-black">闲</div>
                 <div class="text-[9px] text-slate-500 mt-1">2x</div>
             </div>
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'tie')">
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'tie')">
                 <div class="text-sm font-black">和</div>
                 <div class="text-[9px] text-slate-500 mt-1">10x</div>
             </div>
@@ -151,7 +151,7 @@
         <div id="pane-numbers" class="hidden grid grid-cols-7 gap-2 pb-10">
             <script>
                 for(let i=0; i<=27; i++) {
-                    document.write(`<div class="bet-item bg-dark-light aspect-square rounded-xl border border-white/5 flex items-center justify-center text-xs font-black" onclick="selectBet(this, '${i}')">${i}</div>`);
+                    document.write(`<div class="bet-item bg-dark-light aspect-square rounded-xl border border-white/5 flex items-center justify-center text-xs font-black" onclick="toggleBet(this, '${i}')">${i}</div>`);
                 }
             </script>
         </div>
@@ -173,10 +173,10 @@
             <div class="flex items-center gap-4 bg-dark-lighter p-2 pl-6 rounded-full border border-white/10 shadow-2xl">
                 <div class="flex-1 flex items-center gap-3">
                     <i class="fas fa-coins text-primary"></i>
-                    <input type="number" id="bet-amount" placeholder="投注金额 (最少 2)" class="bg-transparent border-none focus:outline-none text-sm font-black w-full text-white">
+                    <input type="number" id="bet-amount" placeholder="单注金额 (最少 2)" class="bg-transparent border-none focus:outline-none text-sm font-black w-full text-white">
                 </div>
-                <button onclick="submitBet()" class="gold-gradient text-black h-12 px-8 rounded-full font-black shadow-lg shadow-primary/20 active:scale-95 transition-all">
-                    确认下单
+                <button onclick="submitBets()" class="gold-gradient text-black h-12 px-8 rounded-full font-black shadow-lg shadow-primary/20 active:scale-95 transition-all">
+                    确认 <span id="selected-count">0</span> 项
                 </button>
             </div>
             <div class="flex justify-between mt-4 px-2">
@@ -186,7 +186,7 @@
                     <button onclick="quickAmount(100)" class="text-[10px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">100</button>
                     <button onclick="quickAmount(500)" class="text-[10px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">500</button>
                 </div>
-                <button onclick="clearSelection()" class="text-[10px] font-black text-red-400 bg-red-400/10 px-3 py-1 rounded-full">清空</button>
+                <button onclick="clearSelection()" class="text-[10px] font-black text-red-400 bg-red-400/10 px-3 py-1 rounded-full">清空全部</button>
             </div>
         </div>
     </div>
@@ -220,7 +220,7 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         const oddsMode = params.get('room') || 'low';
-        let selectedType = null;
+        let selectedBets = new Set();
         let currentIssue = '';
 
         document.getElementById('room-title').innerHTML = `加拿大 28 - <span class="text-primary">${oddsMode === 'high' ? '至尊房' : '标准房'}</span>`;
@@ -237,10 +237,15 @@
             if(tab === 'history') loadHistory();
         }
 
-        function selectBet(el, playType) {
-            document.querySelectorAll('.bet-item').forEach(item => item.classList.remove('active'));
-            el.classList.add('active');
-            selectedType = playType;
+        function toggleBet(el, playType) {
+            if(selectedBets.has(playType)) {
+                selectedBets.delete(playType);
+                el.classList.remove('active');
+            } else {
+                selectedBets.add(playType);
+                el.classList.add('active');
+            }
+            document.getElementById('selected-count').innerText = selectedBets.size;
         }
 
         function quickAmount(val) {
@@ -249,7 +254,8 @@
 
         function clearSelection() {
             document.querySelectorAll('.bet-item').forEach(item => item.classList.remove('active'));
-            selectedType = null;
+            selectedBets.clear();
+            document.getElementById('selected-count').innerText = 0;
         }
 
         function showToast(msg, type = 'info') {
@@ -260,18 +266,22 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        async function submitBet() {
+        async function submitBets() {
             const amount = document.getElementById('bet-amount').value;
-            if (!selectedType) return showToast('请先选择一个玩法');
-            if (!amount || amount < 2) return showToast('最低下注 2 元');
+            if (selectedBets.size === 0) return showToast('请先选择玩法');
+            if (!amount || amount < 2) return showToast('单注最低 2 元');
+
+            const bets = Array.from(selectedBets).map(type => ({
+                play_type: type,
+                amount: parseFloat(amount)
+            }));
 
             try {
                 const res = await fetch('/api/bet.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        play_type: selectedType,
-                        amount: parseFloat(amount),
+                        bets: bets,
                         odds_type: oddsMode,
                         issue_no: currentIssue
                     })
@@ -304,7 +314,6 @@
                     document.getElementById('total-result').innerText = data.latest.total_sum;
                 }
 
-                // Live feed simulator or real
                 const feedRes = await fetch('/api/live_bets.php');
                 const feedData = await feedRes.json();
                 if(feedData.data && feedData.data.length > 0) {
@@ -378,7 +387,6 @@
             loadMessages();
         }
 
-        // Odds sync based on mode
         function syncOdds() {
             const lowOdds = {big: '2.00', small: '2.00', single: '2.00', double: '2.00'};
             const highOdds = {big: '1.95', small: '1.95', single: '1.95', double: '1.95'};
