@@ -2,7 +2,7 @@
 namespace App\Utils;
 
 use PDO;
-use PDOException;
+use Exception;
 
 class DB {
     private static $instance = null;
@@ -10,15 +10,25 @@ class DB {
 
     private function __construct() {
         $config = require __DIR__ . '/../Config/database.php';
+
+        $dsn = "mysql:host={$config['host']};dbname={$config['dbname']};port={$config['port']};charset=utf8mb4";
+
         try {
-            $dsn = "{$config['driver']}:host={$config['host']};dbname={$config['dbname']};port={$config['port']};charset=utf8";
             $this->connection = new PDO($dsn, $config['user'], $config['password'], [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
+                PDO::ATTR_PERSISTENT => false,
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
             ]);
-        } catch (PDOException $e) {
-            throw $e;
+        } catch (Exception $e) {
+            error_log("Database Connection Error: " . $e->getMessage());
+            // Fallback for Baota common 127.0.0.1 issue
+            if ($config['host'] === 'localhost') {
+                $dsn_alt = "mysql:host=127.0.0.1;dbname={$config['dbname']};port={$config['port']};charset=utf8mb4";
+                $this->connection = new PDO($dsn_alt, $config['user'], $config['password']);
+            } else {
+                throw $e;
+            }
         }
     }
 
@@ -31,25 +41,5 @@ class DB {
 
     public function getConnection() {
         return $this->connection;
-    }
-
-    public function beginTransaction() {
-        return $this->connection->beginTransaction();
-    }
-
-    public function commit() {
-        return $this->connection->commit();
-    }
-
-    public function rollBack() {
-        return $this->connection->rollBack();
-    }
-
-    public function prepare($sql) {
-        return $this->connection->prepare($sql);
-    }
-
-    public function query($sql) {
-        return $this->connection->query($sql);
     }
 }

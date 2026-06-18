@@ -2,8 +2,8 @@
 <html lang="zh-CN" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>加拿大 28 - 游戏房间</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>游戏房间 - PC28</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
@@ -12,330 +12,206 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#D4AF37', // Gold
-                        gold: {
-                            light: '#F9E79F',
-                            DEFAULT: '#D4AF37',
-                            dark: '#9A7D0A'
-                        },
-                        dark: {
-                            DEFAULT: '#121212',
-                            light: '#1E1E1E',
-                            lighter: '#2A2A2A'
-                        }
+                        primary: '#EAB308',
+                        dark: { DEFAULT: '#0A0A0A', light: '#141414', border: '#1F1F1F' }
                     }
                 }
             }
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
-        body { font-family: 'Noto+Sans+SC', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .gold-gradient { background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #9A7D0A 100%); }
-        .ball-gold { background: linear-gradient(135deg, #F9E79F, #D4AF37); color: black; }
-        .bet-item.active { background: #D4AF37 !important; color: black !important; border-color: #D4AF37 !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
-        .glass-header { background: rgba(18, 18, 18, 0.8); backdrop-blur: 15px; border-bottom: 1px border rgba(255,255,255,0.05); }
-        .tab-active { color: #D4AF37; border-bottom: 2px solid #D4AF37; }
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
-
-        /* Mi Pai (Peeking) Animation */
-        .mipai-container { position: relative; cursor: pointer; }
-        .mipai-overlay {
-            position: absolute; top: -2px; left: -2px; width: calc(100% + 4px); height: calc(100% + 4px);
-            background: linear-gradient(135deg, #2A2A2A, #1A1A1A); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 20; transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            border: 2px dashed #D4AF37;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        .mipai-container.revealed .mipai-overlay {
-            transform: scale(1.5) translateY(-100px) rotate(20deg);
-            opacity: 0;
-            pointer-events: none;
-        }
-        .mipai-overlay i { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        body { background-color: #0A0A0A; color: #E5E5E5; font-family: -apple-system, sans-serif; overflow-x: hidden; }
+        .ball { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; background: #141414; border: 1px solid #1F1F1F; }
+        .ball-sum { background: #EAB308; color: #000; border-color: #EAB308; box-shadow: 0 0 15px rgba(234, 179, 8, 0.3); }
+        .bet-item { background: #141414; border: 1px solid #1F1F1F; padding: 12px; border-radius: 12px; text-align: center; transition: all 0.2s; }
+        .bet-item.active { background: #EAB308; color: #000; border-color: #EAB308; font-weight: 900; }
+        .mipai-overlay { position: absolute; inset: -2px; background: #1F1F1F; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; cursor: pointer; transition: 0.5s; }
+        .revealed .mipai-overlay { transform: translateY(-100%) rotate(30deg); opacity: 0; pointer-events: none; }
+        .tab-active { color: #EAB308; border-bottom: 2px solid #EAB308; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
-<body class="bg-dark text-white min-h-screen pb-48">
+<body class="pb-32">
     <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 glass-header p-4 flex justify-between items-center">
+    <header class="sticky top-0 z-50 bg-black/80 backdrop-blur-md p-4 flex justify-between items-center border-b border-dark-border">
         <div class="flex items-center gap-3">
-            <button onclick="history.back()" class="w-8 h-8 flex items-center justify-center rounded-full bg-dark-light border border-white/5">
-                <i class="fas fa-chevron-left text-xs"></i>
-            </button>
+            <button onclick="history.back()" class="w-8 h-8 rounded-full bg-dark-light flex items-center justify-center border border-dark-border"><i class="fas fa-chevron-left text-xs"></i></button>
             <div>
-                <h1 id="room-title" class="text-sm font-black tracking-tight">加拿大 28 - <span class="text-primary">加载中...</span></h1>
-                <p id="issue-display" class="text-[10px] text-slate-500 font-bold">---- 期</p>
+                <h1 id="room-title" class="text-[13px] font-bold">加拿大 28</h1>
+                <p id="issue-display" class="text-[10px] text-slate-500">正在获取期号...</p>
             </div>
         </div>
-        <div class="flex items-center gap-3">
-            <div class="text-right">
-                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">我的余额</p>
-                <p id="user-balance" class="text-sm font-black text-primary">¥ 0.00</p>
-            </div>
-            <button onclick="toggleChat()" class="w-10 h-10 rounded-full bg-dark-light border border-white/5 flex items-center justify-center relative">
-                <i class="fas fa-comment-dots text-slate-400"></i>
-                <div class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-dark"></div>
-            </button>
+        <div class="flex items-center gap-2">
+            <button onclick="quickCheckScore()" class="bg-primary/10 text-primary text-[10px] px-3 py-1.5 rounded-full font-bold border border-primary/20">查分</button>
+            <button onclick="openReturnModal()" class="bg-white/5 text-slate-300 text-[10px] px-3 py-1.5 rounded-full font-bold border border-white/10">回分</button>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="pt-20 px-4 space-y-6">
-        <!-- Lottery Results Card -->
-        <div class="bg-dark-light rounded-[2rem] p-6 border border-white/5 shadow-2xl relative overflow-hidden">
-            <div class="relative z-10 flex flex-col items-center">
-                <div class="flex gap-4 mb-4">
-                    <div class="num-ball w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center text-xl font-black bg-dark-lighter shadow-inner">?</div>
-                    <i class="fas fa-plus self-center text-slate-700 text-xs"></i>
-                    <div class="num-ball w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center text-xl font-black bg-dark-lighter shadow-inner">?</div>
-                    <i class="fas fa-plus self-center text-slate-700 text-xs"></i>
-                    <div class="num-ball w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center text-xl font-black bg-dark-lighter shadow-inner">?</div>
-                    <i class="fas fa-equals self-center text-slate-700 text-xs"></i>
-                    <div class="mipai-container w-12 h-12" onclick="revealResult(this)">
-                        <div class="mipai-overlay flex flex-col gap-1"><i class="fas fa-fingerprint text-primary text-xs"></i><span class="text-[6px] text-primary font-bold">点击咪牌</span></div>
-                        <div id="total-result" class="w-12 h-12 rounded-full gold-gradient flex items-center justify-center text-xl font-black text-black shadow-lg shadow-primary/30">?</div>
+    <main class="p-4 space-y-5">
+        <!-- Results -->
+        <div class="bg-dark-light p-6 rounded-3xl border border-dark-border relative overflow-hidden">
+            <div class="flex flex-col items-center gap-4 relative z-10">
+                <div class="flex items-center gap-3">
+                    <div class="num-ball ball">?</div>
+                    <i class="fas fa-plus text-[10px] text-slate-600"></i>
+                    <div class="num-ball ball">?</div>
+                    <i class="fas fa-plus text-[10px] text-slate-600"></i>
+                    <div class="num-ball ball">?</div>
+                    <i class="fas fa-equals text-[10px] text-slate-600"></i>
+                    <div class="mipai-container relative w-10 h-10">
+                        <div class="mipai-overlay" onclick="this.parentElement.classList.add('revealed')">
+                            <i class="fas fa-fingerprint text-primary text-xs"></i>
+                            <span class="text-[6px] text-primary mt-0.5">咪牌</span>
+                        </div>
+                        <div id="total-result" class="ball ball-sum">?</div>
                     </div>
                 </div>
-                <div id="timer-display" class="text-xs font-black text-slate-400 flex items-center gap-2 mb-2">
-                    <i class="fas fa-clock text-primary"></i> 距离下期开奖还有 <span class="text-white">00:00</span>
+                <div id="timer-display" class="text-[11px] font-bold text-slate-500 bg-black/40 px-4 py-1.5 rounded-full border border-white/5">
+                    距离下期开奖还有 <span class="text-primary tabular-nums">00:00</span>
                 </div>
-                <div class="h-10 overflow-hidden relative w-full bg-black/20 rounded-xl px-4 py-2 border border-white/5">
-                    <div id="live-feed-container" class="absolute w-full transition-all duration-500 space-y-1">
-                        <p class="text-[9px] text-primary font-black uppercase tracking-widest truncate">正在连接实时数据...</p>
-                    </div>
-                </div>
-            </div>
-            <i class="fas fa-chart-line absolute -right-4 -bottom-4 text-8xl text-white/5"></i>
-        </div>
-
-        <!-- Betting Tabs -->
-        <div class="flex border-b border-white/5 overflow-x-auto whitespace-nowrap scroll-hide">
-            <button onclick="switchTab('basic')" id="tab-basic" class="px-6 py-3 text-sm font-black tab-active">常用玩法</button>
-            <button onclick="switchTab('special')" id="tab-special" class="px-6 py-3 text-sm font-black text-slate-500">特殊玩法</button>
-            <button onclick="switchTab('numbers')" id="tab-numbers" class="px-6 py-3 text-sm font-black text-slate-500">精准特码</button>
-            <button onclick="switchTab('history')" id="tab-history" class="px-6 py-3 text-sm font-black text-slate-500">开奖历史</button>
-        </div>
-
-        <!-- Betting Panes -->
-        <div id="pane-basic" class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center group active:scale-95 transition-all" onclick="toggleBet(this, 'big')">
-                    <div class="text-lg font-black mb-1">大</div>
-                    <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="big">2.00</span></div>
-                </div>
-                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="toggleBet(this, 'small')">
-                    <div class="text-lg font-black mb-1">小</div>
-                    <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="small">2.00</span></div>
-                </div>
-                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="toggleBet(this, 'single')">
-                    <div class="text-lg font-black mb-1">单</div>
-                    <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="single">2.00</span></div>
-                </div>
-                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="toggleBet(this, 'double')">
-                    <div class="text-lg font-black mb-1">双</div>
-                    <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="double">2.00</span></div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-4 gap-2">
-                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="toggleBet(this, 'big_single')">大单</div>
-                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="toggleBet(this, 'big_double')">大双</div>
-                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="toggleBet(this, 'small_single')">小单</div>
-                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="toggleBet(this, 'small_double')">小双</div>
             </div>
         </div>
 
-        <div id="pane-special" class="hidden grid grid-cols-3 gap-3">
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'triple')">
-                <div class="text-sm font-black">豹子</div>
-                <div class="text-[9px] text-slate-500 mt-1">66x</div>
-            </div>
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'straight')">
-                <div class="text-sm font-black">顺子</div>
-                <div class="text-[9px] text-slate-500 mt-1">10x</div>
-            </div>
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'pair')">
-                <div class="text-sm font-black">对子</div>
-                <div class="text-[9px] text-slate-500 mt-1">3x</div>
-            </div>
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'banker')">
-                <div class="text-sm font-black">庄</div>
-                <div class="text-[9px] text-slate-500 mt-1">2x</div>
-            </div>
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'player')">
-                <div class="text-sm font-black">闲</div>
-                <div class="text-[9px] text-slate-500 mt-1">2x</div>
-            </div>
-            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="toggleBet(this, 'tie')">
-                <div class="text-sm font-black">和</div>
-                <div class="text-[9px] text-slate-500 mt-1">10x</div>
+        <!-- Ticker -->
+        <div class="h-6 overflow-hidden bg-primary/5 rounded-lg px-3 border border-primary/10">
+            <div id="live-feed-container" class="transition-transform duration-500">
+                <p class="text-[10px] text-primary/70 py-1 truncate">正在同步全球实时投注数据...</p>
             </div>
         </div>
 
-        <div id="pane-numbers" class="hidden grid grid-cols-7 gap-2 pb-10">
+        <!-- Tabs -->
+        <div class="flex gap-6 border-b border-dark-border px-2">
+            <button onclick="switchTab('basic')" id="tab-basic" class="pb-3 text-xs font-bold tab-active">双面</button>
+            <button onclick="switchTab('special')" id="tab-special" class="pb-3 text-xs font-bold text-slate-500">组合</button>
+            <button onclick="switchTab('numbers')" id="tab-numbers" class="pb-3 text-xs font-bold text-slate-500">特码</button>
+            <button onclick="switchTab('history')" id="tab-history" class="pb-3 text-xs font-bold text-slate-500">开奖</button>
+        </div>
+
+        <!-- Betting Areas -->
+        <div id="pane-basic" class="grid grid-cols-2 gap-3">
+            <div class="bet-item" onclick="toggleBet(this, 'big')">大 <span class="text-[10px] opacity-40 ml-1">2.00</span></div>
+            <div class="bet-item" onclick="toggleBet(this, 'small')">小 <span class="text-[10px] opacity-40 ml-1">2.00</span></div>
+            <div class="bet-item" onclick="toggleBet(this, 'single')">单 <span class="text-[10px] opacity-40 ml-1">2.00</span></div>
+            <div class="bet-item" onclick="toggleBet(this, 'double')">双 <span class="text-[10px] opacity-40 ml-1">2.00</span></div>
+        </div>
+
+        <div id="pane-special" class="hidden grid grid-cols-2 gap-3">
+            <div class="bet-item" onclick="toggleBet(this, 'big_single')">大单 <span class="text-[10px] opacity-40 ml-1">3.8</span></div>
+            <div class="bet-item" onclick="toggleBet(this, 'big_double')">大双 <span class="text-[10px] opacity-40 ml-1">3.8</span></div>
+            <div class="bet-item" onclick="toggleBet(this, 'small_single')">小单 <span class="text-[10px] opacity-40 ml-1">3.8</span></div>
+            <div class="bet-item" onclick="toggleBet(this, 'small_double')">小双 <span class="text-[10px] opacity-40 ml-1">3.8</span></div>
+        </div>
+
+        <div id="pane-numbers" class="hidden grid grid-cols-5 gap-2">
             <script>
                 for(let i=0; i<=27; i++) {
-                    document.write(`<div class="bet-item bg-dark-light aspect-square rounded-xl border border-white/5 flex items-center justify-center text-xs font-black" onclick="toggleBet(this, '${i}')">${i}</div>`);
+                    document.write(`<div class="bet-item !p-2 text-sm" onclick="toggleBet(this, '${i}')">${i}</div>`);
                 }
             </script>
         </div>
 
-        <div id="pane-history" class="hidden space-y-2">
-            <div id="history-list"></div>
-        </div>
-
-        <!-- Chat Feedback Area -->
+        <div id="pane-history" class="hidden space-y-2" id="history-list"></div>
     </main>
 
-    <!-- Fixed Bottom Betting Panel -->
-    <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-dark/80 backdrop-blur-2xl border-t border-white/5 z-[60]">
-        <div class="max-w-md mx-auto">
-            <div class="flex items-center gap-4 bg-dark-lighter p-2 pl-6 rounded-full border border-white/10 shadow-2xl">
-                <div class="flex-1 flex items-center gap-3">
-                    <i class="fas fa-coins text-primary"></i>
-                    <input type="number" id="bet-amount" placeholder="单注金额 (最少 2)" class="bg-transparent border-none focus:outline-none text-sm font-black w-full text-white">
-                </div>
-                <button onclick="submitBets()" class="gold-gradient text-black h-12 px-8 rounded-full font-black shadow-lg shadow-primary/20 active:scale-95 transition-all">
-                    确认 <span id="selected-count">0</span> 项
-                </button>
+    <!-- Footer Bar -->
+    <div class="fixed bottom-0 left-0 right-0 p-4 bg-dark-light/95 backdrop-blur-xl border-t border-dark-border z-[60]">
+        <div class="max-w-md mx-auto flex items-center gap-3">
+            <div class="flex-1 bg-black rounded-xl border border-dark-border flex items-center px-4">
+                <span class="text-[10px] text-slate-600 font-bold mr-2">投注</span>
+                <input type="number" id="bet-amount" class="w-full bg-transparent py-3.5 outline-none text-sm font-bold text-primary" placeholder="输入金额">
             </div>
-            <div class="flex justify-between mt-4 px-2">
+            <button onclick="submitBets()" class="bg-primary text-black px-8 py-3.5 rounded-xl font-black text-sm shadow-lg shadow-primary/10 active:scale-95 transition-all">
+                确认下单 (<span id="selected-count">0</span>)
+            </button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="return-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm hidden flex items-center justify-center p-6">
+        <div class="bg-dark-light w-full max-w-xs rounded-3xl p-8 border border-white/5 shadow-2xl">
+            <h2 class="text-lg font-bold text-center mb-6">快速回分</h2>
+            <div class="space-y-4">
+                <div class="bg-black rounded-xl p-4 border border-white/5">
+                    <p class="text-[10px] text-slate-500 mb-2 uppercase font-bold">提取金额</p>
+                    <input type="number" id="return-amount" class="w-full bg-transparent text-2xl font-black outline-none text-primary" placeholder="0">
+                </div>
                 <div class="flex gap-2">
-                    <button onclick="quickAmount(10)" class="text-[10px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">10</button>
-                    <button onclick="quickAmount(50)" class="text-[10px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">50</button>
-                    <button onclick="quickAmount(100)" class="text-[10px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">100</button>
-                    <button onclick="quickAmount(500)" class="text-[10px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">500</button>
-                </div>
-                <button onclick="clearSelection()" class="text-[10px] font-black text-red-400 bg-red-400/10 px-3 py-1 rounded-full">清空全部</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Container -->
-    <div id="toast-container" class="fixed top-24 left-1/2 -translate-x-1/2 z-[200] pointer-events-none flex flex-col items-center gap-2"></div>
-
-    <!-- Private Chat UI -->
-    <div id="chat-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex flex-col justify-end">
-        <div class="bg-dark-light h-[85%] rounded-t-[3rem] flex flex-col border-t border-white/10 shadow-2xl">
-            <div class="p-8 border-b border-white/5 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 gold-gradient rounded-2xl flex items-center justify-center text-black shadow-lg"><i class="fas fa-headset text-xl"></i></div>
-                    <div>
-                        <h2 class="font-black text-lg">至尊客服</h2>
-                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">在线为您服务</p>
-                    </div>
-                </div>
-                <button onclick="toggleChat()" class="w-10 h-10 bg-dark-lighter rounded-full flex items-center justify-center border border-white/5 text-slate-400"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
-            <div class="p-6 pb-12 bg-dark/50 border-t border-white/5">
-                <div class="flex gap-4 items-center bg-dark-lighter rounded-full p-2 pl-6 border border-white/5 shadow-inner">
-                    <input type="text" id="chat-input" class="flex-1 bg-transparent border-none outline-none text-sm text-white py-2" placeholder="输入您的问题...">
-                    <button onclick="sendMessage()" class="gold-gradient text-black w-12 h-12 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane"></i></button>
+                    <button onclick="closeReturnModal()" class="flex-1 py-4 bg-white/5 rounded-xl text-xs font-bold">取消</button>
+                    <button onclick="submitScoreReturn()" class="flex-1 py-4 bg-primary text-black rounded-xl text-xs font-bold">提交</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <div id="toast-container" class="fixed top-20 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
         const params = new URLSearchParams(window.location.search);
         const oddsMode = params.get('room') || 'low';
         let selectedBets = new Set();
         let currentIssue = '';
+        let lastLotteryId = '';
 
-        document.getElementById('room-title').innerHTML = `加拿大 28 - <span class="text-primary">${oddsMode === 'high' ? '至尊房' : '标准房'}</span>`;
-
-        function switchTab(tab) {
-            ['basic', 'special', 'numbers', 'history'].forEach(t => {
-                document.getElementById(`pane-${t}`).classList.add('hidden');
-                document.getElementById(`tab-${t}`).classList.remove('tab-active');
-                document.getElementById(`tab-${t}`).classList.add('text-slate-500');
-            });
-            document.getElementById(`pane-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).classList.add('tab-active');
-            document.getElementById(`tab-${tab}`).classList.remove('text-slate-500');
-            if(tab === 'history') loadHistory();
+        function showToast(msg, type='info') {
+            const t = document.createElement('div');
+            t.className = `px-4 py-2 rounded-full text-[11px] font-bold shadow-xl animate-bounce ${type==='success' ? 'bg-green-500 text-black' : 'bg-white/10 text-white'}`;
+            t.innerText = msg;
+            document.getElementById('toast-container').appendChild(t);
+            setTimeout(() => t.remove(), 2500);
         }
 
-        function toggleBet(el, playType) {
-            if(selectedBets.has(playType)) {
-                selectedBets.delete(playType);
+        function switchTab(t) {
+            ['basic', 'special', 'numbers', 'history'].forEach(p => {
+                document.getElementById(`pane-${p}`).classList.add('hidden');
+                document.getElementById(`tab-${p}`).classList.remove('tab-active');
+                document.getElementById(`tab-${p}`).classList.add('text-slate-500');
+            });
+            document.getElementById(`pane-${t}`).classList.remove('hidden');
+            document.getElementById(`tab-${t}`).classList.add('tab-active');
+            document.getElementById(`tab-${t}`).classList.remove('text-slate-500');
+            if(t === 'history') loadHistory();
+        }
+
+        function toggleBet(el, type) {
+            if(selectedBets.has(type)) {
+                selectedBets.delete(type);
                 el.classList.remove('active');
             } else {
-                selectedBets.add(playType);
+                selectedBets.add(type);
                 el.classList.add('active');
             }
             document.getElementById('selected-count').innerText = selectedBets.size;
         }
 
-        function quickAmount(val) {
-            document.getElementById('bet-amount').value = val;
-        }
-
-        function clearSelection() {
-            document.querySelectorAll('.bet-item').forEach(item => item.classList.remove('active'));
-            selectedBets.clear();
-            document.getElementById('selected-count').innerText = 0;
-        }
-
-        function showToast(msg, type = 'info') {
-            const toast = document.createElement("div");
-            toast.className = `bg-dark-light border border-white/10 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-bounce`;
-            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle text-green-400' : 'fa-info-circle text-primary'}"></i> <span class="text-sm font-bold">${msg}</span>`;
-            document.getElementById('toast-container').appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
         async function submitBets() {
             const amount = document.getElementById('bet-amount').value;
-            if (selectedBets.size === 0) return showToast('请先选择玩法');
-            if (!amount || amount < 2) return showToast('单注最低 2 元');
+            if (selectedBets.size === 0) return showToast('选择玩法');
+            if (!amount || amount < 2) return showToast('最小 2 元');
 
-            const bets = Array.from(selectedBets).map(type => ({
-                play_type: type,
-                amount: parseFloat(amount)
-            }));
-
+            const bets = Array.from(selectedBets).map(t => ({ play_type: t, amount: parseFloat(amount) }));
             try {
                 const res = await fetch('/api/bet.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        bets: bets,
-                        odds_type: oddsMode,
-                        issue_no: currentIssue
-                    })
+                    body: JSON.stringify({ bets, odds_type: oddsMode, issue_no: currentIssue })
                 });
                 const data = await res.json();
-                if (data.success) {
-                    showToast('下注成功！', 'success');
-                    refreshUserData();
-                    clearSelection();
-                } else {
-                    showToast(data.message);
-                }
-            } catch (e) {
-                showToast('网络连接超时');
-            }
-        }
-
-        let lastLotteryId = '';
-        function revealResult(el) {
-            el.classList.add('revealed');
+                if(data.success) {
+                    showToast('下单成功', 'success');
+                    selectedBets.clear();
+                    document.querySelectorAll('.bet-item').forEach(i => i.classList.remove('active'));
+                    document.getElementById('selected-count').innerText = 0;
+                } else showToast(data.message);
+            } catch (e) { showToast('网络错误'); }
         }
 
         async function refreshData() {
             try {
                 const res = await fetch('/api/lottery.php');
                 const data = await res.json();
-                if (data.latest) {
-                    const isNew = lastLotteryId !== data.latest.issue_no;
+                if(data.latest) {
                     currentIssue = data.latest.issue_no;
-                    document.getElementById('issue-display').innerText = currentIssue + ' 期正在下注';
-
-                    // Always update current display data
+                    document.getElementById('issue-display').innerText = `第 ${currentIssue} 期正在下注`;
                     const nums = data.latest.numbers.split(',');
                     const balls = document.querySelectorAll('.num-ball');
                     balls[0].innerText = nums[0];
@@ -343,11 +219,9 @@
                     balls[2].innerText = nums[2];
                     document.getElementById('total-result').innerText = data.latest.total_sum;
 
-                    if (isNew) {
-                        lastLotteryId = data.latest.issue_no;
-                        // Reset Mi Pai for NEW issue
-                        const mipai = document.querySelector('.mipai-container');
-                        mipai.classList.remove('revealed');
+                    if(lastLotteryId !== currentIssue) {
+                        lastLotteryId = currentIssue;
+                        document.querySelector('.mipai-container').classList.remove('revealed');
                     }
                 }
 
@@ -355,103 +229,55 @@
                 const feedData = await feedRes.json();
                 if(feedData.data && feedData.data.length > 0) {
                     const container = document.getElementById('live-feed-container');
-                    container.innerHTML = feedData.data.slice(0, 5).map(bet => `
-                        <div class="text-[9px] text-slate-400 font-bold truncate">
-                            <span class="text-primary">用户 ${bet.username.substring(0,2)}***</span>
-                            刚刚投注 <span class="text-white">${bet.play_type}</span>
-                            <span class="text-green-400">¥${Math.floor(bet.bet_amount)}</span>
+                    container.innerHTML = feedData.data.slice(0, 10).map(b => `
+                        <div class="text-[10px] text-primary/60 py-1 truncate">
+                            用户 ${b.username.substring(0,3)}*** 下注 ${b.play_type} ¥${Math.floor(b.bet_amount)}
                         </div>
                     `).join('');
-
-                    // Simple ticker effect
-                    let offset = 0;
-                    if (window.feedTicker) clearInterval(window.feedTicker);
-                    window.feedTicker = setInterval(() => {
-                        offset = (offset + 14) % (container.scrollHeight || 1);
-                        container.style.transform = `translateY(-${offset}px)`;
-                    }, 3000);
                 }
-            } catch (e) {}
+            } catch(e) {}
         }
 
         async function loadHistory() {
             const res = await fetch('/api/lottery.php?limit=20');
             const data = await res.json();
             if(data.history) {
-                document.getElementById('history-list').innerHTML = data.history.map(item => `
-                    <div class="flex justify-between items-center p-4 bg-dark-light rounded-2xl border border-white/5">
-                        <div class="text-xs font-bold text-slate-500">${item.issue_no}</div>
+                document.getElementById('pane-history').innerHTML = data.history.map(h => `
+                    <div class="flex justify-between items-center p-3 bg-dark-light rounded-xl border border-white/5">
+                        <span class="text-[10px] text-slate-500 font-bold">${h.issue_no}</span>
                         <div class="flex items-center gap-3">
-                            <div class="flex gap-1">
-                                ${item.numbers.split(',').map(n => `<span class="w-6 h-6 flex items-center justify-center bg-dark-lighter rounded-md text-[10px] font-black">${n}</span>`).join('')}
-                            </div>
-                            <span class="text-lg font-black text-primary w-8 text-right">${item.total_sum}</span>
+                            <span class="text-xs font-black text-primary">${h.total_sum}</span>
+                            <span class="text-[9px] px-2 py-0.5 bg-white/5 rounded text-slate-400 font-bold">${h.numbers}</span>
                         </div>
                     </div>
                 `).join('');
             }
         }
 
-        async function refreshUserData() {
-            try {
-                const res = await fetch('/api/user_info.php');
-                const data = await res.json();
-                if(data.success) {
-                    document.getElementById('user-balance').innerText = '¥ ' + parseFloat(data.user.balance).toLocaleString();
-                }
-            } catch(e) {}
-        }
-
-        function toggleChat() {
-            const overlay = document.getElementById('chat-overlay');
-            overlay.classList.toggle('hidden');
-            if(!overlay.classList.contains('hidden')) loadMessages();
-        }
-
-        async function loadMessages() {
-            const res = await fetch('/api/chat.php');
+        async function quickCheckScore() {
+            const res = await fetch('/api/quick_finance.php?action=check');
             const data = await res.json();
-            const box = document.getElementById('chat-box');
-            box.innerHTML = data.data.map(m => `
-                <div class="flex ${m.sender_id == 1 ? '' : 'justify-end'}">
-                    <div class="flex flex-col ${m.sender_id == 1 ? 'items-start' : 'items-end'}">
-                        <div class="${m.sender_id == 1 ? 'bg-dark-lighter border border-white/5' : 'gold-gradient text-black font-bold'} px-5 py-3 rounded-[1.5rem] max-w-[85%] text-sm shadow-xl">
-                            ${m.message}
-                        </div>
-                        <span class="text-[8px] text-slate-600 mt-1 uppercase font-bold tracking-tighter">${new Date(m.created_at).toLocaleTimeString()}</span>
-                    </div>
-                </div>
-            `).join('');
-            box.scrollTop = box.scrollHeight;
+            if(data.success) showToast(`当前分数: ¥${parseFloat(data.balance).toLocaleString()}`, 'success');
         }
 
-        async function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const msg = input.value;
-            if(!msg) return;
-            await fetch('/api/chat.php', {
+        function openReturnModal() { document.getElementById('return-modal').classList.remove('hidden'); }
+        function closeReturnModal() { document.getElementById('return-modal').classList.add('hidden'); }
+
+        async function submitScoreReturn() {
+            const amount = document.getElementById('return-amount').value;
+            if(!amount || amount < 10) return showToast('最小 10');
+            const res = await fetch('/api/quick_finance.php?action=return', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({message: msg})
+                body: JSON.stringify({amount: parseFloat(amount)})
             });
-            input.value = '';
-            loadMessages();
+            const data = await res.json();
+            showToast(data.message, data.success ? 'success' : 'info');
+            if(data.success) closeReturnModal();
         }
 
-        function syncOdds() {
-            const lowOdds = {big: '2.00', small: '2.00', single: '2.00', double: '2.00'};
-            const highOdds = {big: '1.95', small: '1.95', single: '1.95', double: '1.95'};
-            const target = oddsMode === 'high' ? highOdds : lowOdds;
-            document.querySelectorAll('.odds-val').forEach(el => {
-                const play = el.getAttribute('data-play');
-                if(target[play]) el.innerText = target[play];
-            });
-        }
-
-        syncOdds();
         setInterval(refreshData, 5000);
         refreshData();
-        refreshUserData();
     </script>
 </body>
 </html>
