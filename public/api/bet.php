@@ -17,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $issueNo = isset($data['issue_no']) ? $data['issue_no'] : '';
     $oddsType = isset($data['odds_type']) ? $data['odds_type'] : 'low';
 
-    if ($amount <= 0) {
-        echo json_encode(array('success' => false, 'message' => '金额无效'));
+    if ($amount < 2) {
+        echo json_encode(array('success' => false, 'message' => '最低起投 2 元'));
         die();
     }
 
@@ -30,17 +30,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $db = \App\Utils\DB::getInstance()->getConnection();
     $userId = $_SESSION['user_id'];
 
-    // Anti-Double Betting Logic (不能倍投)
-    // Find the last bet on the same play_type
+    // --- Validation Logic ---
+
+    // 1. Fetch current bets for this issue
+    $stmt = $db->prepare("SELECT play_type FROM bets WHERE user_id = ? AND issue_no = ? AND status = 0");
+    $stmt->execute([$userId, $issueNo]);
+    $currentBets = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // 2. Prohibit Single and Double simultaneously
+    if ($playType === 'single' && in_array('double', $currentBets)) {
+        echo json_encode(array('success' => false, 'message' => '禁止同时下注单和双'));
+        die();
+    }
+    if ($playType === 'double' && in_array('single', $currentBets)) {
+        echo json_encode(array('success' => false, 'message' => '禁止同时下注单和双'));
+        die();
+    }
+
+    // 3. Prohibit Big and Small simultaneously
+    if ($playType === 'big' && in_array('small', $currentBets)) {
+        echo json_encode(array('success' => false, 'message' => '禁止同时下注大和小'));
+        die();
+    }
+    if ($playType === 'small' && in_array('big', $currentBets)) {
+        echo json_encode(array('success' => false, 'message' => '禁止同时下注大和小'));
+        die();
+    }
+
+    // 4. Prohibit 4-gate coverage (BigSingle, SmallSingle, BigDouble, SmallDouble)
+    $fourGates = ['big_single', 'small_single', 'big_double', 'small_double'];
+    if (in_array($playType, $fourGates)) {
+        $existingGates = array_intersect($currentBets, $fourGates);
+        if (count($existingGates) >= 3 && !in_array($playType, $existingGates)) {
+            echo json_encode(array('success' => false, 'message' => '禁止对“大单、小单、大双、小双”进行四门全包'));
+            die();
+        }
+    }
+
+    // 5. Limit specific number (0-27) bets to 4 per issue
+    if (is_numeric($playType)) {
+        $numericBets = array_filter($currentBets, 'is_numeric');
+        if (count(array_unique($numericBets)) >= 4 && !in_array($playType, $numericBets)) {
+            echo json_encode(array('success' => false, 'message' => '特码数字每期最多只能选4个'));
+            die();
+        }
+    }
+
+    // 6. Anti-Double Betting Logic (Keep existing 1.5x constraint for safety)
     $stmt = $db->prepare("SELECT bet_amount FROM bets WHERE user_id = ? AND play_type = ? ORDER BY id DESC LIMIT 1");
     $stmt->execute([$userId, $playType]);
     $lastBetAmount = $stmt->fetchColumn();
 
-    if ($lastBetAmount && $amount > ($lastBetAmount * 1.5)) { // Allowing some variation but preventing doubling (2x)
-        // If "No Double-up" means strictly no increase or just no 2x increase.
-        // User said "不能倍投", which usually means no doubling (2x).
-        // I'll set it to > 1.5x as a safeguard or just > last amount if strictly no increase.
-        // Let's go with strictly no more than 1.5x of previous bet.
+    if ($lastBetAmount && $amount > ($lastBetAmount * 1.5)) {
         echo json_encode(array('success' => false, 'message' => '为了风控安全，本次投注金额不能超过上次同玩法金额的1.5倍（禁止倍投）'));
         die();
     }

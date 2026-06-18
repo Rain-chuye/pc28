@@ -1,0 +1,26 @@
+/* Premium Gold/Dark Theme Additions */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.gold-shimmer {
+    background: linear-gradient(90deg, #9A7D0A 0%, #F9E79F 50%, #9A7D0A 100%);
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite linear;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.premium-card {
+    background: linear-gradient(145deg, #1E1E1E, #121212);
+    box-shadow: 20px 20px 60px #0a0a0a, -5px -5px 20px #202020;
+}
+
+.bet-item {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bet-item:active {
+    transform: scale(0.92) translateY(2px);
+}

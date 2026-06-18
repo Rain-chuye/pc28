@@ -1,101 +1,137 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人中心 - 加拿大 28</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#D4AF37',
+                        gold: { DEFAULT: '#D4AF37' },
+                        dark: { DEFAULT: '#121212', light: '#1E1E1E', lighter: '#2A2A2A' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+        body { font-family: 'Noto+Sans+SC', sans-serif; }
+        .gold-gradient { background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #9A7D0A 100%); }
+    </style>
 </head>
-<body class="bg-slate-50 pb-20">
+<body class="bg-dark text-white pb-32">
     <!-- Header -->
-    <header class="bg-indigo-600 text-white p-8 pb-12 rounded-b-[3rem] shadow-xl">
-        <div class="flex justify-between items-center mb-8">
-            <button onclick="history.back()"><i class="fas fa-chevron-left"></i></button>
-            <h1 class="font-black tracking-widest">我的账户</h1>
-            <button onclick="location.href='/api/logout.php'"><i class="fas fa-sign-out-alt"></i></button>
+    <header class="p-8 pb-16 rounded-b-[4rem] bg-dark-light border-b border-white/5 relative overflow-hidden">
+        <div class="relative z-10 flex justify-between items-center mb-10">
+            <button onclick="history.back()" class="w-10 h-10 rounded-full bg-dark flex items-center justify-center border border-white/10"><i class="fas fa-chevron-left"></i></button>
+            <h1 class="font-black text-sm uppercase tracking-[0.3em]">个人中心</h1>
+            <button onclick="location.href='/api/logout.php'" class="w-10 h-10 rounded-full bg-dark flex items-center justify-center border border-white/10 text-red-400"><i class="fas fa-power-off"></i></button>
         </div>
-        <div class="flex items-center gap-4">
-            <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-black">
+        <div class="relative z-10 flex items-center gap-6">
+            <div class="w-20 h-20 gold-gradient rounded-3xl flex items-center justify-center text-3xl font-black text-black shadow-2xl shadow-primary/20">
                 <span id="user-initial">U</span>
             </div>
             <div>
-                <h2 class="text-xl font-black" id="username-display">加载中...</h2>
-                <p class="text-indigo-200 text-xs">ID: <span id="user-id">0000</span></p>
+                <h2 class="text-2xl font-black" id="username-display">加载中...</h2>
+                <div class="flex items-center gap-2 mt-2">
+                    <span class="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full font-black uppercase tracking-widest">至尊会员</span>
+                    <span class="text-[10px] text-slate-500 font-bold">UID: <span id="user-id">0000</span></span>
+                </div>
             </div>
         </div>
+        <i class="fas fa-crown absolute -right-8 -bottom-8 text-[12rem] text-white/5 rotate-12"></i>
     </header>
 
-    <div class="px-6 -mt-8 space-y-6">
+    <div class="px-6 -mt-10 space-y-6 relative z-20">
         <!-- Balance Card -->
-        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex justify-between items-center">
+        <div class="bg-dark-light rounded-[2.5rem] p-8 border border-white/10 shadow-2xl flex justify-between items-center">
             <div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">当前可用余额</p>
-                <h3 class="text-3xl font-black text-slate-900 mt-1">¥ <span id="balance">0.00</span></h3>
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">当前可用余额</p>
+                <h3 class="text-4xl font-black text-primary">¥ <span id="balance">0.00</span></h3>
             </div>
-            <button onclick="location.href='/recharge.html'" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-indigo-200">充值</button>
+            <button onclick="location.href='/recharge.html'" class="w-14 h-14 gold-gradient text-black rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+                <i class="fas fa-plus text-xl"></i>
+            </button>
         </div>
 
         <!-- Turnover Progress -->
-        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-            <div class="flex justify-between items-center mb-4">
-                <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest">提现流水进度</h4>
-                <span class="text-[10px] font-bold text-indigo-600" id="turnover-percent">0%</span>
+        <div class="bg-dark-light rounded-[2.5rem] p-8 border border-white/10 shadow-xl">
+            <div class="flex justify-between items-center mb-6">
+                <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">提现流水进度</h4>
+                <span class="text-xs font-black text-primary" id="turnover-percent">0%</span>
             </div>
-            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-3">
-                <div id="turnover-bar" class="bg-indigo-600 h-full transition-all duration-500" style="width: 0%"></div>
+            <div class="w-full bg-dark h-3 rounded-full overflow-hidden mb-6 border border-white/5">
+                <div id="turnover-bar" class="gold-gradient h-full transition-all duration-1000 shadow-[0_0_15px_rgba(212,175,55,0.3)]" style="width: 0%"></div>
             </div>
-            <div class="flex justify-between text-[10px] font-bold">
-                <span class="text-slate-400">当前流水: <span id="current-turnover" class="text-slate-900">0.00</span></span>
-                <span class="text-slate-400">提现门槛: <span id="required-turnover" class="text-slate-900">0.00</span></span>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-dark/50 p-4 rounded-2xl border border-white/5">
+                    <p class="text-[9px] text-slate-500 font-black uppercase mb-1">当前累计</p>
+                    <p class="text-sm font-black" id="current-turnover">0.00</p>
+                </div>
+                <div class="bg-dark/50 p-4 rounded-2xl border border-white/5">
+                    <p class="text-[9px] text-slate-500 font-black uppercase mb-1">提现门槛</p>
+                    <p class="text-sm font-black" id="required-turnover">0.00</p>
+                </div>
             </div>
-            <p class="text-[9px] text-slate-300 mt-4 leading-relaxed">提示：需达到 (充值 + 新人福利) 的 4 倍流水方可提现。当前差额：<span id="turnover-diff" class="text-rose-500">0.00</span></p>
+            <p class="text-[9px] text-slate-600 mt-6 text-center font-bold">提示：需达到总充值与福利之和的 4 倍流水方可提现</p>
         </div>
 
-        <!-- Referral Tools -->
-        <div class="bg-indigo-50 rounded-3xl p-6 border border-indigo-100">
-            <h4 class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4">推广赚金</h4>
-            <div class="space-y-4">
-                <div class="bg-white rounded-2xl p-4 flex justify-between items-center">
+        <!-- Referral & Menu -->
+        <div class="bg-dark-light rounded-[2.5rem] border border-white/10 overflow-hidden">
+            <div onclick="copyInvite()" class="p-6 border-b border-white/5 flex items-center justify-between group active:bg-dark transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-dark rounded-xl flex items-center justify-center text-primary border border-white/5"><i class="fas fa-share-alt"></i></div>
                     <div>
-                        <p class="text-[10px] text-slate-400">专属邀请码</p>
-                        <p class="font-black text-indigo-600" id="invite-code">---</p>
+                        <p class="text-[10px] text-slate-500 font-black uppercase">推广邀请码</p>
+                        <p class="text-sm font-black" id="invite-code">---</p>
                     </div>
-                    <button onclick="copyInvite()" class="text-xs font-bold text-slate-400 uppercase">复制</button>
                 </div>
-                <p class="text-[10px] text-indigo-400/80">成功邀请好友首充 ≥ 21，即可获得 15 积分奖励。</p>
+                <span class="text-[10px] font-black text-primary bg-primary/10 px-3 py-1 rounded-full group-active:scale-95 transition-transform">复制</span>
             </div>
-        </div>
-
-        <!-- Menu -->
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-4 border-b border-slate-50 flex items-center justify-between cursor-pointer" onclick="alert('即将上线')">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400"><i class="fas fa-history text-sm"></i></div>
-                    <span class="text-sm font-bold">投注记录</span>
+            <a href="/withdraw.html" class="p-6 border-b border-white/5 flex items-center justify-between active:bg-dark transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-dark rounded-xl flex items-center justify-center text-slate-500 border border-white/5"><i class="fas fa-university"></i></div>
+                    <span class="text-sm font-black">申请提现</span>
                 </div>
-                <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
-            </div>
-            <div class="p-4 border-b border-slate-50 flex items-center justify-between cursor-pointer" onclick="location.href='/withdraw.html'">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400"><i class="fas fa-wallet text-sm"></i></div>
-                    <span class="text-sm font-bold">提现申请</span>
+                <i class="fas fa-chevron-right text-slate-800"></i>
+            </a>
+            <div class="p-6 flex items-center justify-between active:bg-dark transition-colors" onclick="alert('即将上线')">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-dark rounded-xl flex items-center justify-center text-slate-500 border border-white/5"><i class="fas fa-history"></i></div>
+                    <span class="text-sm font-black">投注明细</span>
                 </div>
-                <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+                <i class="fas fa-chevron-right text-slate-800"></i>
             </div>
         </div>
     </div>
 
     <!-- Bottom Nav -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex justify-around py-3">
-        <button onclick="location.href='/game.html'" class="flex flex-col items-center gap-1 text-slate-300">
-            <i class="fas fa-gamepad text-lg"></i>
-            <span class="text-[10px] font-bold">大厅</span>
-        </button>
-        <button class="flex flex-col items-center gap-1 text-indigo-600">
-            <i class="fas fa-user text-lg"></i>
-            <span class="text-[10px] font-bold">我的</span>
-        </button>
+    <nav class="fixed bottom-0 left-0 right-0 p-4 bg-dark/80 backdrop-blur-xl border-t border-white/5 z-50">
+        <div class="max-w-md mx-auto flex justify-around items-center">
+            <a href="/" class="flex flex-col items-center gap-1 text-slate-500">
+                <i class="fas fa-home text-lg"></i>
+                <span class="text-[10px] font-bold">大厅</span>
+            </a>
+            <a href="/recharge.html" class="flex flex-col items-center gap-1 text-slate-500">
+                <i class="fas fa-plus-circle text-lg"></i>
+                <span class="text-[10px] font-bold">充值</span>
+            </a>
+            <a href="/withdraw.html" class="flex flex-col items-center gap-1 text-slate-500">
+                <i class="fas fa-university text-lg"></i>
+                <span class="text-[10px] font-bold">提现</span>
+            </a>
+            <a href="/profile.html" class="flex flex-col items-center gap-1 text-primary">
+                <i class="fas fa-user text-lg"></i>
+                <span class="text-[10px] font-bold">我的</span>
+            </a>
+        </div>
     </nav>
 
     <script>
@@ -110,7 +146,6 @@
                 document.getElementById('balance').innerText = parseFloat(u.balance).toLocaleString();
                 document.getElementById('invite-code').innerText = u.id;
 
-                // Turnover Progress
                 const current = parseFloat(u.total_turnover);
                 const required = (parseFloat(u.total_deposit) + parseFloat(u.total_bonus)) * 4;
                 document.getElementById('current-turnover').innerText = current.toFixed(2);
@@ -120,9 +155,6 @@
                 if(percent > 100) percent = 100;
                 document.getElementById('turnover-percent').innerText = percent.toFixed(1) + '%';
                 document.getElementById('turnover-bar').style.width = percent + '%';
-
-                const diff = required - current;
-                document.getElementById('turnover-diff').innerText = (diff > 0 ? diff : 0).toFixed(2);
             } else {
                 location.href = '/login.html';
             }
@@ -131,7 +163,7 @@
         function copyInvite() {
             const code = document.getElementById('invite-code').innerText;
             navigator.clipboard.writeText(code);
-            alert('邀请码已复制到剪贴板');
+            alert('至尊邀请码已复制');
         }
 
         loadProfile();

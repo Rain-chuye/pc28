@@ -1,250 +1,269 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>加拿大 28 - 专业投注平台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>加拿大 28 - 游戏房间</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: { primary: '#6366f1', secondary: '#4f46e5' },
-                    fontFamily: { sans: ['Inter', 'Noto Sans SC', 'sans-serif'] }
+                    colors: {
+                        primary: '#D4AF37', // Gold
+                        gold: {
+                            light: '#F9E79F',
+                            DEFAULT: '#D4AF37',
+                            dark: '#9A7D0A'
+                        },
+                        dark: {
+                            DEFAULT: '#121212',
+                            light: '#1E1E1E',
+                            lighter: '#2A2A2A'
+                        }
+                    }
                 }
             }
         }
     </script>
     <style>
-        .ball-shadow { box-shadow: inset 0 -4px 10px rgba(0,0,0,0.2), 0 4px 12px rgba(99, 102, 241, 0.4); }
-        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
-        .dark .glass-nav { background: rgba(15, 23, 42, 0.8); }
-        body { -webkit-tap-highlight-color: transparent; }
-        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .animate-pulse-soft { animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+        body { font-family: 'Noto+Sans+SC', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .gold-gradient { background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #9A7D0A 100%); }
+        .ball-gold { background: linear-gradient(135deg, #F9E79F, #D4AF37); color: black; }
+        .bet-item.active { background: #D4AF37 !important; color: black !important; border-color: #D4AF37 !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
+        .glass-header { background: rgba(18, 18, 18, 0.8); backdrop-blur: 15px; border-bottom: 1px border rgba(255,255,255,0.05); }
+        .tab-active { color: #D4AF37; border-bottom: 2px solid #D4AF37; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-32">
-
+<body class="bg-dark text-white min-h-screen pb-40">
     <!-- Header -->
-    <header class="flex justify-between items-center px-6 py-4 sticky top-0 z-50 glass-nav">
-        <h1 class="text-base font-black tracking-widest uppercase" id="game-title">加拿大 28</h1>
-        <div class="flex items-center gap-4">
-             <button id="theme-toggle" class="text-slate-400">
-                <i class="fas fa-moon dark:hidden"></i>
-                <i class="fas fa-sun hidden dark:block"></i>
+    <header class="fixed top-0 left-0 right-0 z-50 glass-header p-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <button onclick="history.back()" class="w-8 h-8 flex items-center justify-center rounded-full bg-dark-light border border-white/5">
+                <i class="fas fa-chevron-left text-xs"></i>
             </button>
-            <button onclick="toggleChat()" class="text-slate-400 relative">
-                <i class="fas fa-comment-dots"></i>
-                <span class="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full"></span>
+            <div>
+                <h1 id="room-title" class="text-sm font-black tracking-tight">加拿大 28 - <span class="text-primary">加载中...</span></h1>
+                <p id="issue-display" class="text-[10px] text-slate-500 font-bold">---- 期</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="text-right">
+                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">我的余额</p>
+                <p id="user-balance" class="text-sm font-black text-primary">¥ 0.00</p>
+            </div>
+            <button onclick="toggleChat()" class="w-10 h-10 rounded-full bg-dark-light border border-white/5 flex items-center justify-center relative">
+                <i class="fas fa-comment-dots text-slate-400"></i>
+                <div class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-dark"></div>
             </button>
         </div>
     </header>
 
-    <!-- Result Area -->
-    <div class="p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
-            <div class="flex justify-between items-center mb-6">
-                <div class="px-4 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
-                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter" id="issue-display">加载中...</span>
+    <!-- Main Content -->
+    <main class="pt-20 px-4 space-y-6">
+        <!-- Lottery Results Card -->
+        <div class="bg-dark-light rounded-[2rem] p-6 border border-white/5 shadow-2xl relative overflow-hidden">
+            <div class="relative z-10 flex flex-col items-center">
+                <div class="flex gap-4 mb-4">
+                    <div class="num-ball w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center text-xl font-black bg-dark-lighter shadow-inner">?</div>
+                    <i class="fas fa-plus self-center text-slate-700 text-xs"></i>
+                    <div class="num-ball w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center text-xl font-black bg-dark-lighter shadow-inner">?</div>
+                    <i class="fas fa-plus self-center text-slate-700 text-xs"></i>
+                    <div class="num-ball w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center text-xl font-black bg-dark-lighter shadow-inner">?</div>
+                    <i class="fas fa-equals self-center text-slate-700 text-xs"></i>
+                    <div id="total-result" class="w-12 h-12 rounded-full gold-gradient flex items-center justify-center text-xl font-black text-black shadow-lg shadow-primary/30">?</div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-clock text-primary text-xs"></i>
-                    <span class="text-lg font-mono font-black text-primary" id="timer">00:00</span>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xl font-black ball-shadow num-ball">?</div>
-                <i class="fas fa-plus text-slate-300 dark:text-slate-700"></i>
-                <div class="w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xl font-black ball-shadow num-ball">?</div>
-                <i class="fas fa-plus text-slate-300 dark:text-slate-700"></i>
-                <div class="w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xl font-black ball-shadow num-ball">?</div>
-                <i class="fas fa-equals text-slate-300 dark:text-slate-700"></i>
-                <div class="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-black ball-shadow" id="total-result">?</div>
-            </div>
-
-            <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center px-2">
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="text-xs font-bold text-slate-400">可用余额: <span class="text-emerald-500 font-black" id="user-balance">¥ 0.00</span></span>
-                </div>
-                <div class="flex gap-2">
-                    <button class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full" onclick="location.href='/recharge.html'">充值</button>
-                    <button class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-black rounded-full" onclick="location.href='/withdraw.html'">提现</button>
+                <div id="timer-display" class="text-xs font-black text-slate-400 flex items-center gap-2">
+                    <i class="fas fa-clock text-primary"></i> 距离下期开奖还有 <span class="text-white">00:00</span>
                 </div>
             </div>
+            <i class="fas fa-chart-line absolute -right-4 -bottom-4 text-8xl text-white/5"></i>
         </div>
-    </div>
 
-    <!-- Live Betting Feed -->
-    <div class="px-5 mb-6">
-        <div class="bg-slate-100 dark:bg-slate-800/50 rounded-2xl p-3 flex items-center gap-3 overflow-hidden">
-            <div class="text-[10px] font-black bg-primary text-white px-2 py-1 rounded-md shrink-0">实时动态</div>
-            <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate" id="live-feed">正在加载投注动态...</div>
+        <!-- Betting Tabs -->
+        <div class="flex border-b border-white/5 overflow-x-auto whitespace-nowrap scroll-hide">
+            <button onclick="switchTab('basic')" id="tab-basic" class="px-6 py-3 text-sm font-black tab-active">常用玩法</button>
+            <button onclick="switchTab('special')" id="tab-special" class="px-6 py-3 text-sm font-black text-slate-500">特殊玩法</button>
+            <button onclick="switchTab('numbers')" id="tab-numbers" class="px-6 py-3 text-sm font-black text-slate-500">精准特码</button>
+            <button onclick="switchTab('history')" id="tab-history" class="px-6 py-3 text-sm font-black text-slate-500">开奖历史</button>
         </div>
-    </div>
 
-    <!-- Odds Selector -->
-    <div class="px-5 mb-4">
-        <div class="flex bg-white dark:bg-slate-900 rounded-2xl p-1 border border-slate-100 dark:border-slate-800">
-            <button onclick="setOddsMode('low')" id="mode-low" class="flex-1 py-3 text-xs font-black rounded-xl transition-all bg-primary text-white">低赔率模式</button>
-            <button onclick="setOddsMode('high')" id="mode-high" class="flex-1 py-3 text-xs font-black rounded-xl transition-all text-slate-400">高赔率模式</button>
-        </div>
-        <p id="mode-desc" class="text-[9px] text-slate-400 mt-2 px-2">低赔率：13、14固定吃本；高赔率：豹子对子顺子13、14回本。</p>
-    </div>
-
-    <!-- Betting Grid -->
-    <div class="px-5 py-2 space-y-8">
-        <!-- Major Markets -->
-        <div>
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">基础玩法</h3>
-            </div>
+        <!-- Betting Panes -->
+        <div id="pane-basic" class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
-                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'big')">
-                    <div class="text-2xl font-black">大</div>
-                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val" data-play="big">2.00</span></div>
+                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center group active:scale-95 transition-all" onclick="selectBet(this, 'big')">
+                    <div class="text-lg font-black mb-1">大</div>
+                    <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="big">2.00</span></div>
                 </div>
-                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'small')">
-                    <div class="text-2xl font-black">小</div>
-                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val" data-play="small">2.00</span></div>
+                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="selectBet(this, 'small')">
+                    <div class="text-lg font-black mb-1">小</div>
+                    <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="small">2.00</span></div>
                 </div>
-                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'single')">
-                    <div class="text-2xl font-black text-rose-500">单</div>
-                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val" data-play="single">2.00</span></div>
+                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="selectBet(this, 'single')">
+                    <div class="text-lg font-black mb-1">单</div>
+                    <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="single">2.00</span></div>
                 </div>
-                <div class="bet-item bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'double')">
-                    <div class="text-2xl font-black text-indigo-500">双</div>
-                    <div class="text-[10px] text-slate-400 dark:text-slate-600 mt-1 font-bold">赔率 <span class="odds-val" data-play="double">2.00</span></div>
+                <div class="bet-item bg-dark-light p-5 rounded-[1.5rem] border border-white/5 text-center active:scale-95 transition-all" onclick="selectBet(this, 'double')">
+                    <div class="text-lg font-black mb-1">双</div>
+                    <div class="text-[10px] text-slate-500 font-bold">赔率 <span class="odds-val" data-play="double">2.00</span></div>
                 </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2">
+                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="selectBet(this, 'big_single')">大单</div>
+                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="selectBet(this, 'big_double')">大双</div>
+                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="selectBet(this, 'small_single')">小单</div>
+                <div class="bet-item bg-dark-light py-4 rounded-2xl border border-white/5 text-center text-[11px] font-black" onclick="selectBet(this, 'small_double')">小双</div>
             </div>
         </div>
 
-        <!-- Numbers Grid -->
-        <div>
-        <!-- Banker/Player/Tie -->
-        <div>
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">庄闲和</h3>
+        <div id="pane-special" class="hidden grid grid-cols-3 gap-3">
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'triple')">
+                <div class="text-sm font-black">豹子</div>
+                <div class="text-[9px] text-slate-500 mt-1">66x</div>
             </div>
-            <div class="grid grid-cols-3 gap-4">
-                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'banker')">
-                    <div class="text-xl font-black text-rose-600">庄</div>
-                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="banker">3.00</span></div>
-                </div>
-                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'tie')">
-                    <div class="text-xl font-black text-emerald-600">和</div>
-                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="tie">10.00</span></div>
-                </div>
-                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'player')">
-                    <div class="text-xl font-black text-indigo-600">闲</div>
-                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="player">3.00</span></div>
-                </div>
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'straight')">
+                <div class="text-sm font-black">顺子</div>
+                <div class="text-[9px] text-slate-500 mt-1">10x</div>
+            </div>
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'pair')">
+                <div class="text-sm font-black">对子</div>
+                <div class="text-[9px] text-slate-500 mt-1">3x</div>
+            </div>
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'banker')">
+                <div class="text-sm font-black">庄</div>
+                <div class="text-[9px] text-slate-500 mt-1">2x</div>
+            </div>
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'player')">
+                <div class="text-sm font-black">闲</div>
+                <div class="text-[9px] text-slate-500 mt-1">2x</div>
+            </div>
+            <div class="bet-item bg-dark-light p-4 rounded-2xl border border-white/5 text-center" onclick="selectBet(this, 'tie')">
+                <div class="text-sm font-black">和</div>
+                <div class="text-[9px] text-slate-500 mt-1">10x</div>
             </div>
         </div>
 
-        <!-- Special Plays -->
-        <div class="mt-8">
-            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">组合玩法</h3>
-            <div class="grid grid-cols-3 gap-4">
-                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'triple')">
-                    <div class="text-sm font-black">豹子</div>
-                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="triple">66.00</span></div>
-                </div>
-                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'straight')">
-                    <div class="text-sm font-black">顺子</div>
-                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="straight">10.00</span></div>
-                </div>
-                <div class="bet-item bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 text-center shadow-sm cursor-pointer" onclick="selectBet(this, 'pair')">
-                    <div class="text-sm font-black">对子</div>
-                    <div class="text-[9px] text-slate-400 mt-1 font-bold">赔率 <span class="odds-val" data-play="pair">3.00</span></div>
-                </div>
-            </div>
+        <div id="pane-numbers" class="hidden grid grid-cols-7 gap-2 pb-10">
+            <script>
+                for(let i=0; i<=27; i++) {
+                    document.write(`<div class="bet-item bg-dark-light aspect-square rounded-xl border border-white/5 flex items-center justify-center text-xs font-black" onclick="selectBet(this, '${i}')">${i}</div>`);
+                }
+            </script>
         </div>
-            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">精准定位 (0-27)</h3>
-            <div class="grid grid-cols-7 gap-2">
-                <script>
-                    for(let i=0; i<=27; i++) {
-                        const oddsMap = {0:888, 1:488, 2:288, 3:45, 4:35, 27:888};
- document.write(`<div class="bet-item bg-white dark:bg-slate-900 w-full aspect-square rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-center text-xs font-black shadow-sm cursor-pointer" onclick="selectBet(this, '${i}')">${i} <div class='text-[8px] opacity-50'>${oddsMap[i] || 12}x</div></div>`);
-                    }
-                </script>
-            </div>
-        </div>
-    </div>
 
-    <!-- Bet Input Section -->
-    <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 glass-nav z-40">
-        <div class="max-w-md mx-auto flex gap-4 items-center bg-white dark:bg-slate-900 p-2 pl-6 rounded-full shadow-2xl border border-slate-100 dark:border-slate-800">
-            <div class="flex-1 flex items-center gap-3">
-                <i class="fas fa-coins text-primary"></i>
-                <input type="number" id="bet-amount" placeholder="投注金额" class="bg-transparent border-none focus:outline-none text-sm font-bold w-full dark:text-white">
-            </div>
-            <button onclick="submitBet()" class="bg-primary text-white h-12 px-8 rounded-full font-black shadow-lg shadow-primary/30 active:scale-95 transition-transform">
-                确认下单
-            </button>
+        <div id="pane-history" class="hidden space-y-2">
+            <div id="history-list"></div>
         </div>
-    </div>
 
-    <!-- Private Chat UI (Hidden by default) -->
-    <div id="chat-overlay" class="fixed inset-0 bg-black/50 z-[100] hidden flex flex-col justify-end">
-        <div class="bg-white dark:bg-slate-900 h-3/4 rounded-t-[2.5rem] flex flex-col">
-            <div class="p-6 border-b dark:border-slate-800 flex justify-between items-center">
-                <h2 class="font-black">在线客服</h2>
-                <button onclick="toggleChat()"><i class="fas fa-times"></i></button>
+        <!-- Chat Feedback Area -->
+        <div class="bg-dark-light/50 border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center"><i class="fas fa-bullhorn text-primary text-xs"></i></div>
+            <div id="live-feed" class="text-[10px] text-slate-400 truncate">正在加载最新动态...</div>
+        </div>
+    </main>
+
+    <!-- Fixed Bottom Betting Panel -->
+    <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-dark/80 backdrop-blur-2xl border-t border-white/5 z-[60]">
+        <div class="max-w-md mx-auto">
+            <div class="flex items-center gap-4 bg-dark-lighter p-2 pl-6 rounded-full border border-white/10 shadow-2xl">
+                <div class="flex-1 flex items-center gap-3">
+                    <i class="fas fa-coins text-primary"></i>
+                    <input type="number" id="bet-amount" placeholder="投注金额 (最少 2)" class="bg-transparent border-none focus:outline-none text-sm font-black w-full text-white">
+                </div>
+                <button onclick="submitBet()" class="gold-gradient text-black h-12 px-8 rounded-full font-black shadow-lg shadow-primary/20 active:scale-95 transition-all">
+                    确认下单
+                </button>
             </div>
-            <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-4">
-                <!-- Messages -->
-            </div>
-            <div class="p-4 bg-slate-50 dark:bg-slate-800/50">
+            <div class="flex justify-between mt-4 px-2">
                 <div class="flex gap-2">
-                    <input type="text" id="chat-input" class="flex-1 bg-white dark:bg-slate-900 rounded-full px-4 py-2 text-sm outline-none" placeholder="输入消息...">
-                    <button onclick="sendMessage()" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                    <button onclick="quickAmount(10)" class="text-[10px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">10</button>
+                    <button onclick="quickAmount(50)" class="text-[10px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">50</button>
+                    <button onclick="quickAmount(100)" class="text-[10px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">100</button>
+                    <button onclick="quickAmount(500)" class="text-[10px] font-black text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">500</button>
+                </div>
+                <button onclick="clearSelection()" class="text-[10px] font-black text-red-400 bg-red-400/10 px-3 py-1 rounded-full">清空</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-24 left-1/2 -translate-x-1/2 z-[200] pointer-events-none flex flex-col items-center gap-2"></div>
+
+    <!-- Private Chat UI -->
+    <div id="chat-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex flex-col justify-end">
+        <div class="bg-dark-light h-[85%] rounded-t-[3rem] flex flex-col border-t border-white/10 shadow-2xl">
+            <div class="p-8 border-b border-white/5 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 gold-gradient rounded-2xl flex items-center justify-center text-black shadow-lg"><i class="fas fa-headset text-xl"></i></div>
+                    <div>
+                        <h2 class="font-black text-lg">至尊客服</h2>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">在线为您服务</p>
+                    </div>
+                </div>
+                <button onclick="toggleChat()" class="w-10 h-10 bg-dark-lighter rounded-full flex items-center justify-center border border-white/5 text-slate-400"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+            <div class="p-6 pb-12 bg-dark/50 border-t border-white/5">
+                <div class="flex gap-4 items-center bg-dark-lighter rounded-full p-2 pl-6 border border-white/5 shadow-inner">
+                    <input type="text" id="chat-input" class="flex-1 bg-transparent border-none outline-none text-sm text-white py-2" placeholder="输入您的问题...">
+                    <button onclick="sendMessage()" class="gold-gradient text-black w-12 h-12 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        const params = new URLSearchParams(window.location.search);
+        const oddsMode = params.get('room') || 'low';
         let selectedType = null;
-        let oddsMode = 'low';
         let currentIssue = '';
-        const html = document.documentElement;
 
-        // Theme Loader
-        if (localStorage.getItem('theme') === 'dark') html.classList.add('dark');
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            html.classList.toggle('dark');
-            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-        });
+        document.getElementById('room-title').innerHTML = `加拿大 28 - <span class="text-primary">${oddsMode === 'high' ? '至尊房' : '标准房'}</span>`;
 
-        function setOddsMode(mode) {
-            oddsMode = mode;
-            document.getElementById('mode-low').className = mode === 'low' ? 'flex-1 py-3 text-xs font-black rounded-xl transition-all bg-primary text-white' : 'flex-1 py-3 text-xs font-black rounded-xl transition-all text-slate-400';
-            document.getElementById('mode-high').className = mode === 'high' ? 'flex-1 py-3 text-xs font-black rounded-xl transition-all bg-primary text-white' : 'flex-1 py-3 text-xs font-black rounded-xl transition-all text-slate-400';
-
-            // Update UI Odds Display
-            const oddsData = mode === 'low' ? {big: '2.00', small: '2.00', single: '2.00', double: '2.00'} : {big: '1.95', small: '1.95', single: '1.95', double: '1.95'};
-            document.querySelectorAll('.odds-val').forEach(el => {
-                const play = el.getAttribute('data-play');
-                if(oddsData[play]) el.innerText = oddsData[play];
+        function switchTab(tab) {
+            ['basic', 'special', 'numbers', 'history'].forEach(t => {
+                document.getElementById(`pane-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('tab-active');
+                document.getElementById(`tab-${t}`).classList.add('text-slate-500');
             });
+            document.getElementById(`pane-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('tab-active');
+            document.getElementById(`tab-${tab}`).classList.remove('text-slate-500');
+            if(tab === 'history') loadHistory();
         }
 
         function selectBet(el, playType) {
-            document.querySelectorAll('.bet-item').forEach(item => item.classList.remove('active', 'border-primary', 'ring-2', 'ring-primary/20', 'bg-primary/10'));
-            el.classList.add('active', 'border-primary', 'ring-2', 'ring-primary/20', 'bg-primary/10');
+            document.querySelectorAll('.bet-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
             selectedType = playType;
+        }
+
+        function quickAmount(val) {
+            document.getElementById('bet-amount').value = val;
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.bet-item').forEach(item => item.classList.remove('active'));
+            selectedType = null;
+        }
+
+        function showToast(msg, type = 'info') {
+            const toast = document.createElement("div");
+            toast.className = `bg-dark-light border border-white/10 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-bounce`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle text-green-400' : 'fa-info-circle text-primary'}"></i> <span class="text-sm font-bold">${msg}</span>`;
+            document.getElementById('toast-container').appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
         async function submitBet() {
             const amount = document.getElementById('bet-amount').value;
-            if (!selectedType) return alert('请先选择投注项');
-            if (!amount || amount <= 0) return alert('请输入有效金额');
+            if (!selectedType) return showToast('请先选择一个玩法');
+            if (!amount || amount < 2) return showToast('最低下注 2 元');
 
             try {
                 const res = await fetch('/api/bet.php', {
@@ -259,30 +278,24 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    alert('🎉 投注成功！');
+                    showToast('下注成功！', 'success');
                     refreshUserData();
+                    clearSelection();
                 } else {
-                    alert('❌ ' + data.message);
+                    showToast(data.message);
                 }
             } catch (e) {
-                alert('网络连接失败');
+                showToast('网络连接超时');
             }
         }
 
-        function showToast(msg) {
-            const toast = document.createElement("div");
-            toast.className = "fixed top-20 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-6 py-3 rounded-2xl shadow-2xl z-[200] font-bold text-sm animate-bounce";
-            toast.innerText = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
         async function refreshData() {
             try {
                 const res = await fetch('/api/lottery.php');
                 const data = await res.json();
                 if (data.latest) {
                     currentIssue = data.latest.issue_no;
-                    document.getElementById('issue-display').innerText = currentIssue + ' 期';
+                    document.getElementById('issue-display').innerText = currentIssue + ' 期正在下注';
                     const nums = data.latest.numbers.split(',');
                     const balls = document.querySelectorAll('.num-ball');
                     balls[0].innerText = nums[0];
@@ -291,15 +304,32 @@
                     document.getElementById('total-result').innerText = data.latest.total_sum;
                 }
 
-                // Update live feed
+                // Live feed simulator or real
                 const feedRes = await fetch('/api/live_bets.php');
                 const feedData = await feedRes.json();
                 if(feedData.data && feedData.data.length > 0) {
                     const bet = feedData.data[0];
-                    if(parseFloat(bet.bet_amount) >= 500) showToast("🔥 恭喜用户 " + bet.username + " 喜中 " + bet.bet_amount + " 元！");
-                    document.getElementById('live-feed').innerText = `用户 ${bet.username} 刚刚下注了 ${bet.play_type} ¥${bet.bet_amount}`;
+                    document.getElementById('live-feed').innerText = `用户 ${bet.username.substring(0,2)}*** 刚刚投注 ${bet.play_type} ¥${bet.bet_amount}`;
                 }
             } catch (e) {}
+        }
+
+        async function loadHistory() {
+            const res = await fetch('/api/lottery.php?limit=20');
+            const data = await res.json();
+            if(data.history) {
+                document.getElementById('history-list').innerHTML = data.history.map(item => `
+                    <div class="flex justify-between items-center p-4 bg-dark-light rounded-2xl border border-white/5">
+                        <div class="text-xs font-bold text-slate-500">${item.issue_no}</div>
+                        <div class="flex items-center gap-3">
+                            <div class="flex gap-1">
+                                ${item.numbers.split(',').map(n => `<span class="w-6 h-6 flex items-center justify-center bg-dark-lighter rounded-md text-[10px] font-black">${n}</span>`).join('')}
+                            </div>
+                            <span class="text-lg font-black text-primary w-8 text-right">${item.total_sum}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
         async function refreshUserData() {
@@ -312,10 +342,10 @@
             } catch(e) {}
         }
 
-        // Chat Logic
         function toggleChat() {
-            document.getElementById('chat-overlay').classList.toggle('hidden');
-            if(!document.getElementById('chat-overlay').classList.contains('hidden')) loadMessages();
+            const overlay = document.getElementById('chat-overlay');
+            overlay.classList.toggle('hidden');
+            if(!overlay.classList.contains('hidden')) loadMessages();
         }
 
         async function loadMessages() {
@@ -324,8 +354,11 @@
             const box = document.getElementById('chat-box');
             box.innerHTML = data.data.map(m => `
                 <div class="flex ${m.sender_id == 1 ? '' : 'justify-end'}">
-                    <div class="${m.sender_id == 1 ? 'bg-slate-100 dark:bg-slate-800' : 'bg-primary text-white'} px-4 py-2 rounded-2xl max-w-[80%] text-sm">
-                        ${m.message}
+                    <div class="flex flex-col ${m.sender_id == 1 ? 'items-start' : 'items-end'}">
+                        <div class="${m.sender_id == 1 ? 'bg-dark-lighter border border-white/5' : 'gold-gradient text-black font-bold'} px-5 py-3 rounded-[1.5rem] max-w-[85%] text-sm shadow-xl">
+                            ${m.message}
+                        </div>
+                        <span class="text-[8px] text-slate-600 mt-1 uppercase font-bold tracking-tighter">${new Date(m.created_at).toLocaleTimeString()}</span>
                     </div>
                 </div>
             `).join('');
@@ -345,7 +378,19 @@
             loadMessages();
         }
 
-        setInterval(refreshData, 10000);
+        // Odds sync based on mode
+        function syncOdds() {
+            const lowOdds = {big: '2.00', small: '2.00', single: '2.00', double: '2.00'};
+            const highOdds = {big: '1.95', small: '1.95', single: '1.95', double: '1.95'};
+            const target = oddsMode === 'high' ? highOdds : lowOdds;
+            document.querySelectorAll('.odds-val').forEach(el => {
+                const play = el.getAttribute('data-play');
+                if(target[play]) el.innerText = target[play];
+            });
+        }
+
+        syncOdds();
+        setInterval(refreshData, 5000);
         refreshData();
         refreshUserData();
     </script>

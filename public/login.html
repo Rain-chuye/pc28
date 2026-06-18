@@ -1,42 +1,73 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - 加拿大 28</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#D4AF37',
+                        gold: { DEFAULT: '#D4AF37' },
+                        dark: { DEFAULT: '#121212', light: '#1E1E1E' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+        body { font-family: 'Noto+Sans+SC', sans-serif; }
+        .gold-gradient { background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #9A7D0A 100%); }
+    </style>
 </head>
-<body class="bg-slate-50 flex items-center justify-center min-h-screen p-6">
-    <div class="w-full max-w-md bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100">
-        <h1 class="text-3xl font-black text-indigo-600 mb-2">欢迎回来</h1>
-        <p class="text-slate-400 text-sm mb-10">登录您的账户开启红单之旅</p>
+<body class="bg-dark text-white flex items-center justify-center min-h-screen p-6">
+    <div class="w-full max-w-md bg-dark-light rounded-[3rem] p-10 border border-white/5 shadow-2xl shadow-primary/5">
+        <div class="w-16 h-16 gold-gradient rounded-2xl flex items-center justify-center text-black text-2xl font-black mb-8 shadow-lg shadow-primary/20">28</div>
+        <h1 class="text-3xl font-black mb-2">尊贵回归</h1>
+        <p class="text-slate-500 text-sm mb-10 font-bold">登录您的至尊账户</p>
 
         <div class="space-y-6">
             <div>
-                <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">用户名</label>
-                <input type="text" id="username" class="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-2 ring-indigo-500/20 transition-all" placeholder="输入用户名">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block mb-3">用户名</label>
+                <div class="bg-dark flex items-center px-6 rounded-2xl border border-white/5 focus-within:border-primary/50 transition-colors">
+                    <i class="fas fa-user text-slate-600 text-sm"></i>
+                    <input type="text" id="username" class="w-full bg-transparent px-4 py-5 outline-none text-sm font-bold" placeholder="输入用户名">
+                </div>
             </div>
             <div>
-                <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">密码</label>
-                <input type="password" id="password" class="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-2 ring-indigo-500/20 transition-all" placeholder="输入密码">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block mb-3">安全密码</label>
+                <div class="bg-dark flex items-center px-6 rounded-2xl border border-white/5 focus-within:border-primary/50 transition-colors">
+                    <i class="fas fa-lock text-slate-600 text-sm"></i>
+                    <input type="password" id="password" class="w-full bg-transparent px-4 py-5 outline-none text-sm font-bold" placeholder="输入密码">
+                </div>
             </div>
-            <button onclick="login()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black shadow-lg shadow-indigo-200 active:scale-95 transition-all">立即登录</button>
+            <button onclick="login()" class="w-full gold-gradient text-black py-5 rounded-2xl font-black shadow-lg shadow-primary/20 active:scale-95 transition-all">
+                立即登录
+            </button>
         </div>
 
-        <p class="mt-10 text-center text-sm text-slate-400">还没有账号？ <a href="/register.html" class="text-indigo-600 font-bold">立即注册</a></p>
+        <p class="mt-10 text-center text-sm text-slate-500 font-bold">尊客初访？ <a href="/register.html" class="text-primary">即刻开启特权</a></p>
     </div>
 
     <script>
         async function login() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
+            if(!u || !p) return alert('请完善登录信息');
+
             const res = await fetch('/api/login.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({username: u, password: p})
             });
             const data = await res.json();
-            if(data.success) location.href = '/game.html';
+            if(data.success) location.href = '/';
             else alert(data.message);
         }
     </script>

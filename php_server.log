@@ -1,0 +1,79 @@
+[Thu Jun 18 12:17:14 2026] PHP 8.3.6 Development Server (http://0.0.0.0:8000) started
+[Thu Jun 18 12:17:16 2026] 127.0.0.1:35256 Accepted
+[Thu Jun 18 12:17:16 2026] 127.0.0.1:35256 [200]: HEAD /index.html
+[Thu Jun 18 12:17:16 2026] 127.0.0.1:35256 Closing
+[Thu Jun 18 12:18:36 2026] 127.0.0.1:47288 Accepted
+[Thu Jun 18 12:18:36 2026] 127.0.0.1:47288 [200]: GET /index.html
+[Thu Jun 18 12:18:36 2026] 127.0.0.1:47288 Closing
+[Thu Jun 18 12:18:37 2026] 127.0.0.1:47294 Accepted
+[Thu Jun 18 12:18:37 2026] 127.0.0.1:47294 [200]: GET /api/user_info.php
+[Thu Jun 18 12:18:37 2026] 127.0.0.1:47294 Closing
+[Thu Jun 18 12:18:37 2026] 127.0.0.1:47308 Accepted
+[Thu Jun 18 12:18:37 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
+Stack trace:
+#0 /app/src/Utils/DB.php(15): PDO->__construct()
+#1 /app/src/Utils/DB.php(27): App\Utils\DB->__construct()
+#2 /app/src/Model/Lottery.php(9): App\Utils\DB::getInstance()
+#3 /app/public/api/lottery.php(7): App\Model\Lottery::getLatest()
+#4 {main}
+  thrown in /app/src/Utils/DB.php on line 15
+[Thu Jun 18 12:18:37 2026] 127.0.0.1:47308 [500]: GET /api/lottery.php?limit=5 - Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
+Stack trace:
+#0 /app/src/Utils/DB.php(15): PDO->__construct()
+#1 /app/src/Utils/DB.php(27): App\Utils\DB->__construct()
+#2 /app/src/Model/Lottery.php(9): App\Utils\DB::getInstance()
+#3 /app/public/api/lottery.php(7): App\Model\Lottery::getLatest()
+#4 {main}
+  thrown in /app/src/Utils/DB.php on line 15
+[Thu Jun 18 12:18:37 2026] 127.0.0.1:47308 Closing
+[Thu Jun 18 12:18:38 2026] 127.0.0.1:47320 Accepted
+[Thu Jun 18 12:18:38 2026] 127.0.0.1:47320 [200]: GET /game.html?room=low
+[Thu Jun 18 12:18:38 2026] 127.0.0.1:47320 Closing
+[Thu Jun 18 12:18:39 2026] 127.0.0.1:47334 Accepted
+[Thu Jun 18 12:18:39 2026] 127.0.0.1:47342 Accepted
+[Thu Jun 18 12:18:39 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
+Stack trace:
+#0 /app/src/Utils/DB.php(15): PDO->__construct()
+#1 /app/src/Utils/DB.php(27): App\Utils\DB->__construct()
+#2 /app/src/Model/Lottery.php(9): App\Utils\DB::getInstance()
+#3 /app/public/api/lottery.php(7): App\Model\Lottery::getLatest()
+#4 {main}
+  thrown in /app/src/Utils/DB.php on line 15
+[Thu Jun 18 12:18:39 2026] 127.0.0.1:47334 [500]: GET /api/lottery.php - Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
+Stack trace:
+#0 /app/src/Utils/DB.php(15): PDO->__construct()
+#1 /app/src/Utils/DB.php(27): App\Utils\DB->__construct()
+#2 /app/src/Model/Lottery.php(9): App\Utils\DB::getInstance()
+#3 /app/public/api/lottery.php(7): App\Model\Lottery::getLatest()
+#4 {main}
+  thrown in /app/src/Utils/DB.php on line 15
+[Thu Jun 18 12:18:39 2026] 127.0.0.1:47334 Closing
+[Thu Jun 18 12:18:39 2026] 127.0.0.1:47342 [200]: GET /api/user_info.php
+[Thu Jun 18 12:18:39 2026] 127.0.0.1:47342 Closing
+[Thu Jun 18 12:18:40 2026] 127.0.0.1:47344 Accepted
+[Thu Jun 18 12:18:40 2026] 127.0.0.1:47344 [200]: GET /game.html?room=high
+[Thu Jun 18 12:18:40 2026] 127.0.0.1:47344 Closing
+[Thu Jun 18 12:18:40 2026] 127.0.0.1:47360 Accepted
+[Thu Jun 18 12:18:40 2026] 127.0.0.1:47372 Accepted
+[Thu Jun 18 12:18:40 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
+Stack trace:
+#0 /app/src/Utils/DB.php(15): PDO->__construct()
+#1 /app/src/Utils/DB.php(27): App\Utils\DB->__construct()
+#2 /app/src/Model/Lottery.php(9): App\Utils\DB::getInstance()
+#3 /app/public/api/lottery.php(7): App\Model\Lottery::getLatest()
+#4 {main}
+  thrown in /app/src/Utils/DB.php on line 15
+[Thu Jun 18 12:18:40 2026] 127.0.0.1:47360 [500]: GET /api/lottery.php - Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
+Stack trace:
+#0 /app/src/Utils/DB.php(15): PDO->__construct()
+#1 /app/src/Utils/DB.php(27): App\Utils\DB->__construct()
+#2 /app/src/Model/Lottery.php(9): App\Utils\DB::getInstance()
+#3 /app/public/api/lottery.php(7): App\Model\Lottery::getLatest()
+#4 {main}
+  thrown in /app/src/Utils/DB.php on line 15
+[Thu Jun 18 12:18:40 2026] 127.0.0.1:47360 Closing
+[Thu Jun 18 12:18:40 2026] 127.0.0.1:47372 [200]: GET /api/user_info.php
+[Thu Jun 18 12:18:40 2026] 127.0.0.1:47372 Closing
+[Thu Jun 18 12:18:41 2026] 127.0.0.1:47384 Accepted
+[Thu Jun 18 12:18:41 2026] 127.0.0.1:47384 [200]: GET /login.html
+[Thu Jun 18 12:18:41 2026] 127.0.0.1:47384 Closing

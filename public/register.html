@@ -1,33 +1,64 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注册 - 加拿大 28</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#D4AF37',
+                        gold: { DEFAULT: '#D4AF37' },
+                        dark: { DEFAULT: '#121212', light: '#1E1E1E' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+        body { font-family: 'Noto+Sans+SC', sans-serif; }
+        .gold-gradient { background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #9A7D0A 100%); }
+    </style>
 </head>
-<body class="bg-slate-50 flex items-center justify-center min-h-screen p-6">
-    <div class="w-full max-w-md bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100">
-        <h1 class="text-3xl font-black text-indigo-600 mb-2">开启账号</h1>
-        <p class="text-slate-400 text-sm mb-10">加入最专业的 PC28 社区</p>
+<body class="bg-dark text-white flex items-center justify-center min-h-screen p-6">
+    <div class="w-full max-w-md bg-dark-light rounded-[3rem] p-10 border border-white/5 shadow-2xl">
+        <h1 class="text-3xl font-black mb-2">开启尊享</h1>
+        <p class="text-slate-500 text-sm mb-10 font-bold">加入全球领先的 28 预测社区</p>
 
         <div class="space-y-6">
             <div>
-                <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">用户名</label>
-                <input type="text" id="username" class="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-2 ring-indigo-500/20 transition-all" placeholder="输入用户名">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block mb-3">用户名</label>
+                <div class="bg-dark flex items-center px-6 rounded-2xl border border-white/5 focus-within:border-primary/50">
+                    <i class="fas fa-user-plus text-slate-600 text-sm"></i>
+                    <input type="text" id="username" class="w-full bg-transparent px-4 py-5 outline-none text-sm font-bold" placeholder="设置您的用户名">
+                </div>
             </div>
             <div>
-                <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">设置密码</label>
-                <input type="password" id="password" class="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-2 ring-indigo-500/20 transition-all" placeholder="设置密码">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block mb-3">安全密码</label>
+                <div class="bg-dark flex items-center px-6 rounded-2xl border border-white/5 focus-within:border-primary/50">
+                    <i class="fas fa-shield-alt text-slate-600 text-sm"></i>
+                    <input type="password" id="password" class="w-full bg-transparent px-4 py-5 outline-none text-sm font-bold" placeholder="设置登录密码">
+                </div>
             </div>
             <div>
-                <label class="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">邀请码 (可选)</label>
-                <input type="text" id="inviter_id" class="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-2 ring-indigo-500/20 transition-all" placeholder="输入邀请人 ID">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block mb-3">尊享邀请码 (可选)</label>
+                <div class="bg-dark flex items-center px-6 rounded-2xl border border-white/5 focus-within:border-primary/50">
+                    <i class="fas fa-gift text-slate-600 text-sm"></i>
+                    <input type="text" id="inviter_id" class="w-full bg-transparent px-4 py-5 outline-none text-sm font-bold" placeholder="输入邀请人 ID">
+                </div>
             </div>
-            <button onclick="register()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black shadow-lg shadow-slate-200 active:scale-95 transition-all">创建账号</button>
+            <button onclick="register()" class="w-full gold-gradient text-black py-5 rounded-2xl font-black shadow-lg active:scale-95 transition-all">
+                创建账户
+            </button>
         </div>
 
-        <p class="mt-10 text-center text-sm text-slate-400">已有账号？ <a href="/login.html" class="text-indigo-600 font-bold">登录</a></p>
+        <p class="mt-10 text-center text-sm text-slate-500 font-bold">已有至尊号？ <a href="/login.html" class="text-primary">立即登录</a></p>
     </div>
 
     <script>
@@ -38,6 +69,8 @@
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
             const ref = document.getElementById('inviter_id').value;
+            if(!u || !p) return alert('请填写完整信息');
+
             const res = await fetch('/api/register.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
