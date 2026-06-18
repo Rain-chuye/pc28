@@ -37,6 +37,24 @@
         .glass-header { background: rgba(18, 18, 18, 0.8); backdrop-blur: 15px; border-bottom: 1px border rgba(255,255,255,0.05); }
         .tab-active { color: #D4AF37; border-bottom: 2px solid #D4AF37; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
+
+        /* Mi Pai (Peeking) Animation */
+        .mipai-container { position: relative; cursor: pointer; }
+        .mipai-overlay {
+            position: absolute; top: -2px; left: -2px; width: calc(100% + 4px); height: calc(100% + 4px);
+            background: linear-gradient(135deg, #2A2A2A, #1A1A1A); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 20; transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 2px dashed #D4AF37;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .mipai-container.revealed .mipai-overlay {
+            transform: scale(1.5) translateY(-100px) rotate(20deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .mipai-overlay i { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
     </style>
 </head>
 <body class="bg-dark text-white min-h-screen pb-48">
@@ -75,10 +93,18 @@
                     <i class="fas fa-plus self-center text-slate-700 text-xs"></i>
                     <div class="num-ball w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center text-xl font-black bg-dark-lighter shadow-inner">?</div>
                     <i class="fas fa-equals self-center text-slate-700 text-xs"></i>
-                    <div id="total-result" class="w-12 h-12 rounded-full gold-gradient flex items-center justify-center text-xl font-black text-black shadow-lg shadow-primary/30">?</div>
+                    <div class="mipai-container w-12 h-12" onclick="revealResult(this)">
+                        <div class="mipai-overlay"><i class="fas fa-fingerprint text-primary text-xs"></i></div>
+                        <div id="total-result" class="w-12 h-12 rounded-full gold-gradient flex items-center justify-center text-xl font-black text-black shadow-lg shadow-primary/30">?</div>
+                    </div>
                 </div>
-                <div id="timer-display" class="text-xs font-black text-slate-400 flex items-center gap-2">
+                <div id="timer-display" class="text-xs font-black text-slate-400 flex items-center gap-2 mb-2">
                     <i class="fas fa-clock text-primary"></i> 距离下期开奖还有 <span class="text-white">00:00</span>
+                </div>
+                <div class="h-10 overflow-hidden relative w-full bg-black/20 rounded-xl px-4 py-2 border border-white/5">
+                    <div id="live-feed-container" class="absolute w-full transition-all duration-500 space-y-1">
+                        <p class="text-[9px] text-primary font-black uppercase tracking-widest truncate">正在连接实时数据...</p>
+                    </div>
                 </div>
             </div>
             <i class="fas fa-chart-line absolute -right-4 -bottom-4 text-8xl text-white/5"></i>
@@ -161,10 +187,6 @@
         </div>
 
         <!-- Chat Feedback Area -->
-        <div class="bg-dark-light/50 border border-white/5 rounded-2xl p-4 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center"><i class="fas fa-bullhorn text-primary text-xs"></i></div>
-            <div id="live-feed" class="text-[10px] text-slate-400 truncate">正在加载最新动态...</div>
-        </div>
     </main>
 
     <!-- Fixed Bottom Betting Panel -->
@@ -299,26 +321,54 @@
             }
         }
 
+        let lastLotteryId = '';
+        function revealResult(el) {
+            el.classList.add('revealed');
+        }
+
         async function refreshData() {
             try {
                 const res = await fetch('/api/lottery.php');
                 const data = await res.json();
                 if (data.latest) {
+                    const isNew = lastLotteryId !== data.latest.issue_no;
                     currentIssue = data.latest.issue_no;
                     document.getElementById('issue-display').innerText = currentIssue + ' 期正在下注';
-                    const nums = data.latest.numbers.split(',');
-                    const balls = document.querySelectorAll('.num-ball');
-                    balls[0].innerText = nums[0];
-                    balls[1].innerText = nums[1];
-                    balls[2].innerText = nums[2];
-                    document.getElementById('total-result').innerText = data.latest.total_sum;
+
+                    if (isNew) {
+                        lastLotteryId = data.latest.issue_no;
+                        // Reset Mi Pai
+                        const mipai = document.querySelector('.mipai-container');
+                        mipai.classList.remove('revealed');
+
+                        const nums = data.latest.numbers.split(',');
+                        const balls = document.querySelectorAll('.num-ball');
+                        balls[0].innerText = nums[0];
+                        balls[1].innerText = nums[1];
+                        balls[2].innerText = nums[2];
+                        document.getElementById('total-result').innerText = data.latest.total_sum;
+                    }
                 }
 
                 const feedRes = await fetch('/api/live_bets.php');
                 const feedData = await feedRes.json();
                 if(feedData.data && feedData.data.length > 0) {
-                    const bet = feedData.data[0];
-                    document.getElementById('live-feed').innerText = `用户 ${bet.username.substring(0,2)}*** 刚刚投注 ${bet.play_type} ¥${bet.bet_amount}`;
+                    const container = document.getElementById('live-feed-container');
+                    container.innerHTML = feedData.data.slice(0, 5).map(bet => `
+                        <div class="text-[9px] text-slate-400 font-bold truncate">
+                            <span class="text-primary">用户 ${bet.username.substring(0,2)}***</span>
+                            刚刚投注 <span class="text-white">${bet.play_type}</span>
+                            <span class="text-green-400">¥${Math.floor(bet.bet_amount)}</span>
+                        </div>
+                    `).join('');
+
+                    // Simple ticker effect
+                    let offset = 0;
+                    if (window.feedTicker) clearInterval(window.feedTicker);
+                    window.feedTicker = setInterval(() => {
+                        offset = (offset + 14) % (container.scrollHeight || 1);
+                        container.style.transform = `translateY(-${offset}px)`;
+                    }, 3000);
                 }
             } catch (e) {}
         }

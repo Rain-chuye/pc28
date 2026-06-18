@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>财富报表 - 加拿大 28</title>
+    <title>报表统计 - 加拿大 28</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -23,126 +22,97 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
-        body { font-family: 'Noto+Sans+SC', sans-serif; background-color: #121212; color: white; }
-        .gold-gradient { background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #9A7D0A 100%); }
+        body { font-family: 'Noto+Sans+SC', sans-serif; background-color: #121212; color: #E2E8F0; }
+        .table-header { background-color: #1E1E1E; }
+        .row-even { background-color: #161616; }
+        .row-odd { background-color: #1E1E1E; }
     </style>
 </head>
-<body class="pb-32">
-    <header class="p-6 flex items-center justify-between">
-        <button onclick="history.back()" class="w-10 h-10 rounded-full bg-dark-light flex items-center justify-center border border-white/5"><i class="fas fa-chevron-left"></i></button>
-        <h1 class="text-sm font-black uppercase tracking-widest">财富报表</h1>
-        <div class="w-10"></div>
+<body class="pb-20">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-dark/80 backdrop-blur-md p-4 flex items-center justify-between border-b border-white/5">
+        <button onclick="history.back()" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/5">
+            <i class="fas fa-chevron-left text-sm"></i>
+        </button>
+        <h1 class="text-sm font-bold">报表统计</h1>
+        <div class="w-8"></div>
     </header>
 
-    <main class="p-6 space-y-8">
-        <!-- Overview Grid -->
-        <div class="grid grid-cols-2 gap-4">
-            <div class="bg-dark-light p-6 rounded-[2rem] border border-white/5">
-                <p class="text-[9px] text-slate-500 font-black uppercase mb-1">累计盈亏</p>
-                <p id="profit-val" class="text-lg font-black text-green-400">¥ 0.00</p>
-            </div>
-            <div class="bg-dark-light p-6 rounded-[2rem] border border-white/5">
-                <p class="text-[9px] text-slate-500 font-black uppercase mb-1">下注期数</p>
-                <p id="issue-val" class="text-lg font-black text-primary">0 期</p>
-            </div>
+    <!-- Overview Stats -->
+    <div class="p-4 grid grid-cols-2 gap-3">
+        <div class="bg-dark-light p-4 rounded-2xl border border-white/5">
+            <p class="text-[10px] text-slate-500 uppercase mb-1">累计充值</p>
+            <p id="total-deposit" class="text-lg font-black text-primary">¥ 0.00</p>
         </div>
+        <div class="bg-dark-light p-4 rounded-2xl border border-white/5">
+            <p class="text-[10px] text-slate-500 uppercase mb-1">累计提现</p>
+            <p id="total-withdraw" class="text-lg font-black text-slate-300">¥ 0.00</p>
+        </div>
+        <div class="bg-dark-light p-4 rounded-2xl border border-white/5">
+            <p class="text-[10px] text-slate-500 uppercase mb-1">累计投注</p>
+            <p id="total-bet" class="text-lg font-black text-blue-400">¥ 0.00</p>
+        </div>
+        <div class="bg-dark-light p-4 rounded-2xl border border-white/5">
+            <p class="text-[10px] text-slate-500 uppercase mb-1">累计盈亏</p>
+            <p id="total-profit" class="text-lg font-black text-green-400">¥ 0.00</p>
+        </div>
+    </div>
 
-        <!-- Volume Bar Chart -->
-        <div class="bg-dark-light p-8 rounded-[2.5rem] border border-white/5">
-            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">财务收支对比 (充值 vs 提现)</h3>
-            <canvas id="volume-chart" height="150"></canvas>
+    <!-- Data Table -->
+    <div class="px-4 mt-4">
+        <div class="overflow-hidden rounded-xl border border-white/5">
+            <table class="w-full text-left text-[11px]">
+                <thead class="table-header text-slate-400 uppercase font-bold border-b border-white/5">
+                    <tr>
+                        <th class="py-3 px-4">日期</th>
+                        <th class="py-3 px-2 text-right">注数</th>
+                        <th class="py-3 px-2 text-right">投注</th>
+                        <th class="py-3 px-2 text-right">中奖</th>
+                        <th class="py-3 px-4 text-right">盈亏</th>
+                    </tr>
+                </thead>
+                <tbody id="stats-body">
+                    <!-- Rows will be injected here -->
+                </tbody>
+            </table>
         </div>
-
-        <!-- Composition Bar Chart -->
-        <div class="bg-dark-light p-8 rounded-[2.5rem] border border-white/5">
-            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">玩法注额构成 (%)</h3>
-            <div id="composition-bars" class="space-y-4"></div>
-        </div>
-
-        <!-- Profit Trend Chart -->
-        <div class="bg-dark-light p-8 rounded-[2.5rem] border border-white/5">
-            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">近 7 日盈亏趋势</h3>
-            <canvas id="profit-chart"></canvas>
-        </div>
-    </main>
+    </div>
 
     <script>
-        async function loadStats() {
+        async function fetchStats() {
             const res = await fetch('/api/user_stats.php');
             const data = await res.json();
 
-            const overview = data.overview;
-            const profit = parseFloat(overview.total_win) - parseFloat(overview.total_bet);
-            document.getElementById('profit-val').innerText = '¥ ' + profit.toLocaleString();
-            document.getElementById('profit-val').className = profit >= 0 ? 'text-lg font-black text-green-400' : 'text-lg font-black text-red-400';
-            document.getElementById('issue-val').innerText = (overview.total_issues || 0) + ' 期';
+            if (data.success) {
+                const ov = data.overview;
+                document.getElementById('total-deposit').innerText = '¥ ' + parseFloat(ov.total_deposit || 0).toLocaleString();
+                document.getElementById('total-withdraw').innerText = '¥ ' + parseFloat(ov.total_withdraw || 0).toLocaleString();
+                document.getElementById('total-bet').innerText = '¥ ' + parseFloat(ov.total_bet || 0).toLocaleString();
 
-            // Volume Chart
-            const vCtx = document.getElementById('volume-chart').getContext('2d');
-            new Chart(vCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['累计充值', '累计提现'],
-                    datasets: [{
-                        data: [overview.total_deposit, overview.total_withdraw],
-                        backgroundColor: ['#10b981', '#f43f5e'],
-                        borderRadius: 10
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { display: false },
-                        y: { ticks: { color: '#475569', font: { weight: 'bold' } }, grid: { display: false } }
-                    }
-                }
-            });
+                const totalProfit = parseFloat(ov.total_win || 0) - parseFloat(ov.total_bet || 0);
+                const profitEl = document.getElementById('total-profit');
+                profitEl.innerText = '¥ ' + totalProfit.toLocaleString();
+                profitEl.className = totalProfit >= 0 ? 'text-lg font-black text-green-400' : 'text-lg font-black text-red-400';
 
-            // Composition
-            const comp = data.composition;
-            const totalBet = comp.reduce((acc, c) => acc + parseFloat(c.total), 0);
-            const compContainer = document.getElementById('composition-bars');
-            compContainer.innerHTML = comp.sort((a,b) => b.total - a.total).slice(0, 5).map(c => {
-                const percent = ((parseFloat(c.total) / totalBet) * 100).toFixed(1);
-                return `
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-[10px] font-black uppercase">
-                            <span class="text-slate-500">${c.play_type}</span>
-                            <span class="text-primary">${percent}%</span>
-                        </div>
-                        <div class="w-full bg-dark h-2 rounded-full overflow-hidden">
-                            <div class="gold-gradient h-full" style="width: ${percent}%"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Profit Chart
-            const ctx = document.getElementById('profit-chart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.daily.map(d => d.date.substring(5)),
-                    datasets: [{
-                        label: '每日盈亏',
-                        data: data.daily.map(d => d.profit),
-                        backgroundColor: data.daily.map(d => d.profit >= 0 ? '#10b981' : '#ef4444'),
-                        borderRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 9 } } },
-                        x: { grid: { display: false }, ticks: { color: '#475569', font: { size: 9 } } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
+                const body = document.getElementById('stats-body');
+                body.innerHTML = data.daily_reports.map((row, index) => {
+                    const profit = parseFloat(row.profit);
+                    const profitClass = profit > 0 ? 'text-green-400' : (profit < 0 ? 'text-red-400' : 'text-slate-400');
+                    return `
+                        <tr class="${index % 2 === 0 ? 'row-even' : 'row-odd'} border-b border-white/5">
+                            <td class="py-4 px-4 font-bold text-slate-300">${row.date.substring(5)}</td>
+                            <td class="py-4 px-2 text-right text-slate-400">${row.order_count}</td>
+                            <td class="py-4 px-2 text-right text-slate-300">¥${Math.floor(row.bet_amount)}</td>
+                            <td class="py-4 px-2 text-right text-primary">¥${Math.floor(row.win_amount)}</td>
+                            <td class="py-4 px-4 text-right font-black ${profitClass}">
+                                ${profit > 0 ? '+' : ''}${Math.floor(profit)}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
         }
-
-        loadStats();
+        fetchStats();
     </script>
 </body>
 </html>
