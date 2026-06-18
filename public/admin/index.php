@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/check_auth.php';
-require_once __DIR__ . '/../src/Utils/DB.php';
+require_once __DIR__ . '/../../src/Utils/DB.php';
 
 $db = \App\Utils\DB::getInstance()->getConnection();
 

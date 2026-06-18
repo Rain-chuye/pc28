@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../src/Utils/DB.php';
+require_once __DIR__ . '/../../../src/Utils/DB.php';
 $db = \App\Utils\DB::getInstance()->getConnection();
 
 $bets = $db->query("SELECT b.*, u.username FROM bets b JOIN users u ON b.user_id = u.id ORDER BY b.id DESC")->fetchAll(PDO::FETCH_ASSOC);

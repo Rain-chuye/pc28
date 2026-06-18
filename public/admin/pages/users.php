@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once __DIR__ . '/../../src/Model/User.php';
-require_once __DIR__ . '/../../src/Utils/DB.php';
+require_once __DIR__ . '/../../../src/Model/User.php';
+require_once __DIR__ . '/../../../src/Utils/DB.php';
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: /login.html');

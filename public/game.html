@@ -94,7 +94,7 @@
                     <div class="num-ball w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center text-xl font-black bg-dark-lighter shadow-inner">?</div>
                     <i class="fas fa-equals self-center text-slate-700 text-xs"></i>
                     <div class="mipai-container w-12 h-12" onclick="revealResult(this)">
-                        <div class="mipai-overlay"><i class="fas fa-fingerprint text-primary text-xs"></i></div>
+                        <div class="mipai-overlay flex flex-col gap-1"><i class="fas fa-fingerprint text-primary text-xs"></i><span class="text-[6px] text-primary font-bold">点击咪牌</span></div>
                         <div id="total-result" class="w-12 h-12 rounded-full gold-gradient flex items-center justify-center text-xl font-black text-black shadow-lg shadow-primary/30">?</div>
                     </div>
                 </div>
@@ -335,18 +335,19 @@
                     currentIssue = data.latest.issue_no;
                     document.getElementById('issue-display').innerText = currentIssue + ' 期正在下注';
 
+                    // Always update current display data
+                    const nums = data.latest.numbers.split(',');
+                    const balls = document.querySelectorAll('.num-ball');
+                    balls[0].innerText = nums[0];
+                    balls[1].innerText = nums[1];
+                    balls[2].innerText = nums[2];
+                    document.getElementById('total-result').innerText = data.latest.total_sum;
+
                     if (isNew) {
                         lastLotteryId = data.latest.issue_no;
-                        // Reset Mi Pai
+                        // Reset Mi Pai for NEW issue
                         const mipai = document.querySelector('.mipai-container');
                         mipai.classList.remove('revealed');
-
-                        const nums = data.latest.numbers.split(',');
-                        const balls = document.querySelectorAll('.num-ball');
-                        balls[0].innerText = nums[0];
-                        balls[1].innerText = nums[1];
-                        balls[2].innerText = nums[2];
-                        document.getElementById('total-result').innerText = data.latest.total_sum;
                     }
                 }
 
