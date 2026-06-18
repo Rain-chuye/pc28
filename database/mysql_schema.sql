@@ -144,3 +144,17 @@ INSERT IGNORE INTO users (username, password, balance, role, is_robot) VALUES
 ('bot_jack', 'bot', 5000.00, 'user', 1),
 ('bot_lisa', 'bot', 5000.00, 'user', 1),
 ('bot_mike', 'bot', 5000.00, 'user', 1);
+
+CREATE TABLE IF NOT EXISTS balance_logs (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    user_id INT(11) NOT NULL,
+    type ENUM('deposit', 'withdraw', 'bet', 'win', 'bonus', 'rebate', 'red_packet') NOT NULL,
+    amount DECIMAL(15, 2) NOT NULL,
+    balance_before DECIMAL(15, 2) NOT NULL,
+    balance_after DECIMAL(15, 2) NOT NULL,
+    description VARCHAR(255) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY (user_id),
+    KEY (type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

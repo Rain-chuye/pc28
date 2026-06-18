@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财富报表 - 加拿大 28</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#D4AF37',
+                        gold: { DEFAULT: '#D4AF37' },
+                        dark: { DEFAULT: '#121212', light: '#1E1E1E', lighter: '#2A2A2A' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+        body { font-family: 'Noto+Sans+SC', sans-serif; background-color: #121212; color: white; }
+        .gold-gradient { background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #9A7D0A 100%); }
+    </style>
+</head>
+<body class="pb-32">
+    <header class="p-6 flex items-center justify-between">
+        <button onclick="history.back()" class="w-10 h-10 rounded-full bg-dark-light flex items-center justify-center border border-white/5"><i class="fas fa-chevron-left"></i></button>
+        <h1 class="text-sm font-black uppercase tracking-widest">财富报表</h1>
+        <div class="w-10"></div>
+    </header>
+
+    <main class="p-6 space-y-8">
+        <!-- Overview Grid -->
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-dark-light p-6 rounded-[2rem] border border-white/5">
+                <p class="text-[9px] text-slate-500 font-black uppercase mb-1">累计盈亏</p>
+                <p id="profit-val" class="text-lg font-black text-green-400">¥ 0.00</p>
+            </div>
+            <div class="bg-dark-light p-6 rounded-[2rem] border border-white/5">
+                <p class="text-[9px] text-slate-500 font-black uppercase mb-1">下注期数</p>
+                <p id="issue-val" class="text-lg font-black text-primary">0 期</p>
+            </div>
+        </div>
+
+        <!-- Volume Bar Chart -->
+        <div class="bg-dark-light p-8 rounded-[2.5rem] border border-white/5">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">财务收支对比 (充值 vs 提现)</h3>
+            <canvas id="volume-chart" height="150"></canvas>
+        </div>
+
+        <!-- Composition Bar Chart -->
+        <div class="bg-dark-light p-8 rounded-[2.5rem] border border-white/5">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">玩法注额构成 (%)</h3>
+            <div id="composition-bars" class="space-y-4"></div>
+        </div>
+
+        <!-- Profit Trend Chart -->
+        <div class="bg-dark-light p-8 rounded-[2.5rem] border border-white/5">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">近 7 日盈亏趋势</h3>
+            <canvas id="profit-chart"></canvas>
+        </div>
+    </main>
+
+    <script>
+        async function loadStats() {
+            const res = await fetch('/api/user_stats.php');
+            const data = await res.json();
+
+            const overview = data.overview;
+            const profit = parseFloat(overview.total_win) - parseFloat(overview.total_bet);
+            document.getElementById('profit-val').innerText = '¥ ' + profit.toLocaleString();
+            document.getElementById('profit-val').className = profit >= 0 ? 'text-lg font-black text-green-400' : 'text-lg font-black text-red-400';
+            document.getElementById('issue-val').innerText = (overview.total_issues || 0) + ' 期';
+
+            // Volume Chart
+            const vCtx = document.getElementById('volume-chart').getContext('2d');
+            new Chart(vCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['累计充值', '累计提现'],
+                    datasets: [{
+                        data: [overview.total_deposit, overview.total_withdraw],
+                        backgroundColor: ['#10b981', '#f43f5e'],
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { ticks: { color: '#475569', font: { weight: 'bold' } }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // Composition
+            const comp = data.composition;
+            const totalBet = comp.reduce((acc, c) => acc + parseFloat(c.total), 0);
+            const compContainer = document.getElementById('composition-bars');
+            compContainer.innerHTML = comp.sort((a,b) => b.total - a.total).slice(0, 5).map(c => {
+                const percent = ((parseFloat(c.total) / totalBet) * 100).toFixed(1);
+                return `
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] font-black uppercase">
+                            <span class="text-slate-500">${c.play_type}</span>
+                            <span class="text-primary">${percent}%</span>
+                        </div>
+                        <div class="w-full bg-dark h-2 rounded-full overflow-hidden">
+                            <div class="gold-gradient h-full" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Profit Chart
+            const ctx = document.getElementById('profit-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.daily.map(d => d.date.substring(5)),
+                    datasets: [{
+                        label: '每日盈亏',
+                        data: data.daily.map(d => d.profit),
+                        backgroundColor: data.daily.map(d => d.profit >= 0 ? '#10b981' : '#ef4444'),
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#475569', font: { size: 9 } } },
+                        x: { grid: { display: false }, ticks: { color: '#475569', font: { size: 9 } } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>

@@ -56,45 +56,36 @@
                 <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">当前可用余额</p>
                 <h3 class="text-4xl font-black text-primary">¥ <span id="balance">0.00</span></h3>
             </div>
-            <button onclick="location.href='/recharge.html'" class="w-14 h-14 gold-gradient text-black rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-                <i class="fas fa-plus text-xl"></i>
-            </button>
+            <div class="flex gap-2">
+                <button onclick="location.href='/recharge.html'" class="w-12 h-12 bg-dark rounded-2xl flex items-center justify-center border border-white/5 text-primary">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button onclick="location.href='/wallet_logs.html'" class="w-12 h-12 bg-dark rounded-2xl flex items-center justify-center border border-white/5 text-slate-400">
+                    <i class="fas fa-receipt"></i>
+                </button>
+            </div>
         </div>
 
-        <!-- Turnover Progress -->
-        <div class="bg-dark-light rounded-[2.5rem] p-8 border border-white/10 shadow-xl">
-            <div class="flex justify-between items-center mb-6">
-                <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">提现流水进度</h4>
-                <span class="text-xs font-black text-primary" id="turnover-percent">0%</span>
-            </div>
-            <div class="w-full bg-dark h-3 rounded-full overflow-hidden mb-6 border border-white/5">
-                <div id="turnover-bar" class="gold-gradient h-full transition-all duration-1000 shadow-[0_0_15px_rgba(212,175,55,0.3)]" style="width: 0%"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-dark/50 p-4 rounded-2xl border border-white/5">
-                    <p class="text-[9px] text-slate-500 font-black uppercase mb-1">当前累计</p>
-                    <p class="text-sm font-black" id="current-turnover">0.00</p>
-                </div>
-                <div class="bg-dark/50 p-4 rounded-2xl border border-white/5">
-                    <p class="text-[9px] text-slate-500 font-black uppercase mb-1">提现门槛</p>
-                    <p class="text-sm font-black" id="required-turnover">0.00</p>
+        <!-- Quick Stats Summary -->
+        <div class="grid grid-cols-2 gap-4">
+             <div onclick="location.href='/stats.html'" class="bg-dark-light p-6 rounded-[2rem] border border-white/10 active:scale-95 transition-transform">
+                <p class="text-[9px] text-slate-500 font-black uppercase mb-1">财富报表</p>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-chart-pie text-primary text-xs"></i>
+                    <span class="text-xs font-black">查看明细</span>
                 </div>
             </div>
-            <p class="text-[9px] text-slate-600 mt-6 text-center font-bold">提示：需达到总充值与福利之和的 4 倍流水方可提现</p>
+            <div onclick="location.href='/wallet_logs.html'" class="bg-dark-light p-6 rounded-[2rem] border border-white/10 active:scale-95 transition-transform">
+                <p class="text-[9px] text-slate-500 font-black uppercase mb-1">积分变动</p>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-history text-slate-400 text-xs"></i>
+                    <span class="text-xs font-black">变动记录</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Referral & Menu -->
+        <!-- Menu -->
         <div class="bg-dark-light rounded-[2.5rem] border border-white/10 overflow-hidden">
-            <div onclick="copyInvite()" class="p-6 border-b border-white/5 flex items-center justify-between group active:bg-dark transition-colors">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-dark rounded-xl flex items-center justify-center text-primary border border-white/5"><i class="fas fa-share-alt"></i></div>
-                    <div>
-                        <p class="text-[10px] text-slate-500 font-black uppercase">推广邀请码</p>
-                        <p class="text-sm font-black" id="invite-code">---</p>
-                    </div>
-                </div>
-                <span class="text-[10px] font-black text-primary bg-primary/10 px-3 py-1 rounded-full group-active:scale-95 transition-transform">复制</span>
-            </div>
             <a href="/withdraw.html" class="p-6 border-b border-white/5 flex items-center justify-between active:bg-dark transition-colors">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 bg-dark rounded-xl flex items-center justify-center text-slate-500 border border-white/5"><i class="fas fa-university"></i></div>
@@ -102,7 +93,7 @@
                 </div>
                 <i class="fas fa-chevron-right text-slate-800"></i>
             </a>
-            <div class="p-6 flex items-center justify-between active:bg-dark transition-colors" onclick="alert('即将上线')">
+            <div class="p-6 flex items-center justify-between active:bg-dark transition-colors" onclick="location.href='/wallet_logs.html?type=bet'">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 bg-dark rounded-xl flex items-center justify-center text-slate-500 border border-white/5"><i class="fas fa-history"></i></div>
                     <span class="text-sm font-black">投注明细</span>
@@ -144,28 +135,10 @@
                 document.getElementById('user-initial').innerText = u.username[0].toUpperCase();
                 document.getElementById('user-id').innerText = String(u.id).padStart(4, '0');
                 document.getElementById('balance').innerText = parseFloat(u.balance).toLocaleString();
-                document.getElementById('invite-code').innerText = u.id;
-
-                const current = parseFloat(u.total_turnover);
-                const required = (parseFloat(u.total_deposit) + parseFloat(u.total_bonus)) * 4;
-                document.getElementById('current-turnover').innerText = current.toFixed(2);
-                document.getElementById('required-turnover').innerText = required.toFixed(2);
-
-                let percent = required > 0 ? (current / required) * 100 : 100;
-                if(percent > 100) percent = 100;
-                document.getElementById('turnover-percent').innerText = percent.toFixed(1) + '%';
-                document.getElementById('turnover-bar').style.width = percent + '%';
             } else {
                 location.href = '/login.html';
             }
         }
-
-        function copyInvite() {
-            const code = document.getElementById('invite-code').innerText;
-            navigator.clipboard.writeText(code);
-            alert('至尊邀请码已复制');
-        }
-
         loadProfile();
     </script>
 </body>

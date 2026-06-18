@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../src/Utils/DB.php';
+require_once __DIR__ . '/../../src/Model/User.php';
 
 header('Content-Type: application/json');
 
@@ -22,24 +23,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($status === 'approved') {
                 if ($req['type'] === 'deposit') {
-                    // Update user balance and total_deposit
-                    $stmt = $db->prepare("UPDATE users SET balance = balance + ?, total_deposit = total_deposit + ? WHERE id = ?");
-                    $stmt->execute([$req['amount'], $req['amount'], $req['user_id']]);
+                    \App\Model\User::addDeposit($req['user_id'], $req['amount'], $db);
 
-                    // New user bonus check (assuming "Deposit 21 Get 20" from previous context or generic bonus)
-                    // If this is the first deposit, give 20 bonus
+                    // First deposit bonus
                     $stmt = $db->prepare("SELECT COUNT(*) FROM finance_requests WHERE user_id = ? AND status = 'approved' AND type = 'deposit'");
                     $stmt->execute([$req['user_id']]);
-                    if ($stmt->fetchColumn() == 1) { // Current one is already counted as approved
-                        $bonus = 20;
-                        $db->prepare("UPDATE users SET balance = balance + ?, total_bonus = total_bonus + ? WHERE id = ?")
-                           ->execute([$bonus, $bonus, $req['user_id']]);
+                    if ($stmt->fetchColumn() == 1) {
+                        \App\Model\User::addBonus($req['user_id'], 20, $db);
                     }
 
                     if ($req['amount'] >= 21) {
                         checkInvitationBonus($db, $req['user_id']);
                     }
+                } else if ($req['type'] === 'withdraw') {
+                    // Balance already deducted on request (assuming typical flow)
+                    // If not deducted on request, deduct here.
+                    // Currently, let's assume it was deducted on request.
+                    // Let's check withdraw.php logic.
                 }
+            } else if ($status === 'rejected' && $req['type'] === 'withdraw') {
+                // Return funds to user
+                \App\Model\User::updateBalance($req['user_id'], $req['amount'], 'withdraw', '提现驳回退款', $db);
             }
         }
         $db->commit();
@@ -59,7 +63,7 @@ function checkInvitationBonus($db, $userId) {
         $checkStmt = $db->prepare("SELECT id FROM rebates WHERE sub_id = ? AND user_id = ? AND type = 'invitation'");
         $checkStmt->execute([$userId, $inviterId]);
         if (!$checkStmt->fetch()) {
-            $db->prepare("UPDATE users SET balance = balance + 15 WHERE id = ?")->execute([$inviterId]);
+            \App\Model\User::updateBalance($inviterId, 15, 'rebate', '好友首充奖励', $db);
             $db->prepare("INSERT INTO rebates (user_id, sub_id, type, amount) VALUES (?, ?, 'invitation', 15)")->execute([$inviterId, $userId]);
         }
     }

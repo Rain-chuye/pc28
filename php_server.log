@@ -1,10 +1,12 @@
-[Thu Jun 18 12:46:30 2026] PHP 8.3.6 Development Server (http://0.0.0.0:8000) started
-[Thu Jun 18 12:46:35 2026] 127.0.0.1:36040 Accepted
-[Thu Jun 18 12:46:35 2026] 127.0.0.1:36040 [200]: GET /game.html?room=low
-[Thu Jun 18 12:46:35 2026] 127.0.0.1:36040 Closing
-[Thu Jun 18 12:46:36 2026] 127.0.0.1:36056 Accepted
-[Thu Jun 18 12:46:36 2026] 127.0.0.1:36062 Accepted
-[Thu Jun 18 12:46:36 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
+[Thu Jun 18 13:17:45 2026] PHP 8.3.6 Development Server (http://0.0.0.0:8000) started
+[Thu Jun 18 13:17:50 2026] 127.0.0.1:53000 Accepted
+[Thu Jun 18 13:17:50 2026] 127.0.0.1:53000 [200]: GET /index.html
+[Thu Jun 18 13:17:50 2026] 127.0.0.1:53000 Closing
+[Thu Jun 18 13:17:51 2026] 127.0.0.1:53002 Accepted
+[Thu Jun 18 13:17:51 2026] 127.0.0.1:53002 [200]: GET /api/user_info.php
+[Thu Jun 18 13:17:51 2026] 127.0.0.1:53002 Closing
+[Thu Jun 18 13:17:51 2026] 127.0.0.1:53014 Accepted
+[Thu Jun 18 13:17:51 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
 Stack trace:
 #0 /app/src/Utils/DB.php(15): PDO->__construct()
 #1 /app/src/Utils/DB.php(27): App\Utils\DB->__construct()
@@ -12,7 +14,7 @@ Stack trace:
 #3 /app/public/api/lottery.php(7): App\Model\Lottery::getLatest()
 #4 {main}
   thrown in /app/src/Utils/DB.php on line 15
-[Thu Jun 18 12:46:36 2026] 127.0.0.1:36056 [500]: GET /api/lottery.php - Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
+[Thu Jun 18 13:17:51 2026] 127.0.0.1:53014 [500]: GET /api/lottery.php?limit=5 - Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
 Stack trace:
 #0 /app/src/Utils/DB.php(15): PDO->__construct()
 #1 /app/src/Utils/DB.php(27): App\Utils\DB->__construct()
@@ -20,6 +22,19 @@ Stack trace:
 #3 /app/public/api/lottery.php(7): App\Model\Lottery::getLatest()
 #4 {main}
   thrown in /app/src/Utils/DB.php on line 15
-[Thu Jun 18 12:46:36 2026] 127.0.0.1:36056 Closing
-[Thu Jun 18 12:46:36 2026] 127.0.0.1:36062 [200]: GET /api/user_info.php
-[Thu Jun 18 12:46:36 2026] 127.0.0.1:36062 Closing
+[Thu Jun 18 13:17:51 2026] 127.0.0.1:53014 Closing
+[Thu Jun 18 13:17:51 2026] 127.0.0.1:53030 Accepted
+[Thu Jun 18 13:17:51 2026] 127.0.0.1:53030 [200]: GET /wallet_logs.html
+[Thu Jun 18 13:17:51 2026] 127.0.0.1:53030 Closing
+[Thu Jun 18 13:17:52 2026] 127.0.0.1:53034 Accepted
+[Thu Jun 18 13:17:52 2026] 127.0.0.1:53034 [200]: GET /api/balance_logs.php?type=all
+[Thu Jun 18 13:17:52 2026] 127.0.0.1:53034 Closing
+[Thu Jun 18 13:17:52 2026] 127.0.0.1:53036 Accepted
+[Thu Jun 18 13:17:52 2026] 127.0.0.1:53036 [200]: GET /stats.html
+[Thu Jun 18 13:17:52 2026] 127.0.0.1:53036 Closing
+[Thu Jun 18 13:17:53 2026] 127.0.0.1:53046 Accepted
+[Thu Jun 18 13:17:53 2026] 127.0.0.1:53046 [200]: GET /api/user_stats.php
+[Thu Jun 18 13:17:53 2026] 127.0.0.1:53046 Closing
+[Thu Jun 18 13:17:53 2026] 127.0.0.1:53058 Accepted
+[Thu Jun 18 13:17:53 2026] 127.0.0.1:53058 [404]: GET /admin/index.php - No such file or directory
+[Thu Jun 18 13:17:53 2026] 127.0.0.1:53058 Closing

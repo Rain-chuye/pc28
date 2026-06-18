@@ -14,9 +14,9 @@ class Bet {
         try {
             $stmt = $conn->prepare("SELECT balance FROM users WHERE id = ? FOR UPDATE");
             $stmt->execute(array($userId));
-            $balance = $stmt->fetchColumn();
+            $balanceBefore = (float)$stmt->fetchColumn();
 
-            if ($balance < $amount) throw new Exception("余额不足");
+            if ($balanceBefore < $amount) throw new Exception("余额不足");
 
             // Get odds
             $oddsField = $oddsType === 'high' ? 'odds_high' : 'odds_low';
@@ -32,8 +32,13 @@ class Bet {
 
             if (!$odds) throw new Exception("无效的玩法: " . $playType);
 
-            $stmt = $conn->prepare("UPDATE users SET balance = balance - ? WHERE id = ?");
-            $stmt->execute(array($amount, $userId));
+            $balanceAfter = $balanceBefore - $amount;
+            $stmt = $conn->prepare("UPDATE users SET balance = ? WHERE id = ?");
+            $stmt->execute(array($balanceAfter, $userId));
+
+            // Log balance change
+            $stmt = $conn->prepare("INSERT INTO balance_logs (user_id, type, amount, balance_before, balance_after, description) VALUES (?, 'bet', ?, ?, ?, ?)");
+            $stmt->execute([$userId, -$amount, $balanceBefore, $balanceAfter, "投注: $playType ($issueNo 期)"]);
 
             $stmt = $conn->prepare("INSERT INTO bets (user_id, issue_no, play_type, odds_type, bet_amount, odds) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute(array($userId, $issueNo, $playType, $oddsType, $amount, $odds));

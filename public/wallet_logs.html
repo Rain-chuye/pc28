@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>积分变动记录 - 加拿大 28</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#D4AF37',
+                        gold: { DEFAULT: '#D4AF37' },
+                        dark: { DEFAULT: '#121212', light: '#1E1E1E', lighter: '#2A2A2A' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+        body { font-family: 'Noto+Sans+SC', sans-serif; background-color: #121212; color: white; }
+        .glass-header { background: rgba(18, 18, 18, 0.9); backdrop-blur: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .log-item { border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .gold-gradient { background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #9A7D0A 100%); }
+    </style>
+</head>
+<body class="min-h-screen pb-20">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-header p-4 px-6 flex justify-between items-center">
+        <button onclick="history.back()" class="flex items-center gap-2 text-slate-400 font-bold text-xs">
+            <i class="fas fa-chevron-left"></i> 返回
+        </button>
+        <h1 class="text-sm font-black tracking-[0.2em]">积分变动记录</h1>
+        <button onclick="location.href='/'" class="text-primary font-bold text-xs">返回大厅</button>
+    </header>
+
+    <main class="pt-20 px-6 space-y-6">
+        <!-- Filter and Summary -->
+        <div class="flex justify-between items-end mb-4">
+            <div>
+                <p class="text-[10px] text-slate-500 font-black uppercase mb-1">当前余额</p>
+                <h2 class="text-2xl font-black text-primary">¥ <span id="current-balance">0.00</span></h2>
+            </div>
+            <select id="type-filter" onchange="loadLogs()" class="bg-dark-light border border-white/10 rounded-xl px-4 py-2 text-[10px] font-black text-slate-400 outline-none">
+                <option value="all">全部变动</option>
+                <option value="bet">投注扣费</option>
+                <option value="win">中奖回款</option>
+                <option value="deposit">充值入账</option>
+                <option value="withdraw">提现记录</option>
+                <option value="bonus">福利奖励</option>
+            </select>
+        </div>
+
+        <!-- Log List -->
+        <div id="log-list" class="bg-dark-light rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl">
+            <!-- Items populated by JS -->
+            <div class="p-10 text-center text-slate-600 font-bold text-xs">正在同步云端账单...</div>
+        </div>
+    </main>
+
+    <script>
+        const typeMap = {
+            'bet': { label: '投注', color: 'text-slate-400', icon: 'fa- dice' },
+            'win': { label: '中奖', color: 'text-primary', icon: 'fa-trophy' },
+            'deposit': { label: '充值', color: 'text-green-400', icon: 'fa-plus' },
+            'withdraw': { label: '提现', color: 'text-red-400', icon: 'fa-university' },
+            'bonus': { label: '福利', color: 'text-yellow-400', icon: 'fa-gift' },
+            'rebate': { label: '返点', color: 'text-blue-400', icon: 'fa-users' },
+            'red_packet': { label: '红包', color: 'text-rose-400', icon: 'fa-envelope' }
+        };
+
+        async function loadLogs() {
+            const type = document.getElementById('type-filter').value;
+            const res = await fetch(`/api/balance_logs.php?type=${type}`);
+            const data = await res.json();
+
+            const list = document.getElementById('log-list');
+            if(data.data.length === 0) {
+                list.innerHTML = '<div class="p-20 text-center text-slate-700 font-black text-sm">没有任何变动信息</div>';
+                return;
+            }
+
+            list.innerHTML = data.data.map(log => `
+                <div class="p-6 log-item flex justify-between items-center active:bg-dark/50 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-2xl bg-dark border border-white/5 flex items-center justify-center ${typeMap[log.type].color}">
+                            <i class="fas ${typeMap[log.type].icon} text-xs"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black mb-1">${log.description || typeMap[log.type].label}</p>
+                            <p class="text-[9px] text-slate-600 font-bold">${log.created_at}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-black ${log.amount > 0 ? 'text-green-400' : 'text-slate-200'}">${log.amount > 0 ? '+' : ''}${log.amount}</p>
+                        <p class="text-[8px] text-slate-700 font-bold">结余: ${log.balance_after}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            // Get balance from user_info
+            const uRes = await fetch('/api/user_info.php');
+            const uData = await uRes.json();
+            if(uData.success) document.getElementById('current-balance').innerText = parseFloat(uData.user.balance).toLocaleString();
+        }
+
+        loadLogs();
+    </script>
+</body>
+</html>
