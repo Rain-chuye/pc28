@@ -14,11 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$username]);
     $user = $stmt->fetch();
 
-    if ($user && $user['password'] === $password) { // In production use password_verify
-        $_SESSION['user_id'] = $user['id'];
+    if ($user && $user['password'] === $password) {
+        session_regenerate_id(true); // Prevent session fixation
+        $_SESSION['user_id'] = (int)$user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['role'] = $user['role'];
-        echo json_encode(['success' => true]);
+        echo json_encode(['success' => true, 'role' => $user['role']]);
     } else {
         echo json_encode(['success' => false, 'message' => '用户名或密码错误']);
     }

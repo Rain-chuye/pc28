@@ -1,11 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/check_auth.php';
 require_once __DIR__ . '/../src/Utils/DB.php';
-
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: /login.html');
-    die;
-}
 
 $db = \App\Utils\DB::getInstance()->getConnection();
 

@@ -1,4 +1,7 @@
 <?php
+/**
+ * PC28 结算系统完善版
+ */
 require_once __DIR__ . '/../src/Utils/DB.php';
 require_once __DIR__ . '/../src/Model/User.php';
 
@@ -17,11 +20,13 @@ function isPair($numbers) {
 function isStraight($numbers) {
     $nums = explode(',', $numbers);
     sort($nums);
+    // 正常顺子 or 089 特殊顺子
     return ($nums[1] == $nums[0] + 1 && $nums[2] == $nums[1] + 1) || (array_slice($nums, 0, 3) == [0, 8, 9]);
 }
 
 function settle($db) {
-    $stmt = $db->query("SELECT * FROM bets WHERE status = 0");
+    // 仅查询待结算注单
+    $stmt = $db->query("SELECT * FROM bets WHERE status = 0 LIMIT 100");
     $bets = $stmt->fetchAll();
 
     foreach ($bets as $bet) {
@@ -36,30 +41,34 @@ function settle($db) {
             $isWin = false;
             $isReturn = false;
 
-            // Logic for win check
-            if ($bet['play_type'] == 'big' && $totalSum >= 14) $isWin = true;
-            if ($bet['play_type'] == 'small' && $totalSum <= 13) $isWin = true;
-            if ($bet['play_type'] == 'single' && $totalSum % 2 != 0) $isWin = true;
-            if ($bet['play_type'] == 'double' && $totalSum % 2 == 0) $isWin = true;
+            // 玩法逻辑校验
+            switch($bet['play_type']) {
+                case 'big': if ($totalSum >= 14) $isWin = true; break;
+                case 'small': if ($totalSum <= 13) $isWin = true; break;
+                case 'single': if ($totalSum % 2 != 0) $isWin = true; break;
+                case 'double': if ($totalSum % 2 == 0) $isWin = true; break;
+                case 'big_single': if ($totalSum >= 14 && $totalSum % 2 != 0) $isWin = true; break;
+                case 'big_double': if ($totalSum >= 14 && $totalSum % 2 == 0) $isWin = true; break;
+                case 'small_single': if ($totalSum <= 13 && $totalSum % 2 != 0) $isWin = true; break;
+                case 'small_double': if ($totalSum <= 13 && $totalSum % 2 == 0) $isWin = true; break;
+                case 'triple': if (isTriple($numbersStr)) $isWin = true; break;
+                case 'straight': if (isStraight($numbersStr)) $isWin = true; break;
+                case 'pair': if (isPair($numbersStr)) $isWin = true; break;
+                case 'banker': if ($nums[0] > $nums[2]) $isWin = true; break;
+                case 'player': if ($nums[2] > $nums[0]) $isWin = true; break;
+                case 'tie': if ($nums[0] == $nums[2]) $isWin = true; break;
+                default:
+                    if (is_numeric($bet['play_type']) && $totalSum == (int)$bet['play_type']) $isWin = true;
+            }
 
-            // Special Plays
-            if ($bet['play_type'] == 'triple' && isTriple($numbersStr)) $isWin = true;
-            if ($bet['play_type'] == 'straight' && isStraight($numbersStr)) $isWin = true;
-            if ($bet['play_type'] == 'pair' && isPair($numbersStr)) $isWin = true;
-
-            // Banker/Player/Tie
-            if ($bet['play_type'] == 'banker' && $nums[0] > $nums[2]) $isWin = true;
-            if ($bet['play_type'] == 'player' && $nums[2] > $nums[0]) $isWin = true;
-            if ($bet['play_type'] == 'tie' && $nums[0] == $nums[2]) $isWin = true;
-
-            if (is_numeric($bet['play_type']) && $totalSum == (int)$bet['play_type']) $isWin = true;
-
+            // 模式补丁: 13, 14 规则
             if ($bet['odds_type'] == 'low') {
-                if ($totalSum == 13 || $totalSum == 14) {
-                    if (!is_numeric($bet['play_type'])) $isWin = false;
+                if (($totalSum == 13 || $totalSum == 14) && !is_numeric($bet['play_type'])) {
+                    $isWin = false; // 标准房 13/14 大小单双不中
                 }
             } else if ($bet['odds_type'] == 'high') {
                 if (!$isWin) {
+                    // 高赔房/保本房: 遇到 13, 14 或 特殊牌型，若未中则退回本金
                     if ($totalSum == 13 || $totalSum == 14 || isTriple($numbersStr) || isPair($numbersStr) || isStraight($numbersStr)) {
                         $isReturn = true;
                     }
@@ -80,28 +89,7 @@ function settle($db) {
                 $db->commit();
             } catch (Exception $e) {
                 $db->rollBack();
-            }
-
-            checkAgentTurnoverReward($db, $bet['user_id']);
-        }
-    }
-}
-
-function checkAgentTurnoverReward($db, $userId) {
-    $stmt = $db->prepare("SELECT inviter_id, total_turnover FROM users WHERE id = ?");
-    $stmt->execute(array($userId));
-    $user = $stmt->fetch();
-    if ($user && $user['inviter_id'] && $user['total_turnover'] >= 1000) {
-        $checkStmt = $db->prepare("SELECT id FROM rebates WHERE sub_id = ? AND user_id = ? AND type = 'turnover'");
-        $checkStmt->execute(array($userId, $user['inviter_id']));
-        if (!$checkStmt->fetch()) {
-            $db->beginTransaction();
-            try {
-                \App\Model\User::updateBalance($user['inviter_id'], 10, 'rebate', '下级流水奖励', $db);
-                $db->prepare("INSERT INTO rebates (user_id, sub_id, type, amount) VALUES (?, ?, 'turnover', 10)")->execute(array($user['inviter_id'], $userId));
-                $db->commit();
-            } catch (Exception $e) {
-                $db->rollBack();
+                error_log("Settle Error: " . $e->getMessage());
             }
         }
     }
