@@ -3,24 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PC28 - 极简商务</title>
+    <title>PC28 - 商务大厅</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8fafc; font-family: -apple-system, system-ui, sans-serif; color: #1e293b; }
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .btn-primary { background: #2563eb; color: white; transition: all 0.2s; }
-        .btn-primary:active { transform: scale(0.98); background: #1d4ed8; }
         .nav-item { color: #64748b; font-size: 10px; font-weight: 600; }
         .nav-item.active { color: #2563eb; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    <!-- Header -->
     <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-xs">28</div>
-            <span class="font-bold text-slate-800 tracking-tight">加拿大 PC28</span>
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-xs italic">28</div>
+            <span class="font-bold text-slate-800 tracking-tight">PC28 CANADA</span>
         </div>
         <div class="text-right">
             <p class="text-[9px] text-slate-400 font-bold uppercase">账户分值</p>
@@ -29,78 +26,56 @@
     </header>
 
     <main class="flex-1 p-5 space-y-6">
-        <!-- Announcement Marquee -->
         <div class="bg-blue-600/5 border border-blue-100 rounded-xl px-4 py-2 flex items-center gap-3">
             <i class="fas fa-bullhorn text-blue-600 text-xs"></i>
-            <marquee id="announcement-text" class="text-[10px] font-black text-blue-800 tracking-wide"></marquee>
+            <marquee id="announcement-text" class="text-[10px] font-black text-blue-800 tracking-wide">欢迎来到 PC28 加拿大至尊版！</marquee>
         </div>
-        <!-- Room Selector -->
+
         <div class="grid grid-cols-2 gap-4">
-            <div onclick="enterRoom('low')" class="card p-6 text-center space-y-3 cursor-pointer hover:border-blue-200 transition-colors">
+            <div onclick="location.href='/game.html?room=low'" class="card p-6 text-center space-y-3 cursor-pointer">
                 <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-xl"><i class="fas fa-layer-group"></i></div>
-                <div>
-                    <h3 class="font-bold text-sm">标准玩法</h3>
-                    <p class="text-[10px] text-slate-400">2.0 经典倍率</p>
-                </div>
+                <h3 class="font-bold text-sm">标准玩法</h3>
+                <p class="text-[10px] text-slate-400">2.0 经典倍率</p>
             </div>
-            <div onclick="enterRoom('high')" class="card p-6 text-center space-y-3 cursor-pointer hover:border-blue-200 transition-colors border-blue-100 bg-blue-50/30">
+            <div onclick="location.href='/game.html?room=high'" class="card p-6 text-center space-y-3 cursor-pointer bg-blue-50/30 border-blue-100">
                 <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto text-xl shadow-lg shadow-blue-200"><i class="fas fa-crown"></i></div>
-                <div>
-                    <h3 class="font-bold text-sm text-blue-800">至尊高倍</h3>
-                    <p class="text-[10px] text-blue-400">保本返利模式</p>
-                </div>
+                <h3 class="font-bold text-sm text-blue-800">至尊高倍</h3>
+                <p class="text-[10px] text-blue-400">特惠返利模式</p>
             </div>
         </div>
 
-        <!-- Latest Results -->
         <div class="card overflow-hidden">
             <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                 <h4 class="text-[11px] font-black text-slate-500 uppercase tracking-widest">近期开奖公告</h4>
-                <a href="/game.html" class="text-[10px] text-blue-600 font-bold">进入房间 <i class="fas fa-chevron-right ml-1"></i></a>
+                <a href="/game.html" class="text-[10px] text-blue-600 font-bold">详情 <i class="fas fa-chevron-right ml-1"></i></a>
             </div>
             <div id="latest-results" class="divide-y divide-slate-50">
-                <!-- Result Rows -->
                 <div class="p-10 text-center text-slate-300 text-xs font-bold">同步云端数据中...</div>
             </div>
         </div>
     </main>
 
-    <!-- Navigation -->
-    <nav class="bg-white border-t border-slate-200 p-4 pb-8 flex justify-around items-center">
-        <a href="/" class="nav-item active flex flex-col items-center gap-1">
-            <i class="fas fa-home text-lg"></i>
-            <span>大厅</span>
-        </a>
-        <a href="/recharge.html" class="nav-item flex flex-col items-center gap-1">
-            <i class="fas fa-add text-lg"></i>
-            <span>充值</span>
-        </a>
-        <a href="/withdraw.html" class="nav-item flex flex-col items-center gap-1">
-            <i class="fas fa-wallet text-lg"></i>
-            <span>回分</span>
-        </a>
-        <a href="/profile.html" class="nav-item flex flex-col items-center gap-1">
-            <i class="fas fa-user text-lg"></i>
-            <span>我的</span>
-        </a>
+    <nav class="bg-white border-t border-slate-200 p-4 pb-8 flex justify-around items-center sticky bottom-0">
+        <a href="/" class="nav-item active flex flex-col items-center gap-1"><i class="fas fa-home text-lg"></i><span>大厅</span></a>
+        <a href="/recharge.html" class="nav-item flex flex-col items-center gap-1"><i class="fas fa-add text-lg"></i><span>充值</span></a>
+        <a href="/withdraw.html" class="nav-item flex flex-col items-center gap-1"><i class="fas fa-wallet text-lg"></i><span>回分</span></a>
+        <a href="/profile.html" class="nav-item flex flex-col items-center gap-1"><i class="fas fa-user text-lg"></i><span>我的</span></a>
     </nav>
 
     <script>
-        function enterRoom(m) { location.href = `/game.html?room=${m}`; }
         async function refresh() {
             try {
-                const u = await fetch('/api/user_info.php').then(r => r.json());
-                if(u.success) document.getElementById('user-balance').innerText = '¥ ' + parseFloat(u.user.balance).toLocaleString();
-                const l = await fetch('/api/lottery.php?limit=10').then(r => r.json());
-                if(l.announcement) document.getElementById('announcement-text').innerText = l.announcement;
-                if(l.history) {
-                    document.getElementById('latest-results').innerHTML = l.history.map(i => `
+                const res = await fetch('/api/lottery.php').then(r => r.json());
+                if(res.success) {
+                    if(res.announcement) document.getElementById('announcement-text').innerText = res.announcement;
+                    const uRes = await fetch('/api/user_info.php').then(r => r.json());
+                    if(uRes.success) document.getElementById('user-balance').innerText = '¥ ' + parseFloat(uRes.user.balance).toLocaleString();
+
+                    document.getElementById('latest-results').innerHTML = res.history.map(i => `
                         <div class="px-5 py-4 flex justify-between items-center">
                             <span class="text-[11px] text-slate-400 font-medium">#${i.issue_no}</span>
                             <div class="flex items-center gap-4">
-                                <div class="flex gap-1.5">
-                                    ${i.numbers.split(',').map(n => `<span class="w-6 h-6 bg-slate-100 rounded flex items-center justify-center text-[11px] font-bold text-slate-600 border border-slate-200/50">${n}</span>`).join('')}
-                                </div>
+                                <div class="flex gap-1.5">${i.numbers.split(',').map(n => `<span class="w-6 h-6 bg-slate-100 rounded flex items-center justify-center text-[11px] font-bold text-slate-600 border border-slate-200/50">${n}</span>`).join('')}</div>
                                 <span class="w-7 text-right text-sm font-black text-blue-600">${i.total_sum}</span>
                             </div>
                         </div>
@@ -108,8 +83,7 @@
                 }
             } catch(e) {}
         }
-        refresh();
-        setInterval(refresh, 8000);
+        refresh(); setInterval(refresh, 8000);
     </script>
 </body>
 </html>

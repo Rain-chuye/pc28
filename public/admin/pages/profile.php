@@ -15,18 +15,20 @@ require_once __DIR__ . '/../../../src/Utils/DB.php';
     </style>
 </head>
 <body>
-    <div class="admin-sidebar p-6 flex flex-col">
+        <div class="admin-sidebar p-6 flex flex-col">
         <div class="flex items-center gap-3 mb-10">
-            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black">P</div>
+            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black italic">28</div>
             <h1 class="text-xl font-black">PC28 <span class="text-indigo-400">PRO</span></h1>
         </div>
         <nav class="flex-1 space-y-2">
-            <a href="/admin/index.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-home w-5"></i> 仪表盘</a>
-            <a href="/admin/pages/users.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-users w-5 text-slate-400"></i> 用户管理</a>
-            <a href="/admin/pages/finance_list.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-wallet w-5 text-slate-400"></i> 财务审核</a>
-            <a href="/admin/pages/profile.php" class="flex items-center gap-3 bg-indigo-600 px-4 py-3 rounded-xl font-bold"><i class="fas fa-user-cog w-5"></i> 账号安全</a>
+            <a href="/admin/index.php" class="sidebar-link flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-home w-5"></i> 控制台大盘</a>
+            <a href="/admin/pages/settings.php" class="sidebar-link flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-cog w-5"></i> 系统全局配置</a>
+            <a href="/admin/pages/chat.php" class="sidebar-link flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-headset w-5"></i> 在线客服中心</a>
+            <a href="/admin/pages/users.php" class="sidebar-link flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-users w-5"></i> 会员管理</a>
+            <a href="/admin/pages/finance_list.php" class="sidebar-link flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-wallet w-5"></i> 财务充提审批</a>
+            <a href="/admin/pages/profile.php" class="bg-indigo-600 px-4 py-3 rounded-xl font-bold" class="sidebar-link flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-user-shield w-5"></i> 修改管理账号</a>
         </nav>
-    </div>
+    </div></div>
 
     <div class="admin-main p-10">
         <header class="mb-10">

@@ -9,28 +9,31 @@ $latest = \App\Model\Lottery::getLatest();
 
 if (!$latest) {
     $latest = [
-        'issue_no' => '---',
-        'numbers' => '?,?,?',
-        'total_sum' => '?',
+        'issue_no' => '0',
+        'numbers' => '0,0,0',
+        'total_sum' => '0',
         'next_draw_at' => date('Y-m-d H:i:s', time() + 215)
     ];
 }
+
+// 核心修复：下注期号必须是当前已开奖期号 + 1
+$betIssueNo = (string)((int)$latest['issue_no'] + 1);
 
 $now = time();
 $nextDrawTs = strtotime($latest['next_draw_at']);
 $countdown = $nextDrawTs - $now;
 
-// 保证倒计时逻辑
 if ($countdown < 0) $countdown = 0;
 $isClosed = ($countdown <= 15);
 
-// Fetch Admin Announcement
+// 获取后台远程配置
 $stmt = $db->query("SELECT setting_value FROM system_settings WHERE setting_key = 'announcement'");
-$announcement = $stmt->fetchColumn() ?: "欢迎来到 PC28 加拿大至尊版！";
+$announcement = $stmt->fetchColumn() ?: "欢迎来到 PC28 商业版，祝您游戏愉快！";
 
 echo json_encode([
     'success' => true,
-    'latest' => $latest,
+    'latest' => $latest,           // 这是上一期的开奖结果，用于前端显示
+    'bet_issue_no' => $betIssueNo, // 这是当前正在接受投注的下一期期号
     'countdown' => $countdown,
     'is_closed' => $isClosed,
     'announcement' => $announcement,
