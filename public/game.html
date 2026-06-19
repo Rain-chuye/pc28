@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>游戏房间 - PC28</title>
+    <title>加拿大 28 - 游戏房间</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
@@ -26,20 +26,19 @@
         .bet-item { background: #ffffff; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; text-align: center; transition: all 0.2s; cursor: pointer; }
         .bet-item.active { background: #2563eb; color: #fff; border-color: #2563eb; font-weight: 900; }
 
+        /* Mi Pai Styles */
         .mipai-container { position: relative; }
-        .mipai-overlay { position: absolute; inset: -2px; background: #cbd5e1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; cursor: pointer; transition: 0.5s; }
-        .revealed .mipai-overlay { transform: translateY(-100%) rotate(30deg); opacity: 0; pointer-events: none; }
-
-        /* Blur for balls before reveal */
-        .blur-num { filter: blur(4px); transition: filter 0.3s; }
-        .revealed .blur-num { filter: blur(0); }
         .mipai-full-overlay {
-            position: absolute; inset: -5px; background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            position: absolute; inset: -8px; background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
             z-index: 30; display: flex; flex-direction: column; align-items: center; justify-content: center;
             border-radius: 20px; cursor: pointer; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px dashed #94a3b8;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        .revealed .mipai-full-overlay { transform: translateY(-120%) skewX(10deg); opacity: 0; pointer-events: none; }
+        .revealed .mipai-full-overlay { transform: translateY(-130%) rotate(5deg); opacity: 0; pointer-events: none; }
+
+        .blur-result { filter: blur(8px); transition: filter 0.4s ease; }
+        .revealed .blur-result { filter: blur(0); }
 
         .tab-active { color: #2563eb; border-bottom: 2px solid #2563eb; }
     </style>
@@ -47,48 +46,52 @@
 <body class="pb-32">
     <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md p-4 flex justify-between items-center border-b border-slate-200">
         <div class="flex items-center gap-3">
-            <button onclick="history.back()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center"><i class="fas fa-chevron-left text-xs text-slate-400"></i></button>
+            <button onclick="history.back()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400"><i class="fas fa-chevron-left text-xs"></i></button>
             <div>
-                <h1 id="room-title" class="text-[13px] font-black uppercase text-slate-400">Canada 28</h1>
-                <p id="issue-display" class="text-[10px] font-bold text-slate-800">获取中...</p>
+                <h1 id="room-title" class="text-[13px] font-black uppercase text-slate-400 tracking-tighter">Canada 28</h1>
+                <p id="issue-display" class="text-[10px] font-bold text-slate-800">同步中...</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="quickCheckScore()" class="bg-blue-600 text-white text-[10px] px-3 py-1.5 rounded-lg font-black shadow-lg shadow-blue-100">查分</button>
+            <button onclick="quickCheckScore()" class="bg-blue-600 text-white text-[10px] px-3 py-1.5 rounded-lg font-black shadow-lg">查分</button>
             <button onclick="toggleChat()" class="bg-blue-50 text-blue-600 text-[10px] px-3 py-1.5 rounded-lg font-black border border-blue-100">客服</button>
             <button onclick="openReturnModal()" class="bg-white border border-slate-200 text-slate-500 text-[10px] px-3 py-1.5 rounded-lg font-black">回分</button>
         </div>
     </header>
 
     <main class="p-4 space-y-5">
-        <!-- Results (Showing Last Result with sequential reveal) -->
+        <!-- Results with enhanced Mi Pai -->
         <div class="bg-white p-6 rounded-3xl border border-slate-200 relative overflow-hidden shadow-sm">
             <div class="flex flex-col items-center gap-4 relative z-10">
-                <div class="mipai-container relative" id="lottery-box">
+                <div class="mipai-container" id="lottery-box">
+                    <!-- Overlay covers the whole row -->
                     <div class="mipai-full-overlay" onclick="document.getElementById('lottery-box').classList.add('revealed')">
                         <i class="fas fa-fingerprint text-blue-600 text-xl mb-1 animate-pulse"></i>
-                        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">点击咪牌揭晓结果</span>
+                        <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest">点击咪牌揭晓结果</span>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <div class="ball blur-num" id="ball-0">?</div>
+
+                    <div class="flex items-center gap-3 blur-result">
+                        <div class="ball" id="ball-0">-</div>
                         <i class="fas fa-plus text-[10px] text-slate-300"></i>
-                        <div class="ball blur-num" id="ball-1">?</div>
+                        <div class="ball" id="ball-1">-</div>
                         <i class="fas fa-plus text-[10px] text-slate-300"></i>
-                        <div class="ball blur-num" id="ball-2">?</div>
+                        <div class="ball" id="ball-2">-</div>
                         <i class="fas fa-equals text-[10px] text-slate-300"></i>
-                        <div id="total-result" class="ball ball-sum blur-num">?</div>
+                        <div id="total-result" class="ball ball-sum">-</div>
                     </div>
                 </div>
                 <div id="timer-display" class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">
-                    Next Draw: <span class="text-blue-600 font-mono">00:00</span>
+                    Next Draw: <span class="text-blue-600 font-mono font-black">00:00</span>
                 </div>
             </div>
         </div>
 
+        <!-- Ticker -->
         <div class="h-8 overflow-hidden bg-blue-50/50 rounded-xl px-4 border border-blue-100">
             <div id="live-feed-container" class="transition-transform duration-500"></div>
         </div>
 
+        <!-- Tabs -->
         <div class="flex gap-8 border-b border-slate-200 px-2">
             <button onclick="switchTab('basic')" id="tab-basic" class="pb-3 text-xs font-bold tab-active">常用玩法</button>
             <button onclick="switchTab('special')" id="tab-special" class="pb-3 text-xs font-bold text-slate-400">组合特型</button>
@@ -131,15 +134,15 @@
     <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-xl border-t border-slate-200 z-[60]">
         <div class="max-w-md mx-auto flex items-center gap-3">
             <div class="flex-1 bg-slate-50 rounded-xl border border-slate-200 flex items-center px-4">
-                <input type="number" id="bet-amount" class="w-full bg-transparent py-3.5 outline-none text-sm font-bold text-blue-600" placeholder="下注金额">
+                <input type="number" id="bet-amount" class="w-full bg-transparent py-3.5 outline-none text-sm font-bold text-blue-600" placeholder="下单积分">
             </div>
-            <button onclick="submitBets()" class="bg-blue-600 text-white px-8 py-3.5 rounded-xl font-black text-sm shadow-lg shadow-blue-100 active:scale-95 transition-all">
+            <button onclick="submitBets()" class="bg-blue-600 text-white px-8 py-3.5 rounded-xl font-black text-sm shadow-lg active:scale-95 transition-all">
                 确认下单 (<span id="selected-count">0</span>)
             </button>
         </div>
     </div>
 
-    <!-- Score Return Modal -->
+    <!-- Modals -->
     <div id="return-modal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-6">
         <div class="bg-white w-full max-w-xs rounded-3xl p-8 border border-slate-200 shadow-2xl">
             <h2 class="text-lg font-black text-center mb-6 text-slate-800">快速回分</h2>
@@ -166,7 +169,7 @@
             <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/50"></div>
             <div class="p-4 bg-white border-t border-slate-100 flex gap-3">
                 <input type="text" id="chat-input" class="flex-1 bg-slate-50 border-none rounded-xl px-5 outline-none font-bold text-sm" placeholder="输入您的问题...">
-                <button onclick="sendChatMessage()" class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100"><i class="fas fa-paper-plane"></i></button>
+                <button onclick="sendChatMessage()" class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </div>
@@ -185,7 +188,7 @@
 
         function showToast(m, t='info') {
             const el = document.createElement('div');
-            el.className = `px-6 py-2.5 rounded-full text-[11px] font-black shadow-2xl animate-bounce ${t==='success' ? 'bg-green-500 text-white' : 'bg-blue-600 text-white'}`;
+            el.className = `px-6 py-2.5 rounded-full text-[11px] font-black shadow-2xl border ${t==='success' ? 'bg-blue-600 text-white border-blue-400' : 'bg-white text-slate-800 border-slate-100'}`;
             el.innerText = m;
             document.getElementById('toast-container').appendChild(el);
             setTimeout(() => el.remove(), 2500);
@@ -196,7 +199,7 @@
             countdownTimer = setInterval(() => {
                 if(timeLeft <= 0) {
                     clearInterval(countdownTimer);
-                    document.getElementById('timer-display').innerHTML = '<span class="text-red-500 animate-pulse">正在开奖...</span>';
+                    document.getElementById('timer-display').innerHTML = '<span class="text-red-500 animate-pulse font-black">正在同步开奖...</span>';
                     return;
                 }
                 timeLeft--;
@@ -206,7 +209,7 @@
                 if(timeLeft <= 15) {
                     document.getElementById('timer-display').innerHTML = `<span class="text-red-600 font-black">已封盘</span> <span class="ml-2 text-slate-400 font-mono">${timeStr}</span>`;
                 } else {
-                    document.getElementById('timer-display').innerHTML = `Next Draw: <span class="text-blue-600 font-mono font-black">${timeStr}</span>`;
+                    document.getElementById('timer-display').innerHTML = `NEXT DRAW: <span class="text-blue-600 font-mono font-black">${timeStr}</span>`;
                 }
             }, 1000);
         }
@@ -231,8 +234,8 @@
 
         async function submitBets() {
             const amount = document.getElementById('bet-amount').value;
-            if (selectedBets.size === 0) return showToast('选择玩法');
-            if (!amount || amount < 2) return showToast('最小 2');
+            if (selectedBets.size === 0) return showToast('请选择玩法');
+            if (!amount || amount < 2) return showToast('最小 2 积分');
             const bets = Array.from(selectedBets).map(t => ({ play_type: t, amount: parseFloat(amount) }));
             try {
                 const res = await fetch('/api/bet.php', {
@@ -245,6 +248,7 @@
                     selectedBets.clear();
                     document.querySelectorAll('.bet-item').forEach(i => i.classList.remove('active'));
                     document.getElementById('selected-count').innerText = 0;
+                    quickCheckScore();
                 } else showToast(res.message);
             } catch (e) { showToast('网络连接超时'); }
         }
@@ -253,16 +257,19 @@
             try {
                 const res = await fetch('/api/lottery.php').then(r => r.json());
                 if(res.latest) {
+                    // Update Issue Numbers
                     currentIssue = res.latest.issue_no;
                     betIssue = res.bet_issue_no;
                     document.getElementById('issue-display').innerText = `下注期号: ${betIssue}`;
 
+                    // Update UI with latest results
                     const nums = res.latest.numbers.split(',');
                     document.getElementById('ball-0').innerText = nums[0];
                     document.getElementById('ball-1').innerText = nums[1];
                     document.getElementById('ball-2').innerText = nums[2];
                     document.getElementById('total-result').innerText = res.latest.total_sum;
 
+                    // Reset Mi Pai if new issue
                     if(lastLotteryId !== currentIssue) {
                         lastLotteryId = currentIssue;
                         document.getElementById('lottery-box').classList.remove('revealed');
@@ -273,7 +280,7 @@
                 const feed = await fetch('/api/live_bets.php').then(r => r.json());
                 if(feed.data && feed.data.length > 0) {
                     document.getElementById('live-feed-container').innerHTML = feed.data.slice(0, 5).map(b => `
-                        <p class="text-[9px] text-slate-400 py-2 font-bold truncate">用户 ${b.username.substring(0,3)}*** 下注 ${b.play_type} ¥${Math.floor(b.bet_amount)}</p>
+                        <p class="text-[9px] text-slate-400 py-2 font-bold truncate">用户 ${b.username.substring(0,3)}*** 投注 ${b.play_type} ¥${Math.floor(b.bet_amount)}</p>
                     `).join('');
                 }
             } catch(e) {}
@@ -296,7 +303,7 @@
 
         async function quickCheckScore() {
             const res = await fetch('/api/quick_finance.php?action=check').then(r => r.json());
-            if(res.success) showToast(`当前余额: ¥${parseFloat(res.balance).toLocaleString()}`, 'success');
+            if(res.success) showToast(`账户可用分值: ¥${parseFloat(res.balance).toLocaleString()}`, 'success');
         }
 
         function openReturnModal() { document.getElementById('return-modal').classList.remove('hidden'); }
