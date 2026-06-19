@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代理中心 - PC28</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <style>body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }</style>
+</head>
+<body class="pb-32">
+    <header class="bg-white border-b border-slate-200 p-4 sticky top-0 z-50 flex items-center gap-4">
+        <button onclick="history.back()" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100"><i class="fas fa-chevron-left"></i></button>
+        <h1 class="font-bold text-sm">代理合伙人中心</h1>
+    </header>
+
+    <main class="p-5 space-y-6">
+        <!-- Stats -->
+        <div class="bg-blue-600 rounded-[2rem] p-8 text-white shadow-xl shadow-blue-100 relative overflow-hidden">
+            <div class="relative z-10">
+                <p class="text-[10px] font-black opacity-60 uppercase mb-1">累计推广收益</p>
+                <h2 class="text-4xl font-black">¥ <span id="rebate-total">0.00</span></h2>
+                <div class="mt-6 flex gap-6">
+                    <div>
+                        <p class="text-[9px] opacity-60 font-bold">直属下级</p>
+                        <p class="text-lg font-black" id="sub-count">0</p>
+                    </div>
+                    <div>
+                        <p class="text-[9px] opacity-60 font-bold">今日收益</p>
+                        <p class="text-lg font-black" id="today-rebate">0.00</p>
+                    </div>
+                </div>
+            </div>
+            <i class="fas fa-users absolute -right-6 -bottom-6 text-9xl opacity-10"></i>
+        </div>
+
+        <!-- QR and Link -->
+        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm text-center">
+            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">我的专属推广码</h3>
+            <div id="qrcode" class="inline-block p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-6"></div>
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between gap-3">
+                <p class="text-[10px] font-bold text-slate-500 truncate text-left" id="share-link">加载中...</p>
+                <button onclick="copyLink()" class="bg-blue-600 text-white text-[9px] px-3 py-1.5 rounded-lg font-black shrink-0">复制</button>
+            </div>
+        </div>
+
+        <!-- Rebate History -->
+        <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+            <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <span class="text-[11px] font-black text-slate-500">收益明细</span>
+                <span class="text-[10px] text-blue-600 font-bold">仅显示近30笔</span>
+            </div>
+            <div id="rebate-list" class="divide-y divide-slate-50">
+                <div class="p-10 text-center text-slate-300 text-xs font-bold">暂无推广收益记录</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function loadAgentData() {
+            const userRes = await fetch('/api/user_info.php').then(r => r.json());
+            const settingsRes = await fetch('/api/system_info.php?action=get_settings').then(r => r.json());
+
+            if(userRes.success && settingsRes.success) {
+                const uid = userRes.user.id;
+                const link = settingsRes.data.agent_link_prefix + uid;
+                document.getElementById('share-link').innerText = link;
+
+                // QR Code
+                const typeNumber = 4;
+                const errorCorrectionLevel = 'L';
+                const qr = qrcode(typeNumber, errorCorrectionLevel);
+                qr.addData(link);
+                qr.make();
+                document.getElementById('qrcode').innerHTML = qr.createImgTag(5);
+
+                // Fetch Rebates
+                const rebateRes = await fetch('/api/balance_logs.php?type=rebate&limit=30').then(r => r.json());
+                if(rebateRes.success && rebateRes.data.length > 0) {
+                    const total = rebateRes.data.reduce((acc, cur) => acc + parseFloat(i.amount), 0); // Need separate API for better stats
+                    document.getElementById('rebate-list').innerHTML = rebateRes.data.map(i => `
+                        <div class="p-4 flex justify-between items-center">
+                            <div>
+                                <p class="text-xs font-black text-slate-800">${i.description}</p>
+                                <p class="text-[9px] text-slate-400 font-bold">${i.created_at}</p>
+                            </div>
+                            <span class="text-sm font-black text-green-600">+${i.amount}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        function copyLink() {
+            const link = document.getElementById('share-link').innerText;
+            navigator.clipboard.writeText(link).then(() => alert('推广链接已复制'));
+        }
+
+        loadAgentData();
+    </script>
+</body>
+</html>

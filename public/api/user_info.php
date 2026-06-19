@@ -10,5 +10,12 @@ if (!isset($_SESSION['user_id'])) {
     die;
 }
 
+$db = \App\Utils\DB::getInstance()->getConnection();
 $user = \App\Model\User::getById($_SESSION['user_id']);
+
+// Get count of subs for agent center
+$stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE inviter_id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user['sub_count'] = $stmt->fetchColumn();
+
 echo json_encode(['success' => true, 'user' => $user]);

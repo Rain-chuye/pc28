@@ -29,6 +29,11 @@
     </header>
 
     <main class="flex-1 p-5 space-y-6">
+        <!-- Announcement Marquee -->
+        <div class="bg-blue-600/5 border border-blue-100 rounded-xl px-4 py-2 flex items-center gap-3">
+            <i class="fas fa-bullhorn text-blue-600 text-xs"></i>
+            <marquee id="announcement-text" class="text-[10px] font-black text-blue-800 tracking-wide"></marquee>
+        </div>
         <!-- Room Selector -->
         <div class="grid grid-cols-2 gap-4">
             <div onclick="enterRoom('low')" class="card p-6 text-center space-y-3 cursor-pointer hover:border-blue-200 transition-colors">
@@ -87,6 +92,7 @@
                 const u = await fetch('/api/user_info.php').then(r => r.json());
                 if(u.success) document.getElementById('user-balance').innerText = '¥ ' + parseFloat(u.user.balance).toLocaleString();
                 const l = await fetch('/api/lottery.php?limit=10').then(r => r.json());
+                if(l.announcement) document.getElementById('announcement-text').innerText = l.announcement;
                 if(l.history) {
                     document.getElementById('latest-results').innerHTML = l.history.map(i => `
                         <div class="px-5 py-4 flex justify-between items-center">

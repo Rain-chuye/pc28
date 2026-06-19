@@ -8,26 +8,31 @@ $db = \App\Utils\DB::getInstance()->getConnection();
 $latest = \App\Model\Lottery::getLatest();
 
 if (!$latest) {
-    $latest = ['issue_no' => '---', 'numbers' => '?,?,?', 'total_sum' => '?', 'next_draw_at' => date('Y-m-d H:i:s', time() + 215)];
+    $latest = [
+        'issue_no' => '---',
+        'numbers' => '?,?,?',
+        'total_sum' => '?',
+        'next_draw_at' => date('Y-m-d H:i:s', time() + 215)
+    ];
 }
 
 $now = time();
 $nextDrawTs = strtotime($latest['next_draw_at']);
 $countdown = $nextDrawTs - $now;
 
-// Business logic: 3:35 cycle (215 seconds)
-// If countdown is negative, it means the scraper is lagging, but we show a waiting state
-if ($countdown < 0) {
-    $countdown = 0;
-}
-
+// 保证倒计时逻辑
+if ($countdown < 0) $countdown = 0;
 $isClosed = ($countdown <= 15);
+
+// Fetch Admin Announcement
+$stmt = $db->query("SELECT setting_value FROM system_settings WHERE setting_key = 'announcement'");
+$announcement = $stmt->fetchColumn() ?: "欢迎来到 PC28 加拿大至尊版！";
 
 echo json_encode([
     'success' => true,
     'latest' => $latest,
     'countdown' => $countdown,
     'is_closed' => $isClosed,
-    'server_time' => date('Y-m-d H:i:s'),
-    'history' => \App\Model\Lottery::getHistory(15)
+    'announcement' => $announcement,
+    'history' => \App\Model\Lottery::getHistory(20)
 ]);

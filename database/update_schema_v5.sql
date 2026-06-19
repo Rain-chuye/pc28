@@ -13,3 +13,20 @@ INSERT IGNORE INTO odds_config (play_type, odds_low, odds_high) VALUES
 
 -- Update for Chat replies
 ALTER TABLE chat_messages ADD COLUMN reply_to INT(11) DEFAULT NULL;
+
+-- System settings for Announcement and QR
+CREATE TABLE IF NOT EXISTS system_settings (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    setting_key VARCHAR(50) NOT NULL,
+    setting_value TEXT,
+    PRIMARY KEY (id),
+    UNIQUE KEY (setting_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES
+('announcement', '欢迎来到 PC28 加拿大至尊版，极简商务，极致体验！'),
+('agent_qr', ''),
+('agent_link_prefix', 'http://154.12.51.237/register.html?ref=');
+
+-- Fix missing index or constraints if any
+ALTER TABLE users ADD INDEX idx_inviter (inviter_id);
