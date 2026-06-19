@@ -1,145 +1,111 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人中心 - 加拿大 28</title>
+    <title>账户中心 - PC28</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#D4AF37',
-                        gold: { DEFAULT: '#D4AF37' },
-                        dark: { DEFAULT: '#121212', light: '#1E1E1E', lighter: '#2A2A2A' }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
-        body { font-family: 'Noto+Sans+SC', sans-serif; }
-        .gold-gradient { background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #9A7D0A 100%); }
+        body { background-color: #f8fafc; color: #1e293b; font-family: -apple-system, sans-serif; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
     </style>
 </head>
-<body class="bg-dark text-white pb-32">
-    <!-- Header -->
-    <header class="p-8 pb-16 rounded-b-[4rem] bg-dark-light border-b border-white/5 relative overflow-hidden">
-        <div class="relative z-10 flex justify-between items-center mb-10">
-            <button onclick="history.back()" class="w-10 h-10 rounded-full bg-dark flex items-center justify-center border border-white/10"><i class="fas fa-chevron-left"></i></button>
-            <h1 class="font-black text-sm uppercase tracking-[0.3em]">个人中心</h1>
-            <button onclick="location.href='/api/logout.php'" class="w-10 h-10 rounded-full bg-dark flex items-center justify-center border border-white/10 text-red-400"><i class="fas fa-power-off"></i></button>
+<body class="pb-32">
+    <header class="bg-blue-600 p-8 pt-12 pb-20 text-white relative overflow-hidden">
+        <div class="relative z-10 flex justify-between items-center mb-8">
+            <h1 class="text-lg font-black tracking-widest">PERSONAL</h1>
+            <button onclick="location.href='/api/logout.php'" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10"><i class="fas fa-power-off"></i></button>
         </div>
         <div class="relative z-10 flex items-center gap-6">
-            <div class="w-20 h-20 gold-gradient rounded-3xl flex items-center justify-center text-3xl font-black text-black shadow-2xl shadow-primary/20">
+            <div class="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center text-4xl font-black border border-white/20">
                 <span id="user-initial">U</span>
             </div>
             <div>
-                <h2 class="text-2xl font-black" id="username-display">加载中...</h2>
-                <div class="flex items-center gap-2 mt-2">
-                    <span class="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full font-black uppercase tracking-widest">至尊会员</span>
-                    <span class="text-[10px] text-slate-500 font-bold">UID: <span id="user-id">0000</span></span>
+                <h2 class="text-2xl font-black" id="username-display">Loading...</h2>
+                <div class="flex items-center gap-3 mt-2">
+                    <span class="text-[10px] bg-white/20 px-3 py-1 rounded-full font-black">至尊会员</span>
+                    <span class="text-[10px] opacity-60 font-bold italic">ID: <span id="user-id">0000</span></span>
                 </div>
             </div>
         </div>
-        <i class="fas fa-crown absolute -right-8 -bottom-8 text-[12rem] text-white/5 rotate-12"></i>
+        <i class="fas fa-gem absolute -right-10 -bottom-10 text-[14rem] text-white/5 rotate-12"></i>
     </header>
 
     <div class="px-6 -mt-10 space-y-6 relative z-20">
-        <!-- Balance Card -->
-        <div class="bg-dark-light rounded-[2.5rem] p-8 border border-white/10 shadow-2xl flex justify-between items-center">
+        <!-- Balance -->
+        <div class="card p-8 flex justify-between items-center">
             <div>
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">当前可用余额</p>
-                <h3 class="text-4xl font-black text-primary">¥ <span id="balance">0.00</span></h3>
+                <p class="text-[10px] text-slate-400 font-black uppercase mb-1">可用分值余额</p>
+                <h3 class="text-4xl font-black text-blue-600">¥ <span id="balance">0.00</span></h3>
             </div>
-            <div class="flex gap-2">
-                <button onclick="location.href='/recharge.html'" class="w-12 h-12 bg-dark rounded-2xl flex items-center justify-center border border-white/5 text-primary">
-                    <i class="fas fa-plus"></i>
-                </button>
-                <button onclick="location.href='/wallet_logs.html'" class="w-12 h-12 bg-dark rounded-2xl flex items-center justify-center border border-white/5 text-slate-400">
-                    <i class="fas fa-receipt"></i>
-                </button>
-            </div>
+            <button onclick="location.href='/recharge.html'" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
+                <i class="fas fa-add"></i>
+            </button>
         </div>
 
-        <!-- Quick Stats Summary -->
         <div class="grid grid-cols-2 gap-4">
-             <div onclick="location.href='/stats.html'" class="bg-dark-light p-6 rounded-[2rem] border border-white/10 active:scale-95 transition-transform">
-                <p class="text-[9px] text-slate-500 font-black uppercase mb-1">财富报表</p>
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-chart-pie text-primary text-xs"></i>
-                    <span class="text-xs font-black">查看明细</span>
-                </div>
+            <div onclick="location.href='/stats.html'" class="card p-6 text-center space-y-2 cursor-pointer active:scale-95 transition-all">
+                <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                <p class="text-xs font-black text-slate-800">报表统计</p>
             </div>
-            <div onclick="location.href='/wallet_logs.html'" class="bg-dark-light p-6 rounded-[2rem] border border-white/10 active:scale-95 transition-transform">
-                <p class="text-[9px] text-slate-500 font-black uppercase mb-1">积分变动</p>
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-history text-slate-400 text-xs"></i>
-                    <span class="text-xs font-black">变动记录</span>
-                </div>
+            <div onclick="location.href='/wallet_logs.html'" class="card p-6 text-center space-y-2 cursor-pointer active:scale-95 transition-all">
+                <i class="fas fa-receipt text-slate-400 text-xl"></i>
+                <p class="text-xs font-black text-slate-800">积分明细</p>
             </div>
         </div>
 
-        <!-- Menu -->
-        <div class="bg-dark-light rounded-[2.5rem] border border-white/10 overflow-hidden">
-            <a href="/withdraw.html" class="p-6 border-b border-white/5 flex items-center justify-between active:bg-dark transition-colors">
+        <!-- Links -->
+        <div class="card overflow-hidden divide-y divide-slate-100">
+            <a href="/withdraw.html" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-dark rounded-xl flex items-center justify-center text-slate-500 border border-white/5"><i class="fas fa-university"></i></div>
-                    <span class="text-sm font-black">申请提现</span>
+                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-xs"><i class="fas fa-university"></i></div>
+                    <span class="text-sm font-black text-slate-800">申请回分</span>
                 </div>
-                <i class="fas fa-chevron-right text-slate-800"></i>
+                <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
             </a>
-            <div class="p-6 flex items-center justify-between active:bg-dark transition-colors" onclick="location.href='/wallet_logs.html?type=bet'">
+            <div onclick="location.href='/wallet_logs.html?type=bet'" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-dark rounded-xl flex items-center justify-center text-slate-500 border border-white/5"><i class="fas fa-history"></i></div>
-                    <span class="text-sm font-black">投注明细</span>
+                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-xs"><i class="fas fa-dice"></i></div>
+                    <span class="text-sm font-black text-slate-800">投注历史</span>
                 </div>
-                <i class="fas fa-chevron-right text-slate-800"></i>
+                <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
             </div>
         </div>
     </div>
 
-    <!-- Bottom Nav -->
-    <nav class="fixed bottom-0 left-0 right-0 p-4 bg-dark/80 backdrop-blur-xl border-t border-white/5 z-50">
-        <div class="max-w-md mx-auto flex justify-around items-center">
-            <a href="/" class="flex flex-col items-center gap-1 text-slate-500">
-                <i class="fas fa-home text-lg"></i>
-                <span class="text-[10px] font-bold">大厅</span>
-            </a>
-            <a href="/recharge.html" class="flex flex-col items-center gap-1 text-slate-500">
-                <i class="fas fa-plus-circle text-lg"></i>
-                <span class="text-[10px] font-bold">充值</span>
-            </a>
-            <a href="/withdraw.html" class="flex flex-col items-center gap-1 text-slate-500">
-                <i class="fas fa-university text-lg"></i>
-                <span class="text-[10px] font-bold">提现</span>
-            </a>
-            <a href="/profile.html" class="flex flex-col items-center gap-1 text-primary">
-                <i class="fas fa-user text-lg"></i>
-                <span class="text-[10px] font-bold">我的</span>
-            </a>
-        </div>
+    <!-- Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 pb-8 flex justify-around">
+        <a href="/" class="flex flex-col items-center gap-1 text-slate-400">
+            <i class="fas fa-home text-lg"></i>
+            <span class="text-[9px] font-bold">大厅</span>
+        </a>
+        <a href="/recharge.html" class="flex flex-col items-center gap-1 text-slate-400">
+            <i class="fas fa-add text-lg"></i>
+            <span class="text-[9px] font-bold">充值</span>
+        </a>
+        <a href="/withdraw.html" class="flex flex-col items-center gap-1 text-slate-400">
+            <i class="fas fa-wallet text-lg"></i>
+            <span class="text-[9px] font-bold">回分</span>
+        </a>
+        <a href="/profile.html" class="flex flex-col items-center gap-1 text-blue-600">
+            <i class="fas fa-user text-lg"></i>
+            <span class="text-[9px] font-bold">我的</span>
+        </a>
     </nav>
 
     <script>
-        async function loadProfile() {
-            const res = await fetch('/api/user_info.php');
-            const data = await res.json();
-            if(data.success) {
-                const u = data.user;
+        async function load() {
+            const r = await fetch('/api/user_info.php').then(r => r.json());
+            if(r.success) {
+                const u = r.user;
                 document.getElementById('username-display').innerText = u.username;
                 document.getElementById('user-initial').innerText = u.username[0].toUpperCase();
                 document.getElementById('user-id').innerText = String(u.id).padStart(4, '0');
                 document.getElementById('balance').innerText = parseFloat(u.balance).toLocaleString();
-            } else {
-                location.href = '/login.html';
-            }
+            } else location.href = '/login.html';
         }
-        loadProfile();
+        load();
     </script>
 </body>
 </html>

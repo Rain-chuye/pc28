@@ -1,83 +1,60 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>提现中心 - 加拿大 28</title>
+    <title>回分 - PC28</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#D4AF37',
-                        gold: { DEFAULT: '#D4AF37' },
-                        dark: { DEFAULT: '#121212', light: '#1E1E1E' }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
-        body { font-family: 'Noto+Sans+SC', sans-serif; }
-        .gold-gradient { background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #9A7D0A 100%); }
+        body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }
     </style>
 </head>
-<body class="bg-dark text-white p-6">
-    <div class="max-w-md mx-auto space-y-8">
-        <header class="flex items-center justify-between">
-            <button onclick="history.back()" class="w-12 h-12 rounded-2xl bg-dark-light border border-white/10 flex items-center justify-center shadow-xl"><i class="fas fa-chevron-left text-xs"></i></button>
-            <h1 class="text-sm font-black uppercase tracking-[0.3em]">提现中心</h1>
-            <div class="w-12"></div>
+<body class="p-6">
+    <div class="max-w-md mx-auto space-y-6">
+        <header class="flex items-center gap-4">
+            <button onclick="history.back()" class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 border border-slate-200"><i class="fas fa-chevron-left text-xs"></i></button>
+            <h1 class="font-black text-lg">申请回分</h1>
         </header>
 
-        <div class="bg-dark-light rounded-[2.5rem] p-8 border border-white/10 shadow-2xl space-y-8">
+        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-8">
             <div>
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">提现金额 (最低 50)</p>
-                <div class="flex items-center gap-4 border-b border-white/10 pb-4 focus-within:border-primary transition-colors">
-                    <span class="text-3xl font-black text-primary">¥</span>
-                    <input type="number" id="amount" class="w-full bg-transparent text-3xl font-black outline-none" placeholder="0.00">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-4">回分金额 (最低 50)</p>
+                <div class="flex items-center gap-4 border-b border-slate-100 pb-4 focus-within:border-blue-600 transition-colors">
+                    <span class="text-3xl font-black text-blue-600">¥</span>
+                    <input type="number" id="amount" class="w-full bg-transparent text-3xl font-black outline-none" placeholder="0">
                 </div>
             </div>
-
             <div>
-                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-3">收款账户信息</label>
-                <textarea id="note" class="w-full bg-dark rounded-2xl p-6 border border-white/5 text-sm font-bold focus:border-primary transition-colors h-32" placeholder="请输入您的银行卡、支付宝或微信账号信息..."></textarea>
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-4">结算账号信息</p>
+                <textarea id="note" class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold h-32 outline-none focus:border-blue-600" placeholder="请输入您的银行卡、支付宝或微信收款账号..."></textarea>
             </div>
         </div>
 
-        <div class="bg-red-500/10 p-6 rounded-3xl border border-red-500/20">
-            <h4 class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fas fa-exclamation-triangle"></i> 温馨提示</h4>
-            <p class="text-[9px] text-red-400/80 font-bold leading-relaxed">
-                1. 单笔提现最低 50 元起。<br>
-                2. 必须完成充值及福利总额的 4 倍流水方可提现。<br>
-                3. 财务人员将在审核后 24 小时内完成打款。
+        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+            <p class="text-[10px] text-blue-600 font-bold leading-relaxed">
+                1. 单笔回分最低 50 起。<br>
+                2. 必须完成充值总额的 4 倍流水方可申请。<br>
+                3. 财务人员将在 24 小时内处理。
             </p>
         </div>
 
-        <button onclick="submit()" class="w-full gold-gradient text-black py-5 rounded-2xl font-black shadow-lg shadow-primary/20 active:scale-95 transition-all">
-            申请极速到账
+        <button onclick="submit()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black shadow-lg shadow-blue-200 active:scale-95 transition-all">
+            确认申请回分
         </button>
     </div>
-
     <script>
         async function submit() {
-            const amount = document.getElementById('amount').value;
-            const note = document.getElementById('note').value;
-            if(!amount || amount < 50) return alert('最小提现金额为 50 元');
-            if(!note) return alert('请输入收款账号信息');
-
-            const res = await fetch('/api/withdraw.php', {
+            const a = document.getElementById('amount').value;
+            const n = document.getElementById('note').value;
+            if(!a || a < 50) return alert('最低 50');
+            if(!n) return alert('请输入账号信息');
+            const r = await fetch('/api/withdraw.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ amount: parseFloat(amount), note: note })
-            });
-            const data = await res.json();
-            alert(data.message);
-            if(data.success) location.href = '/profile.html';
+                body: JSON.stringify({ amount: parseFloat(a), note: n })
+            }).then(r => r.json());
+            alert(r.message); if(r.success) location.href = '/profile.html';
         }
     </script>
 </body>

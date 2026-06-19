@@ -15,38 +15,49 @@ $userId = $_SESSION['user_id'];
 $action = $_GET['action'] ?? 'check';
 
 if ($action === 'check') {
-    // 查分 (Score Check)
-    $user = \App\Model\User::getById($userId);
-    echo json_encode(['success' => true, 'balance' => $user['balance']]);
+    // 查分 (Score Check) - 从数据库获取实时最新余额
+    $stmt = $db->prepare("SELECT balance FROM users WHERE id = ?");
+    $stmt->execute([$userId]);
+    $balance = $stmt->fetchColumn();
+    echo json_encode(['success' => true, 'balance' => (float)$balance]);
 } elseif ($action === 'return' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 回分 (Score Return / Fast Withdraw)
+    // 回分 (Score Return) - 强制执行 50起提 + 4倍流水 规则
     $data = json_decode(file_get_contents('php://input'), true);
     $amount = (float)($data['amount'] ?? 0);
 
-    if ($amount < 10) {
-        echo json_encode(['success' => false, 'message' => '最低下分金额为 10 元']);
+    if ($amount < 50) {
+        echo json_encode(['success' => false, 'message' => '回分金额最低 50 元起']);
         die;
     }
 
     $db->beginTransaction();
     try {
-        $stmt = $db->prepare("SELECT balance FROM users WHERE id = ? FOR UPDATE");
+        $stmt = $db->prepare("SELECT balance, total_turnover, total_deposit, total_bonus FROM users WHERE id = ? FOR UPDATE");
         $stmt->execute([$userId]);
-        $currentBalance = $stmt->fetchColumn();
+        $user = $stmt->fetch();
 
-        if ($currentBalance < $amount) {
-            throw new Exception("余额不足以回分");
+        if (!$user) throw new Exception("用户不存在");
+
+        // 4x Turnover Rule
+        $requiredTurnover = ($user['total_deposit'] + $user['total_bonus']) * 4;
+        if ($user['total_turnover'] < $requiredTurnover) {
+            $diff = $requiredTurnover - $user['total_turnover'];
+            throw new Exception("流水不足，还需 " . number_format($diff, 2) . " 积分流水方可回分");
         }
 
-        // 扣除余额并记录
-        \App\Model\User::updateBalance($userId, -$amount, 'withdraw', '快速回分申请', $db);
+        if ($user['balance'] < $amount) {
+            throw new Exception("积分余额不足");
+        }
 
-        // 自动创建财务请求
-        $stmt = $db->prepare("INSERT INTO finance_requests (user_id, type, amount, status, admin_note) VALUES (?, 'withdraw', ?, 'pending', '用户游戏内快速回分')");
+        // Apply deduction
+        \App\Model\User::updateBalance($userId, -$amount, 'withdraw', '游戏快捷下分', $db);
+
+        // Log request for admin
+        $stmt = $db->prepare("INSERT INTO finance_requests (user_id, type, amount, status, admin_note) VALUES (?, 'withdraw', ?, 'pending', '用户端快捷回分')");
         $stmt->execute([$userId, $amount]);
 
         $db->commit();
-        echo json_encode(['success' => true, 'message' => '回分申请已提交，请联系客服处理']);
+        echo json_encode(['success' => true, 'message' => '回分申请已提交，请联系客服确认']);
     } catch (Exception $e) {
         $db->rollBack();
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);

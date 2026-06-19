@@ -1,76 +1,50 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - 加拿大 28</title>
+    <title>登录 - PC28</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#D4AF37',
-                        gold: { DEFAULT: '#D4AF37' },
-                        dark: { DEFAULT: '#121212', light: '#1E1E1E' }
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
-        body { font-family: 'Noto+Sans+SC', sans-serif; }
-        .gold-gradient { background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #9A7D0A 100%); }
+        body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }
     </style>
 </head>
-<body class="bg-dark text-white flex items-center justify-center min-h-screen p-6">
-    <div class="w-full max-w-md bg-dark-light rounded-[3rem] p-10 border border-white/5 shadow-2xl shadow-primary/5">
-        <div class="w-16 h-16 gold-gradient rounded-2xl flex items-center justify-center text-black text-2xl font-black mb-8 shadow-lg shadow-primary/20">28</div>
-        <h1 class="text-3xl font-black mb-2">尊贵回归</h1>
-        <p class="text-slate-500 text-sm mb-10 font-bold">登录您的至尊账户</p>
+<body class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-sm bg-white rounded-[2.5rem] p-10 border border-slate-200 shadow-xl shadow-slate-100">
+        <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-xl font-black mb-8 shadow-lg shadow-blue-100 mx-auto">28</div>
+        <h1 class="text-2xl font-black text-center mb-2 text-slate-800">欢迎回归</h1>
+        <p class="text-slate-400 text-xs text-center mb-10 font-bold uppercase tracking-widest">登录您的商务账户</p>
 
-        <div class="space-y-6">
-            <div>
-                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block mb-3">用户名</label>
-                <div class="bg-dark flex items-center px-6 rounded-2xl border border-white/5 focus-within:border-primary/50 transition-colors">
-                    <i class="fas fa-user text-slate-600 text-sm"></i>
-                    <input type="text" id="username" class="w-full bg-transparent px-4 py-5 outline-none text-sm font-bold" placeholder="输入用户名">
-                </div>
+        <div class="space-y-5">
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center focus-within:border-blue-400 transition-colors">
+                <i class="fas fa-user text-slate-300 text-sm"></i>
+                <input type="text" id="username" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="账号">
             </div>
-            <div>
-                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block mb-3">安全密码</label>
-                <div class="bg-dark flex items-center px-6 rounded-2xl border border-white/5 focus-within:border-primary/50 transition-colors">
-                    <i class="fas fa-lock text-slate-600 text-sm"></i>
-                    <input type="password" id="password" class="w-full bg-transparent px-4 py-5 outline-none text-sm font-bold" placeholder="输入密码">
-                </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center focus-within:border-blue-400 transition-colors">
+                <i class="fas fa-lock text-slate-300 text-sm"></i>
+                <input type="password" id="password" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="密码">
             </div>
-            <button onclick="login()" class="w-full gold-gradient text-black py-5 rounded-2xl font-black shadow-lg shadow-primary/20 active:scale-95 transition-all">
+            <button onclick="login()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-100 active:scale-95 transition-all">
                 立即登录
             </button>
         </div>
-
-        <p class="mt-10 text-center text-sm text-slate-500 font-bold">尊客初访？ <a href="/register.html" class="text-primary">即刻开启特权</a></p>
+        <p class="mt-8 text-center text-xs text-slate-400 font-bold">没有账号？ <a href="/register.html" class="text-blue-600">立即注册</a></p>
     </div>
-
     <script>
         async function login() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
-            if(!u || !p) return alert('请完善登录信息');
-
-            const res = await fetch('/api/login.php', {
+            if(!u || !p) return alert('输入账号密码');
+            const r = await fetch('/api/login.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({username: u, password: p})
-            });
-            const data = await res.json();
-            if(data.success) {
-                if(data.role === 'admin') location.href = '/admin/index.php';
+            }).then(r => r.json());
+            if(r.success) {
+                if(r.role === 'admin') location.href = '/admin/index.php';
                 else location.href = '/';
-            } else alert(data.message);
+            } else alert(r.message);
         }
     </script>
 </body>

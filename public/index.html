@@ -1,124 +1,101 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PC28 - 极简大厅</title>
+    <title>PC28 - 极简商务</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#EAB308', // Simpler Yellow/Gold
-                        dark: { DEFAULT: '#0A0A0A', light: '#141414', border: '#1F1F1F' }
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0A0A0A; color: #E5E5E5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        .btn-hover { transition: all 0.2s; }
-        .btn-hover:active { transform: scale(0.98); opacity: 0.8; }
+        body { background-color: #f8fafc; font-family: -apple-system, system-ui, sans-serif; color: #1e293b; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .btn-primary { background: #2563eb; color: white; transition: all 0.2s; }
+        .btn-primary:active { transform: scale(0.98); background: #1d4ed8; }
+        .nav-item { color: #64748b; font-size: 10px; font-weight: 600; }
+        .nav-item.active { color: #2563eb; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="p-5 flex justify-between items-center border-b border-dark-border">
+    <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-black font-black text-xs">28</div>
-            <span class="font-bold tracking-tight">CANADA 28</span>
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-xs">28</div>
+            <span class="font-bold text-slate-800 tracking-tight">加拿大 PC28</span>
         </div>
-        <div class="flex items-center gap-3">
-            <div class="text-right">
-                <p class="text-[9px] text-slate-500 font-medium">可用余额</p>
-                <p id="user-balance" class="text-sm font-bold text-primary">¥ 0.00</p>
-            </div>
-            <a href="/profile.html" class="w-9 h-9 rounded-full bg-dark-light border border-dark-border flex items-center justify-center">
-                <i class="fas fa-user text-slate-500 text-xs"></i>
-            </a>
+        <div class="text-right">
+            <p class="text-[9px] text-slate-400 font-bold uppercase">账户分值</p>
+            <p id="user-balance" class="text-sm font-black text-blue-600">¥ 0.00</p>
         </div>
     </header>
 
     <main class="flex-1 p-5 space-y-6">
-        <!-- Room Selection -->
-        <div class="grid grid-cols-1 gap-4">
-            <div onclick="enterRoom('low')" class="btn-hover bg-dark-light p-6 rounded-2xl border border-dark-border flex items-center justify-between">
+        <!-- Room Selector -->
+        <div class="grid grid-cols-2 gap-4">
+            <div onclick="enterRoom('low')" class="card p-6 text-center space-y-3 cursor-pointer hover:border-blue-200 transition-colors">
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-xl"><i class="fas fa-layer-group"></i></div>
                 <div>
-                    <h3 class="text-lg font-bold">标准房</h3>
-                    <p class="text-xs text-slate-500 mt-1">经典 2.0 赔率 · 极速派奖</p>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <i class="fas fa-bolt"></i>
+                    <h3 class="font-bold text-sm">标准玩法</h3>
+                    <p class="text-[10px] text-slate-400">2.0 经典倍率</p>
                 </div>
             </div>
-
-            <div onclick="enterRoom('high')" class="btn-hover bg-dark-light p-6 rounded-2xl border border-dark-border flex items-center justify-between">
+            <div onclick="enterRoom('high')" class="card p-6 text-center space-y-3 cursor-pointer hover:border-blue-200 transition-colors border-blue-100 bg-blue-50/30">
+                <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto text-xl shadow-lg shadow-blue-200"><i class="fas fa-crown"></i></div>
                 <div>
-                    <h3 class="text-lg font-bold text-primary">至尊房</h3>
-                    <p class="text-xs text-slate-500 mt-1">高赔率玩法 · 专属返利</p>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-black">
-                    <i class="fas fa-gem"></i>
+                    <h3 class="font-bold text-sm text-blue-800">至尊高倍</h3>
+                    <p class="text-[10px] text-blue-400">保本返利模式</p>
                 </div>
             </div>
         </div>
 
-        <!-- Results Table -->
-        <div class="bg-dark-light rounded-2xl border border-dark-border overflow-hidden">
-            <div class="p-4 border-b border-dark-border flex justify-between items-center">
-                <h4 class="text-xs font-bold text-slate-400">近期开奖</h4>
-                <a href="/game.html" class="text-[10px] text-primary font-bold">进入房间 <i class="fas fa-arrow-right ml-1"></i></a>
+        <!-- Latest Results -->
+        <div class="card overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <h4 class="text-[11px] font-black text-slate-500 uppercase tracking-widest">近期开奖公告</h4>
+                <a href="/game.html" class="text-[10px] text-blue-600 font-bold">进入房间 <i class="fas fa-chevron-right ml-1"></i></a>
             </div>
-            <div id="latest-results" class="divide-y divide-dark-border">
-                <!-- Rows -->
+            <div id="latest-results" class="divide-y divide-slate-50">
+                <!-- Result Rows -->
+                <div class="p-10 text-center text-slate-300 text-xs font-bold">同步云端数据中...</div>
             </div>
         </div>
     </main>
 
-    <!-- Simple Nav -->
-    <nav class="p-4 bg-dark-light border-t border-dark-border flex justify-around">
-        <a href="/" class="text-primary flex flex-col items-center gap-1">
-            <i class="fas fa-home text-sm"></i>
-            <span class="text-[9px] font-bold">大厅</span>
+    <!-- Navigation -->
+    <nav class="bg-white border-t border-slate-200 p-4 pb-8 flex justify-around items-center">
+        <a href="/" class="nav-item active flex flex-col items-center gap-1">
+            <i class="fas fa-home text-lg"></i>
+            <span>大厅</span>
         </a>
-        <a href="/recharge.html" class="text-slate-500 flex flex-col items-center gap-1">
-            <i class="fas fa-plus-circle text-sm"></i>
-            <span class="text-[9px] font-bold">充值</span>
+        <a href="/recharge.html" class="nav-item flex flex-col items-center gap-1">
+            <i class="fas fa-add text-lg"></i>
+            <span>充值</span>
         </a>
-        <a href="/withdraw.html" class="text-slate-500 flex flex-col items-center gap-1">
-            <i class="fas fa-wallet text-sm"></i>
-            <span class="text-[9px] font-bold">回分</span>
+        <a href="/withdraw.html" class="nav-item flex flex-col items-center gap-1">
+            <i class="fas fa-wallet text-lg"></i>
+            <span>回分</span>
         </a>
-        <a href="/profile.html" class="text-slate-500 flex flex-col items-center gap-1">
-            <i class="fas fa-user text-sm"></i>
-            <span class="text-[9px] font-bold">我的</span>
+        <a href="/profile.html" class="nav-item flex flex-col items-center gap-1">
+            <i class="fas fa-user text-lg"></i>
+            <span>我的</span>
         </a>
     </nav>
 
     <script>
-        function enterRoom(mode) { location.href = `/game.html?room=${mode}`; }
-
+        function enterRoom(m) { location.href = `/game.html?room=${m}`; }
         async function refresh() {
             try {
-                const uRes = await fetch('/api/user_info.php');
-                const uData = await uRes.json();
-                if(uData.success) document.getElementById('user-balance').innerText = '¥ ' + parseFloat(uData.user.balance).toLocaleString();
-
-                const lRes = await fetch('/api/lottery.php?limit=8');
-                const lData = await lRes.json();
-                if(lData.history) {
-                    document.getElementById('latest-results').innerHTML = lData.history.map(item => `
-                        <div class="flex justify-between items-center p-4">
-                            <span class="text-[11px] text-slate-500 font-medium">${item.issue_no}</span>
-                            <div class="flex items-center gap-3">
-                                <div class="flex gap-1">
-                                    ${item.numbers.split(',').map(n => `<span class="w-5 h-5 flex items-center justify-center bg-dark border border-dark-border rounded text-[10px] font-bold">${n}</span>`).join('')}
+                const u = await fetch('/api/user_info.php').then(r => r.json());
+                if(u.success) document.getElementById('user-balance').innerText = '¥ ' + parseFloat(u.user.balance).toLocaleString();
+                const l = await fetch('/api/lottery.php?limit=10').then(r => r.json());
+                if(l.history) {
+                    document.getElementById('latest-results').innerHTML = l.history.map(i => `
+                        <div class="px-5 py-4 flex justify-between items-center">
+                            <span class="text-[11px] text-slate-400 font-medium">#${i.issue_no}</span>
+                            <div class="flex items-center gap-4">
+                                <div class="flex gap-1.5">
+                                    ${i.numbers.split(',').map(n => `<span class="w-6 h-6 bg-slate-100 rounded flex items-center justify-center text-[11px] font-bold text-slate-600 border border-slate-200/50">${n}</span>`).join('')}
                                 </div>
-                                <span class="text-sm font-black text-primary w-6 text-right">${item.total_sum}</span>
+                                <span class="w-7 text-right text-sm font-black text-blue-600">${i.total_sum}</span>
                             </div>
                         </div>
                     `).join('');
@@ -126,7 +103,7 @@
             } catch(e) {}
         }
         refresh();
-        setInterval(refresh, 10000);
+        setInterval(refresh, 8000);
     </script>
 </body>
 </html>
