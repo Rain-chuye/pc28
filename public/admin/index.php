@@ -47,14 +47,15 @@ $pendingWithdraw = $db->query("SELECT COUNT(*) FROM finance_requests WHERE type=
             <a href="/admin/index.php" class="flex items-center gap-3 bg-indigo-600 px-4 py-3 rounded-xl font-bold">
                 <i class="fas fa-home w-5"></i> 控制台大盘
             </a>
-            <a href="/admin/pages/settings.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors">
-                <i class="fas fa-cog w-5 text-slate-400"></i> 系统全局配置
+            <a href="/admin/pages/finance.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors">
+                <i class="fas fa-gift w-5 text-slate-400"></i> 红包/财务管理
             </a>
-            <a href="/admin/pages/chat.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors">
-                <i class="fas fa-headset w-5 text-slate-400"></i> 在线客服中心
+            <a href="/admin/pages/odds.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors">
+                <i class="fas fa-percentage w-5 text-slate-400"></i> 赔率规则管理
             </a>
             <a href="/admin/pages/users.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors">
                 <i class="fas fa-users w-5 text-slate-400"></i> 会员管理
+            <a href="/admin/pages/chat.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-headset w-5 text-slate-400"></i> 在线客服中心</a>
             </a>
             <a href="/admin/pages/finance_list.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors">
                 <i class="fas fa-wallet w-5 text-slate-400"></i> 财务充提审批
@@ -153,6 +154,7 @@ $pendingWithdraw = $db->query("SELECT COUNT(*) FROM finance_requests WHERE type=
                     <button onclick="location.href='/admin/pages/users.php'" class="p-4 bg-slate-50 rounded-2xl text-left hover:bg-indigo-50 transition-colors">
                         <i class="fas fa-user-plus text-indigo-500 mb-2"></i>
                         <p class="text-xs font-black text-slate-700">会员管理</p>
+            <a href="/admin/pages/chat.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-headset w-5 text-slate-400"></i> 在线客服中心</a>
                     </button>
                     <button onclick="location.href='/admin/pages/finance_list.php'" class="p-4 bg-slate-50 rounded-2xl text-left hover:bg-amber-50 transition-colors">
                         <i class="fas fa-file-invoice-dollar text-amber-500 mb-2"></i>

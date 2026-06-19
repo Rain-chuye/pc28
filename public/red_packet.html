@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>红包福利群 - PC28</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>body { background-color: #f1f5f9; font-family: -apple-system, sans-serif; }</style>
+</head>
+<body class="h-screen flex flex-col">
+    <header class="bg-white border-b border-slate-200 p-4 flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-3">
+            <button onclick="history.back()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400"><i class="fas fa-chevron-left text-xs"></i></button>
+            <h1 class="font-black text-sm text-slate-800 tracking-tight">🧧 福利红包交流群</h1>
+        </div>
+        <div class="bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
+            <p class="text-[10px] font-black text-blue-600 uppercase">Room: RED_PACKET</p>
+        </div>
+    </header>
+
+    <div id="chat-box" class="flex-1 overflow-y-auto p-5 space-y-4">
+        <!-- Messages -->
+    </div>
+
+    <div class="p-4 bg-white border-t border-slate-200 flex gap-3 shrink-0">
+        <input type="text" id="msg-input" class="flex-1 bg-slate-50 border border-slate-100 rounded-xl px-5 outline-none font-bold text-sm" placeholder="来聊两句吧...">
+        <button onclick="sendMsg()" class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane"></i></button>
+    </div>
+
+    <script>
+        async function loadMsgs() {
+            const res = await fetch('/api/group_chat.php').then(r => r.json());
+            if(res.success) {
+                const box = document.getElementById('chat-box');
+                box.innerHTML = res.data.map(m => {
+                    if(m.type === 'red_packet') {
+                        return `
+                            <div class="flex justify-center my-4">
+                                <div onclick="claimRedPacket(${m.packet_id})" class="bg-orange-500 text-white p-6 rounded-3xl shadow-xl shadow-orange-100 border-4 border-orange-400 cursor-pointer active:scale-95 transition-all max-w-[280px]">
+                                    <div class="flex flex-col items-center text-center">
+                                        <div class="w-12 h-12 bg-orange-400 rounded-full flex items-center justify-center mb-3 border-2 border-white/20">
+                                            <i class="fas fa-gift text-xl"></i>
+                                        </div>
+                                        <p class="text-[11px] font-black opacity-80 uppercase tracking-widest mb-1">东爷国际 · 专属福利</p>
+                                        <p class="text-sm font-black leading-tight">${m.message}</p>
+                                        <div class="mt-4 bg-white/20 px-4 py-1.5 rounded-full text-[10px] font-black">点击立即开抢</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    const isSelf = m.user_id == localStorage.getItem('uid');
+                    return `
+                        <div class="flex ${isSelf ? 'justify-end' : ''} items-start gap-3">
+                            <div class="${isSelf ? 'order-2' : ''} w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center font-black text-xs text-slate-400">${m.username[0]}</div>
+                            <div class="${isSelf ? 'bg-blue-600 text-white' : 'bg-white text-slate-800'} p-3 rounded-2xl shadow-sm text-sm font-bold max-w-[70%]">
+                                <p class="text-[9px] mb-1 ${isSelf ? 'text-white/60' : 'text-slate-400'} font-black uppercase">${m.username}</p>
+                                ${m.message}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        async function sendMsg() {
+            const input = document.getElementById('msg-input');
+            const msg = input.value;
+            if(!msg) return;
+            await fetch('/api/group_chat.php?action=send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: msg})
+            });
+            input.value = '';
+            loadMsgs();
+        }
+
+        async function claimRedPacket(id) {
+            const fd = new FormData(); fd.append('packet_id', id);
+            const res = await fetch('/api/group_chat.php?action=claim_red_packet', {
+                method: 'POST',
+                body: fd
+            }).then(r => r.json());
+            if(res.success) {
+                alert('🎉 恭喜！领取到红包: ' + res.amount + ' 元');
+            } else alert(res.message);
+        }
+
+        loadMsgs();
+        setInterval(loadMsgs, 5000);
+    </script>
+</body>
+</html>

@@ -4,7 +4,6 @@ require_once __DIR__ . '/../../../src/Utils/DB.php';
 require_once __DIR__ . '/../../../src/Model/User.php';
 
 header('Content-Type: application/json');
-
 $db = \App\Utils\DB::getInstance()->getConnection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -23,27 +22,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($status === 'approved') {
                 if ($req['type'] === 'deposit') {
-                    \App\Model\User::addDeposit($req['user_id'], $req['amount'], $db);
+                    $userId = $req['user_id'];
+                    $amount = $req['amount'];
 
-                    // First deposit bonus
-                    $stmt = $db->prepare("SELECT COUNT(*) FROM finance_requests WHERE user_id = ? AND status = 'approved' AND type = 'deposit'");
-                    $stmt->execute([$req['user_id']]);
-                    if ($stmt->fetchColumn() == 1) {
-                        \App\Model\User::addBonus($req['user_id'], 20, $db);
+                    \App\Model\User::addDeposit($userId, $amount, $db);
+
+                    // Tiered Recharge Bonus Logic
+                    $stmt = $db->prepare("SELECT first_recharge_done FROM users WHERE id = ?");
+                    $stmt->execute([$userId]);
+                    $isFirst = !$stmt->fetchColumn();
+
+                    $bonus = 0;
+                    if ($isFirst && $amount >= 20) {
+                        $bonus = 21;
+                        $db->prepare("UPDATE users SET first_recharge_done = 1 WHERE id = ?")->execute([$userId]);
+                    } else {
+                        if ($amount >= 100) $bonus = 60;
+                        else if ($amount >= 50) $bonus = 20;
+                        else if ($amount >= 40) $bonus = 12;
+                        else if ($amount >= 30) $bonus = 10;
+                        else if ($amount >= 20) $bonus = 4;
+                        else if ($amount >= 10) $bonus = 1;
                     }
 
-                    if ($req['amount'] >= 21) {
-                        checkInvitationBonus($db, $req['user_id']);
+                    if ($bonus > 0) {
+                        \App\Model\User::addBonus($userId, $bonus, $db);
                     }
-                } else if ($req['type'] === 'withdraw') {
-                    // Balance already deducted on request (assuming typical flow)
-                    // If not deducted on request, deduct here.
-                    // Currently, let's assume it was deducted on request.
-                    // Let's check withdraw.php logic.
                 }
-            } else if ($status === 'rejected' && $req['type'] === 'withdraw') {
-                // Return funds to user
-                \App\Model\User::updateBalance($req['user_id'], $req['amount'], 'withdraw', '提现驳回退款', $db);
             }
         }
         $db->commit();
@@ -51,20 +56,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         $db->rollBack();
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-    }
-}
-
-function checkInvitationBonus($db, $userId) {
-    $stmt = $db->prepare("SELECT inviter_id FROM users WHERE id = ?");
-    $stmt->execute([$userId]);
-    $inviterId = $stmt->fetchColumn();
-
-    if ($inviterId) {
-        $checkStmt = $db->prepare("SELECT id FROM rebates WHERE sub_id = ? AND user_id = ? AND type = 'invitation'");
-        $checkStmt->execute([$userId, $inviterId]);
-        if (!$checkStmt->fetch()) {
-            \App\Model\User::updateBalance($inviterId, 15, 'rebate', '好友首充奖励', $db);
-            $db->prepare("INSERT INTO rebates (user_id, sub_id, type, amount) VALUES (?, ?, 'invitation', 15)")->execute([$inviterId, $userId]);
-        }
     }
 }

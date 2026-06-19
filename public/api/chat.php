@@ -11,12 +11,15 @@ if (!isset($_SESSION['user_id'])) {
 
 $db = \App\Utils\DB::getInstance()->getConnection();
 $userId = $_SESSION['user_id'];
-$role = $_SESSION['role'];
+$role = $_SESSION['role'] ?? 'user';
+
+// Set timezone to Beijing for database timestamps (if not already handled by DB)
+$db->exec("SET time_zone = '+08:00'");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     $msg = $data['message'] ?? '';
-    $receiverId = $data['receiver_id'] ?? 1; // Default to admin (ID 1)
+    $receiverId = $data['receiver_id'] ?? 1;
 
     if (!$msg) {
         echo json_encode(['success' => false, 'message' => '内容不能为空']);
@@ -27,9 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$userId, $receiverId, $msg]);
     echo json_encode(['success' => true]);
 } else {
-    // Fetch conversation
     if ($role === 'admin') {
-        // Admin sees all distinct users who messaged them
         $targetUser = $_GET['user_id'] ?? 0;
         if ($targetUser) {
             $stmt = $db->prepare("SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY id ASC");
@@ -39,10 +40,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              $stmt->execute([$userId]);
         }
     } else {
-        // User sees conversation with Admin (ID 1)
         $stmt = $db->prepare("SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = 1) OR (sender_id = 1 AND receiver_id = ?) ORDER BY id ASC");
         $stmt->execute([$userId, $userId]);
     }
     $msgs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Ensure response timestamps are properly formatted (24h)
+    foreach($msgs as &$m) {
+        $m['created_at'] = date('Y-m-d H:i:s', strtotime($m['created_at']));
+    }
+
     echo json_encode(['success' => true, 'data' => $msgs]);
 }

@@ -1,24 +1,30 @@
 <?php
+/**
+ * PC28 自动发红包脚本 - 每日凌晨 1 点执行
+ */
 require_once __DIR__ . '/../src/Utils/DB.php';
+
 $db = \App\Utils\DB::getInstance()->getConnection();
 
-// This script should be run at 2 AM via cron
-$amount = 1000.00;
-$count = 500;
+$totalAmount = 1000.00;
+$totalCount = 168;
+$minTurnover = 100.00; // Requirement from existing schema
 
-$db->beginTransaction();
 try {
-    // Create red packet
-    $stmt = $db->prepare("INSERT INTO red_packets (total_amount, total_count, remaining_amount, remaining_count, min_turnover_req) VALUES (?, ?, ?, ?, 100.00)");
-    $stmt->execute([$amount, $count, $amount, $count]);
+    $db->beginTransaction();
+
+    // 1. Create Red Packet
+    $stmt = $db->prepare("INSERT INTO red_packets (total_amount, total_count, remaining_amount, remaining_count, min_turnover_req) VALUES (?, ?, ?, ?, ?)");
+    $stmt->execute([$totalAmount, $totalCount, $totalAmount, $totalCount, $minTurnover]);
     $packetId = $db->lastInsertId();
 
-    // Send message to group chat (User ID 1 is Admin)
-    $stmt = $db->prepare("INSERT INTO group_messages (user_id, message, type, packet_id) VALUES (1, '今日凌晨红包来啦！金额1000，共500份，名额有限，流水满100即可参与！', 'red_packet', ?)");
-    $stmt->execute([$packetId]);
+    // 2. Announce in Group Chat
+    $msg = "🧧 零点福利！自动发放 $totalAmount 元红包，共 $totalCount 份！名额有限，先到先得！(需流水满 $minTurnover)";
+    $stmt = $db->prepare("INSERT INTO group_messages (user_id, message, type, packet_id) VALUES (1, ?, 'red_packet', ?)");
+    $stmt->execute([$msg, $packetId]);
 
     $db->commit();
-    echo "Auto red packet created: ID $packetId\n";
+    echo "Red packet $packetId created successfully.\n";
 } catch (Exception $e) {
     $db->rollBack();
     echo "Error: " . $e->getMessage() . "\n";

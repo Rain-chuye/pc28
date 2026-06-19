@@ -117,3 +117,61 @@ Stack trace:
 #3 {main}
   thrown in /app/src/Utils/DB.php on line 17
 [Fri Jun 19 08:59:08 2026] [::1]:58044 Closing
+[Fri Jun 19 10:33:49 2026] [::1]:54418 Accepted
+[Fri Jun 19 10:33:49 2026] [::1]:54418 [200]: GET /game.html?room=low
+[Fri Jun 19 10:33:49 2026] [::1]:54418 Closing
+[Fri Jun 19 10:33:50 2026] [::1]:54420 Accepted
+[Fri Jun 19 10:33:50 2026] [::1]:54428 Accepted
+[Fri Jun 19 10:33:50 2026] [::1]:54420 [200]: GET /api/user_info.php
+[Fri Jun 19 10:33:50 2026] [::1]:54420 Closing
+[Fri Jun 19 10:33:50 2026] Database Connection Error: SQLSTATE[HY000] [2002] No such file or directory
+[Fri Jun 19 10:33:50 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:28
+Stack trace:
+#0 /app/src/Utils/DB.php(28): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 28
+[Fri Jun 19 10:33:50 2026] [::1]:54428 [500]: GET /api/lottery.php - Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:28
+Stack trace:
+#0 /app/src/Utils/DB.php(28): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 28
+[Fri Jun 19 10:33:50 2026] [::1]:54428 Closing
+[Fri Jun 19 10:35:13 2026] [::1]:52334 Accepted
+[Fri Jun 19 10:35:13 2026] [::1]:52334 [200]: GET /game.html?room=high
+[Fri Jun 19 10:35:13 2026] [::1]:52334 Closing
+[Fri Jun 19 10:35:13 2026] [::1]:52338 Accepted
+[Fri Jun 19 10:35:13 2026] [::1]:52348 Accepted
+[Fri Jun 19 10:35:13 2026] [::1]:52338 [200]: GET /api/user_info.php
+[Fri Jun 19 10:35:13 2026] [::1]:52338 Closing
+[Fri Jun 19 10:35:13 2026] Database Connection Error: SQLSTATE[HY000] [2002] No such file or directory
+[Fri Jun 19 10:35:13 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:28
+Stack trace:
+#0 /app/src/Utils/DB.php(28): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 28
+[Fri Jun 19 10:35:13 2026] [::1]:52348 [500]: GET /api/lottery.php - Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:28
+Stack trace:
+#0 /app/src/Utils/DB.php(28): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 28
+[Fri Jun 19 10:35:13 2026] [::1]:52348 Closing
+[Fri Jun 19 10:35:17 2026] [::1]:36286 Accepted
+[Fri Jun 19 10:35:17 2026] [::1]:36286 [200]: GET /settings.html
+[Fri Jun 19 10:35:17 2026] [::1]:36286 Closing
+[Fri Jun 19 10:35:17 2026] [::1]:36288 Accepted
+[Fri Jun 19 10:35:17 2026] [::1]:36288 [200]: GET /api/user_info.php
+[Fri Jun 19 10:35:17 2026] [::1]:36288 Closing
+[Fri Jun 19 10:35:18 2026] [::1]:36292 Accepted
+[Fri Jun 19 10:35:18 2026] [::1]:36292 [200]: GET /red_packet.html
+[Fri Jun 19 10:35:18 2026] [::1]:36292 Closing
+[Fri Jun 19 10:35:18 2026] [::1]:36300 Accepted
+[Fri Jun 19 10:35:18 2026] [::1]:36300 [200]: GET /api/group_chat.php
+[Fri Jun 19 10:35:18 2026] [::1]:36300 Closing

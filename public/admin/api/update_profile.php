@@ -1,31 +1,45 @@
 <?php
-require_once __DIR__ . '/../check_auth.php';
+session_start();
 require_once __DIR__ . '/../../../src/Utils/DB.php';
 
 header('Content-Type: application/json');
 
-$db = \App\Utils\DB::getInstance()->getConnection();
-$data = json_decode(file_get_contents('php://input'), true);
-
-$newUsername = $data['username'] ?? '';
-$newPassword = $data['password'] ?? '';
-
-if (!$newUsername) {
-    echo json_encode(['success' => false, 'message' => '用户名不能为空']);
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     die;
 }
 
+$db = \App\Utils\DB::getInstance()->getConnection();
+$data = json_decode(file_get_contents('php://input'), true);
+
 try {
-    if ($newPassword) {
-        $stmt = $db->prepare("UPDATE users SET username = ?, password = ? WHERE id = ?");
-        $stmt->execute([$newUsername, $newPassword, $_SESSION['user_id']]);
-    } else {
-        $stmt = $db->prepare("UPDATE users SET username = ? WHERE id = ?");
-        $stmt->execute([$newUsername, $_SESSION['user_id']]);
+    $userId = $data['user_id'];
+    $updates = [];
+    $params = [];
+
+    if (isset($data['balance'])) {
+        $updates[] = "balance = ?";
+        $params[] = (float)$data['balance'];
+    }
+    if (isset($data['qq'])) {
+        $updates[] = "qq_number = ?";
+        $params[] = $data['qq'];
+    }
+    if (isset($data['password']) && !empty($data['password'])) {
+        $updates[] = "password = ?";
+        $params[] = $data['password'];
     }
 
-    $_SESSION['username'] = $newUsername;
-    echo json_encode(['success' => true, 'message' => '个人信息已更新']);
+    if (empty($updates)) {
+        throw new Exception("No fields to update");
+    }
+
+    $params[] = $userId;
+    $sql = "UPDATE users SET " . implode(", ", $updates) . " WHERE id = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+
+    echo json_encode(['success' => true]);
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => '更新失败: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

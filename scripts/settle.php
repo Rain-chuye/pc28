@@ -1,6 +1,6 @@
 <?php
 /**
- * PC28 结算系统完善版 - 支持 13/14 保本逻辑
+ * PC28 结算系统 - 最终规则修正版
  */
 require_once __DIR__ . '/../src/Utils/DB.php';
 require_once __DIR__ . '/../src/Model/User.php';
@@ -18,15 +18,16 @@ function isPair($numbers) {
 }
 
 function isStraight($numbers) {
-    $nums = explode(',', $numbers);
+    $nums = array_map('intval', explode(',', $numbers));
     sort($nums);
-    // 正常顺子 or 089 特殊顺子
-    return ($nums[1] == $nums[0] + 1 && $nums[2] == $nums[1] + 1) || (array_slice($nums, 0, 3) == [0, 8, 9]);
+    if ($nums[1] == $nums[0] + 1 && $nums[2] == $nums[1] + 1) return true;
+    $set = array_values($nums);
+    if ($set === [0, 1, 9] || $set === [0, 8, 9]) return true;
+    return false;
 }
 
 function settle($db) {
-    // 仅查询待结算注单
-    $stmt = $db->query("SELECT * FROM bets WHERE status = 0 LIMIT 200");
+    $stmt = $db->query("SELECT * FROM bets WHERE status = 0 LIMIT 500");
     $bets = $stmt->fetchAll();
 
     foreach ($bets as $bet) {
@@ -37,13 +38,14 @@ function settle($db) {
         if ($result) {
             $totalSum = (int)$result['total_sum'];
             $numbersStr = $result['numbers'];
-            $nums = explode(',', $numbersStr);
             $isWin = false;
             $isReturn = false;
+            $finalOdds = (float)$bet['odds'];
 
             $playType = $bet['play_type'];
+            $room = $bet['odds_type']; // 'high' = 2.8, 'low' = 2.0
 
-            // 1. 基础胜负判断
+            // 1. Determine Winning Status (Core Mechanics)
             switch($playType) {
                 case 'big': if ($totalSum >= 14) $isWin = true; break;
                 case 'small': if ($totalSum <= 13) $isWin = true; break;
@@ -53,53 +55,50 @@ function settle($db) {
                 case 'big_double': if ($totalSum >= 14 && $totalSum % 2 == 0) $isWin = true; break;
                 case 'small_single': if ($totalSum <= 13 && $totalSum % 2 != 0) $isWin = true; break;
                 case 'small_double': if ($totalSum <= 13 && $totalSum % 2 == 0) $isWin = true; break;
+                case 'extreme_big': if ($totalSum >= 22) $isWin = true; break;
+                case 'extreme_small': if ($totalSum <= 5) $isWin = true; break;
                 case 'triple': if (isTriple($numbersStr)) $isWin = true; break;
                 case 'straight': if (isStraight($numbersStr)) $isWin = true; break;
                 case 'pair': if (isPair($numbersStr)) $isWin = true; break;
-                case 'banker': if ($nums[0] > $nums[2]) $isWin = true; break;
-                case 'player': if ($nums[2] > $nums[0]) $isWin = true; break;
-                case 'tie': if ($nums[0] == $nums[2]) $isWin = true; break;
                 default:
                     if (is_numeric($playType) && $totalSum == (int)$playType) $isWin = true;
             }
 
-            // 2. 房间模式特殊规则 (13/14 & 特殊牌型 保本/回扣)
-            if ($bet['odds_type'] == 'low') {
-                // 标准房: 13/14 大小单双组合均不中
-                if (($totalSum == 13 || $totalSum == 14) && !is_numeric($playType)) {
-                    $isWin = false;
-                }
-            } else if ($bet['odds_type'] == 'high') {
-                // 加拿大房/保本房
-                // 如果是 大小单双组合 遇到 13/14，不计胜负，直接退本
-                if (!is_numeric($playType) && ($totalSum == 13 || $totalSum == 14)) {
-                    $isWin = false;
+            // 2. Room Rule Processing
+            if ($room == 'high') { // 2.8 Canada Room
+                // "开13/14/对子/顺子 豹子/中奖单注或组合回本"
+                // Interpretation: If result is special and you didn't win, return principal.
+                $isSpecialResult = ($totalSum == 13 || $totalSum == 14 || isPair($numbersStr) || isStraight($numbersStr) || isTriple($numbersStr));
+                if (!$isWin && $isSpecialResult) {
                     $isReturn = true;
                 }
-
-                // 核心修复：特码不中，但遇到 13/14 或 特殊牌型，退回本金
-                if (!$isWin) {
-                    if ($totalSum == 13 || $totalSum == 14 || isTriple($numbersStr) || isPair($numbersStr) || isStraight($numbersStr)) {
-                        $isReturn = true;
-                    }
+            } else { // 2.0 Standard Room
+                // "开13/14/中奖组合回本"
+                $isCombo = in_array($playType, ['big_single','big_double','small_single','small_double']);
+                if (!$isWin && $isCombo && ($totalSum == 13 || $totalSum == 14)) {
+                    $isReturn = true;
+                }
+                // "开13/14/中奖单注1.6倍"
+                $isBSSD = in_array($playType, ['big','small','single','double']);
+                if ($isWin && $isBSSD && ($totalSum == 13 || $totalSum == 14)) {
+                    $finalOdds = 1.60;
                 }
             }
 
             $status = $isWin ? 1 : ($isReturn ? 3 : 2);
-            $winAmount = $isWin ? $bet['bet_amount'] * $bet['odds'] : ($isReturn ? $bet['bet_amount'] : 0);
+            $winAmount = $isWin ? $bet['bet_amount'] * $finalOdds : ($isReturn ? $bet['bet_amount'] : 0);
 
             $db->beginTransaction();
             try {
-                $updateStmt = $db->prepare("UPDATE bets SET status = ?, win_amount = ? WHERE id = ?");
-                $updateStmt->execute(array($status, $winAmount, $bet['id']));
+                $updateStmt = $db->prepare("UPDATE bets SET status = ?, win_amount = ?, odds = ? WHERE id = ?");
+                $updateStmt->execute(array($status, $winAmount, $finalOdds, $bet['id']));
 
                 if ($winAmount > 0) {
-                    \App\Model\User::updateBalance($bet['user_id'], $winAmount, 'win', "中奖回款: " . $playType . " (" . $bet['issue_no'] . ")", $db);
+                    \App\Model\User::updateBalance($bet['user_id'], $winAmount, 'win', "结算派奖: " . $playType . " (" . $bet['issue_no'] . ")", $db);
                 }
                 $db->commit();
             } catch (Exception $e) {
                 $db->rollBack();
-                error_log("Settle Error: " . $e->getMessage());
             }
         }
     }

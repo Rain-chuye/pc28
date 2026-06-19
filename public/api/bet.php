@@ -22,14 +22,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die;
     }
 
-    // 封盘逻辑校验 (15秒封盘)
+    // Max limit 20000
+    $totalBetAmount = 0;
+    foreach($bets as $b) $totalBetAmount += (float)$b['amount'];
+    if ($totalBetAmount > 20000) {
+        echo json_encode(['success' => false, 'message' => '单期投注总额最高 20000']);
+        die;
+    }
+
+    // 封盘逻辑校验
     $latest = \App\Model\Lottery::getLatest();
     if ($latest) {
         $now = time();
         $nextDrawTs = strtotime($latest['next_draw_at']);
-        $countdown = $nextDrawTs - $now;
-        if ($countdown <= 15) {
-            echo json_encode(['success' => false, 'message' => '当前期号已封盘，停止下单']);
+        if (($nextDrawTs - $now) <= 15) {
+            echo json_encode(['success' => false, 'message' => '已封盘，停止下单']);
             die;
         }
     }
@@ -42,11 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($bets as $b) {
             $playType = $b['play_type'];
             $amount = (float)$b['amount'];
+            if ($amount < 2) throw new Exception("单注最低 2 积分");
 
-            if ($amount < 2) throw new Exception("单注最低 2 积分 ($playType)");
-
-            // 修复：特殊玩法逻辑名对应 (triple, straight, pair, banker, player, tie)
-            // 确保 odds_config 表中有这些 Key
             if (!\App\Model\Bet::place($userId, $issueNo, $playType, $amount, $oddsType, true)) {
                 throw new Exception("下注失败: $playType");
             }

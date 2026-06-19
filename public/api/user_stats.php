@@ -14,26 +14,28 @@ $userId = $_SESSION['user_id'];
 
 // 1. Overview
 $stmt = $db->prepare("SELECT
-    SUM(CASE WHEN type = 'bet' THEN ABS(amount) ELSE 0 END) as total_bet,
-    SUM(CASE WHEN type = 'win' THEN amount ELSE 0 END) as total_win,
-    SUM(CASE WHEN type = 'deposit' THEN amount ELSE 0 END) as total_deposit,
-    SUM(CASE WHEN type = 'withdraw' THEN ABS(amount) ELSE 0 END) as total_withdraw
-FROM balance_logs WHERE user_id = ?");
-$stmt->execute([$userId]);
+    (SELECT SUM(bet_amount) FROM bets WHERE user_id = ?) as total_bet,
+    (SELECT SUM(win_amount) FROM bets WHERE user_id = ?) as total_win,
+    (SELECT SUM(amount) FROM finance_requests WHERE user_id = ? AND type = 'deposit' AND status = 'approved') as total_deposit,
+    (SELECT SUM(amount) FROM finance_requests WHERE user_id = ? AND type = 'withdraw' AND status = 'approved') as total_withdraw
+");
+$stmt->execute([$userId, $userId, $userId, $userId]);
 $overview = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// 2. Daily Report (Last 30 days)
-$stmt = $db->prepare("SELECT
-    DATE(created_at) as date,
-    COUNT(DISTINCT CASE WHEN type = 'bet' THEN issue_no END) as order_count,
-    SUM(CASE WHEN type = 'bet' THEN ABS(amount) ELSE 0 END) as bet_amount,
-    SUM(CASE WHEN type = 'win' THEN amount ELSE 0 END) as win_amount,
-    SUM(CASE WHEN type IN ('bet', 'win') THEN amount ELSE 0 END) as profit
-FROM balance_logs
-WHERE user_id = ?
-GROUP BY DATE(created_at)
-ORDER BY date DESC
-LIMIT 30");
+// 2. Daily Report
+$stmt = $db->prepare("
+    SELECT
+        DATE(created_at) as date,
+        COUNT(*) as order_count,
+        SUM(bet_amount) as bet_amount,
+        SUM(win_amount) as win_amount,
+        SUM(win_amount - bet_amount) as profit
+    FROM bets
+    WHERE user_id = ?
+    GROUP BY DATE(created_at)
+    ORDER BY date DESC
+    LIMIT 30
+");
 $stmt->execute([$userId]);
 $daily_reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
