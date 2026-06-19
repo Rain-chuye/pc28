@@ -1,27 +1,24 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../src/Utils/DB.php';
-require_once __DIR__ . '/../../src/Model/User.php';
-
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false]);
+    echo json_encode(['success' => false, 'message' => '未登录']);
     die;
 }
 
-$db = \App\Utils\DB::getInstance()->getConnection();
-$user = \App\Model\User::getById($_SESSION['user_id']);
-
-if ($user) {
-    // Get count of subs for agent center
-    $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE inviter_id = ?");
+try {
+    $db = \App\Utils\DB::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT id, username, nickname, balance, role, settings_json FROM users WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
-    $user['sub_count'] = $stmt->fetchColumn();
+    $user = $stmt->fetch();
 
-    // Ensure password is not exposed too much, but needed for admin edit in some views
-    // Actually User::getById returns everything. For security we might want to mask it.
-    // However, the admin needs to see/edit it in users.php.
+    if ($user) {
+        echo json_encode(['success' => true, 'user' => $user]);
+    } else {
+        echo json_encode(['success' => false, 'message' => '用户不存在']);
+    }
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-
-echo json_encode(['success' => true, 'user' => $user]);

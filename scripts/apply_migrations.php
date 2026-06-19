@@ -21,25 +21,40 @@ try {
     $db->exec($schema);
     echo "Base schema applied/verified.\n";
 
-    // 2. Safe Migrations
+    // 2. Safe Migrations Utility
     function addColumnSafe($db, $table, $column, $definition) {
         $stmt = $db->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
         if ($stmt->rowCount() == 0) {
             $db->exec("ALTER TABLE `$table` ADD COLUMN `$column` $definition");
             echo "Added column $column to $table.\n";
-        } else {
-            echo "Column $column already exists in $table.\n";
         }
     }
 
-    addColumnSafe($db, 'users', 'qq_number', "VARCHAR(20) DEFAULT NULL AFTER role");
-    addColumnSafe($db, 'lottery_results', 'next_draw_at', "DATETIME DEFAULT NULL AFTER open_time");
-    addColumnSafe($db, 'chat_messages', 'reply_to', "INT(11) DEFAULT NULL");
+    addColumnSafe($db, 'users', 'nickname', "VARCHAR(50) DEFAULT NULL AFTER username");
+    addColumnSafe($db, 'finance_requests', 'refusal_reason', "VARCHAR(255) DEFAULT NULL AFTER status");
 
-    // 3. Apply Odds and Settings
+    // 3. New Tables
+    $db->exec("CREATE TABLE IF NOT EXISTS bot_rules (
+        id INT(11) NOT NULL AUTO_INCREMENT,
+        keyword VARCHAR(100) DEFAULT NULL,
+        response TEXT NOT NULL,
+        is_active TINYINT(1) DEFAULT 1,
+        PRIMARY KEY (id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // 4. Update Settings and Data
     $odds_sql = file_get_contents(__DIR__ . '/../database/update_odds_rules.sql');
     $db->exec($odds_sql);
-    echo "Odds and settings updated.\n";
+
+    $settings = [
+        ['chat_mute_all', '0'],
+        ['custom_draw_interval', '300'],
+        ['bot_auto_reply_enabled', '1']
+    ];
+    foreach($settings as $s) {
+        $st = $db->prepare("INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES (?, ?)");
+        $st->execute($s);
+    }
 
     echo "Migration completed successfully.\n";
 

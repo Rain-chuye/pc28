@@ -22,10 +22,10 @@
                 <span id="user-initial">U</span>
             </div>
             <div>
-                <h2 class="text-2xl font-black" id="username-display">Loading...</h2>
+                <h2 class="text-2xl font-black" id="nickname-display">Loading...</h2>
                 <div class="flex items-center gap-3 mt-2">
                     <span class="text-[10px] bg-white/20 px-3 py-1 rounded-full font-black">至尊会员</span>
-                    <span class="text-[10px] opacity-60 font-bold italic">ID: <span id="user-id">0000</span></span>
+                    <span class="text-[10px] opacity-60 font-bold italic">UID: <span id="user-id">0000</span></span>
                 </div>
             </div>
         </div>
@@ -39,9 +39,11 @@
                 <p class="text-[10px] text-slate-400 font-black uppercase mb-1">可用分值余额</p>
                 <h3 class="text-4xl font-black text-blue-600">¥ <span id="balance">0.00</span></h3>
             </div>
-            <button onclick="location.href='/recharge.html'" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
-                <i class="fas fa-add"></i>
-            </button>
+            <div class="flex gap-2">
+                <button onclick="location.href='/recharge.html'" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
+                    <i class="fas fa-add"></i>
+                </button>
+            </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -60,14 +62,14 @@
             <a href="/withdraw.html" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-xs"><i class="fas fa-university"></i></div>
-                    <span class="text-sm font-black text-slate-800">申请回分</span></a>
+                    <span class="text-sm font-black text-slate-800">申请回分 (提现)</span>
+                </div>
+                <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
+            </a>
             <a href="/settings.html" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-xs"><i class="fas fa-cog"></i></div>
                     <span class="text-sm font-black text-slate-800">个性化设置</span>
-                </div>
-                <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
-            </a>
                 </div>
                 <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
             </a>
@@ -113,8 +115,9 @@
             const r = await fetch('/api/user_info.php').then(r => r.json());
             if(r.success) {
                 const u = r.user;
-                document.getElementById('username-display').innerText = u.username;
-                document.getElementById('user-initial').innerText = u.username[0].toUpperCase();
+                const displayName = u.nickname || u.username;
+                document.getElementById('nickname-display').innerText = displayName;
+                document.getElementById('user-initial').innerText = displayName[0].toUpperCase();
                 document.getElementById('user-id').innerText = String(u.id).padStart(4, '0');
                 document.getElementById('balance').innerText = parseFloat(u.balance).toLocaleString();
             } else location.href = '/login.html';

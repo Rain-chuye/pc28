@@ -1,54 +1,70 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../src/Utils/DB.php';
-
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => '未登录']);
-    die;
-}
-
 $db = \App\Utils\DB::getInstance()->getConnection();
-$userId = $_SESSION['user_id'];
-$role = $_SESSION['role'] ?? 'user';
+$action = $_GET['action'] ?? 'get';
+$userId = $_SESSION['user_id'] ?? 0;
+$isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 
-// Set timezone to Beijing for database timestamps (if not already handled by DB)
-$db->exec("SET time_zone = '+08:00'");
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    $msg = $data['message'] ?? '';
-    $receiverId = $data['receiver_id'] ?? 1;
-
-    if (!$msg) {
-        echo json_encode(['success' => false, 'message' => '内容不能为空']);
-        die;
-    }
-
-    $stmt = $db->prepare("INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)");
-    $stmt->execute([$userId, $receiverId, $msg]);
-    echo json_encode(['success' => true]);
-} else {
-    if ($role === 'admin') {
-        $targetUser = $_GET['user_id'] ?? 0;
-        if ($targetUser) {
-            $stmt = $db->prepare("SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY id ASC");
-            $stmt->execute([$userId, $targetUser, $targetUser, $userId]);
-        } else {
-             $stmt = $db->prepare("SELECT DISTINCT sender_id FROM chat_messages WHERE receiver_id = ?");
-             $stmt->execute([$userId]);
-        }
-    } else {
-        $stmt = $db->prepare("SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = 1) OR (sender_id = 1 AND receiver_id = ?) ORDER BY id ASC");
+try {
+    if ($action === 'get') {
+        if(!$userId) throw new Exception("Unauthorized");
+        $stmt = $db->prepare("SELECT * FROM chat_messages WHERE sender_id = ? OR receiver_id = ? ORDER BY id ASC");
         $stmt->execute([$userId, $userId]);
+        echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
     }
-    $msgs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    elseif ($action === 'send') {
+        if(!$userId) throw new Exception("Unauthorized");
+        $data = json_decode(file_get_contents('php://input'), true);
+        $msg = trim($data['message'] ?? '');
+        if(!$msg) throw new Exception("Message empty");
 
-    // Ensure response timestamps are properly formatted (24h)
-    foreach($msgs as &$m) {
-        $m['created_at'] = date('Y-m-d H:i:s', strtotime($m['created_at']));
+        $stmt = $db->prepare("INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, 0, ?)");
+        $stmt->execute([$userId, $msg]);
+
+        // Bot Auto-reply logic
+        $settings = $db->query("SELECT setting_key, setting_value FROM system_settings WHERE setting_key = 'bot_auto_reply_enabled'")->fetch(PDO::FETCH_KEY_PAIR);
+        if(($settings['bot_auto_reply_enabled'] ?? '1') == '1') {
+            $rules = $db->query("SELECT * FROM bot_rules WHERE is_active = 1")->fetchAll();
+            foreach($rules as $rule) {
+                if(!empty($rule['keyword']) && mb_strpos($msg, $rule['keyword']) !== false) {
+                    $st = $db->prepare("INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (0, ?, ?)");
+                    $st->execute([$userId, $rule['response']]);
+                    break;
+                }
+            }
+        }
+        echo json_encode(['success' => true]);
     }
-
-    echo json_encode(['success' => true, 'data' => $msgs]);
+    elseif ($action === 'get_all_admin' && $isAdmin) {
+        $stmt = $db->query("SELECT c.*, u.username as sender_name FROM chat_messages c LEFT JOIN users u ON c.sender_id = u.id ORDER BY c.id ASC LIMIT 100");
+        echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
+    }
+    elseif ($action === 'send_admin' && $isAdmin) {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $targetId = (int)$data['user_id'];
+        $msg = trim($data['message'] ?? '');
+        $stmt = $db->prepare("INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (0, ?, ?)");
+        $stmt->execute([$targetId, $msg]);
+        echo json_encode(['success' => true]);
+    }
+    elseif ($action === 'get_bot_rules') {
+        $stmt = $db->query("SELECT * FROM bot_rules");
+        echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
+    }
+    elseif ($action === 'add_bot_rule' && $isAdmin) {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $stmt = $db->prepare("INSERT INTO bot_rules (keyword, response) VALUES (?, ?)");
+        $stmt->execute([$data['keyword'], $data['response']]);
+        echo json_encode(['success' => true]);
+    }
+    elseif ($action === 'delete_bot_rule' && $isAdmin) {
+        $stmt = $db->prepare("DELETE FROM bot_rules WHERE id = ?");
+        $stmt->execute([(int)$_GET['id']]);
+        echo json_encode(['success' => true]);
+    }
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

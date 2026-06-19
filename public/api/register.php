@@ -9,12 +9,13 @@ try {
         $data = json_decode($input, true);
 
         $username = isset($data['username']) ? trim($data['username']) : '';
+        $nickname = isset($data['nickname']) ? trim($data['nickname']) : '';
         $password = isset($data['password']) ? $data['password'] : '';
         $qq = isset($data['qq']) ? trim($data['qq']) : '';
         $inviterId = !empty($data['inviter_id']) ? (int)$data['inviter_id'] : null;
 
-        if (!$username || !$password || !$qq) {
-            echo json_encode(['success' => false, 'message' => '请填写完整注册信息 (账号/密码/QQ)']);
+        if (!$username || !$nickname || !$password || !$qq) {
+            echo json_encode(['success' => false, 'message' => '请填写完整注册信息']);
         } else {
             $db = \App\Utils\DB::getInstance()->getConnection();
 
@@ -24,8 +25,8 @@ try {
             if ($stmt->fetch()) {
                 echo json_encode(['success' => false, 'message' => '用户名已存在']);
             } else {
-                $stmt = $db->prepare("INSERT INTO users (username, password, qq_number, inviter_id, balance, status, role) VALUES (?, ?, ?, ?, 0, 1, 'user')");
-                $stmt->execute([$username, $password, $qq, $inviterId]);
+                $stmt = $db->prepare("INSERT INTO users (username, nickname, password, qq_number, inviter_id, balance, status, role) VALUES (?, ?, ?, ?, ?, 0, 1, 'user')");
+                $stmt->execute([$username, $nickname, $password, $qq, $inviterId]);
                 echo json_encode(['success' => true]);
             }
         }
@@ -34,9 +35,5 @@ try {
     }
 } catch (Exception $e) {
     error_log("Register Error: " . $e->getMessage());
-    echo json_encode([
-        'success' => false,
-        'message' => '注册异常，请稍后再试',
-        'debug' => $e->getMessage()
-    ]);
+    echo json_encode(['success' => false, 'message' => '注册失败: ' . $e->getMessage()]);
 }

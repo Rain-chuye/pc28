@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }
+        .reason-badge { background: #fef2f2; border: 1px solid #fee2e2; color: #ef4444; border-radius: 12px; padding: 12px 16px; margin-top: 10px; font-size: 11px; font-weight: 700; line-height: 1.4; }
     </style>
 </head>
 <body class="p-6">
@@ -16,6 +17,13 @@
             <button onclick="history.back()" class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 border border-slate-200"><i class="fas fa-chevron-left text-xs"></i></button>
             <h1 class="font-black text-lg">申请回分</h1>
         </header>
+
+        <div id="latest-refusal" class="hidden">
+            <div class="reason-badge">
+                <p class="text-[9px] uppercase tracking-widest opacity-60 mb-1">上笔申请被拒绝理由:</p>
+                <span id="refusal-text">--</span>
+            </div>
+        </div>
 
         <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-8">
             <div>
@@ -34,8 +42,7 @@
         <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
             <p class="text-[10px] text-blue-600 font-bold leading-relaxed">
                 1. 单笔回分最低 50 起。<br>
-                2. 必须完成充值总额的 4 倍流水方可申请。<br>
-                3. 财务人员将在 24 小时内处理。
+                2. 财务人员将在 24 小时内处理。
             </p>
         </div>
 
@@ -44,6 +51,14 @@
         </button>
     </div>
     <script>
+        async function loadLastStatus() {
+            const res = await fetch('/api/finance.php?action=get_latest').then(r => r.json());
+            if(res.success && res.data && res.data.status === 'rejected' && res.data.refusal_reason) {
+                document.getElementById('latest-refusal').classList.remove('hidden');
+                document.getElementById('refusal-text').innerText = res.data.refusal_reason;
+            }
+        }
+
         async function submit() {
             const a = document.getElementById('amount').value;
             const n = document.getElementById('note').value;
@@ -56,6 +71,7 @@
             }).then(r => r.json());
             alert(r.message); if(r.success) location.href = '/profile.html';
         }
+        loadLastStatus();
     </script>
 </body>
 </html>

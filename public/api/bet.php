@@ -11,24 +11,17 @@ if (!isset($_SESSION['user_id'])) {
     die;
 }
 
+$playTypeMap = [
+    '大' => 'big', '小' => 'small', '单' => 'single', '双' => 'double',
+    '大单' => 'big_single', '大双' => 'big_double', '小单' => 'small_single', '小双' => 'small_double',
+    '极大' => 'extreme_big', '极小' => 'extreme_small', '对子' => 'pair', '顺子' => 'straight', '豹子' => 'triple'
+];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
-    $bets = isset($input['bets']) ? $input['bets'] : [$input];
+    $betsInput = isset($input['bets']) ? $input['bets'] : [$input];
     $issueNo = $input['issue_no'] ?? '';
     $oddsType = $input['odds_type'] ?? 'low';
-
-    if (!$issueNo) {
-        echo json_encode(['success' => false, 'message' => '期号异常']);
-        die;
-    }
-
-    // Max limit 20000
-    $totalBetAmount = 0;
-    foreach($bets as $b) $totalBetAmount += (float)$b['amount'];
-    if ($totalBetAmount > 20000) {
-        echo json_encode(['success' => false, 'message' => '单期投注总额最高 20000']);
-        die;
-    }
 
     // 封盘逻辑校验
     $latest = \App\Model\Lottery::getLatest();
@@ -41,24 +34,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $db = \App\Utils\DB::getInstance()->getConnection();
     $userId = $_SESSION['user_id'];
+    $db = \App\Utils\DB::getInstance()->getConnection();
 
     $db->beginTransaction();
     try {
-        foreach ($bets as $b) {
+        $totalThisBatch = 0;
+        foreach ($betsInput as $b) {
             $playType = $b['play_type'];
+            // Convert Chinese names to English keys if applicable
+            if(isset($playTypeMap[$playType])) $playType = $playTypeMap[$playType];
+
             $amount = (float)$b['amount'];
-            if ($amount < 2) throw new Exception("单注最低 2 积分");
+            if ($amount < 2) throw new Exception("最低 2 积分");
+            $totalThisBatch += $amount;
 
             if (!\App\Model\Bet::place($userId, $issueNo, $playType, $amount, $oddsType, true)) {
                 throw new Exception("下注失败: $playType");
             }
         }
+
+        // Final sanity check on issue total
+        $stmt = $db->prepare("SELECT SUM(bet_amount) FROM bets WHERE user_id = ? AND issue_no = ?");
+        $stmt->execute([$userId, $issueNo]);
+        if($stmt->fetchColumn() > 20000) throw new Exception("单期投注总额超过 20000 限制");
+
         $db->commit();
         echo json_encode(['success' => true, 'message' => '下单成功']);
     } catch (Exception $e) {
-        $db->rollBack();
+        if($db->inTransaction()) $db->rollBack();
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }
 }

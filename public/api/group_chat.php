@@ -11,47 +11,62 @@ if (!isset($_SESSION['user_id'])) {
 
 $db = \App\Utils\DB::getInstance()->getConnection();
 $userId = $_SESSION['user_id'];
+$isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_GET['action'];
+    $action = $_GET['action'] ?? 'send';
 
     if ($action === 'send') {
+        // Check Mute All
+        $settings = $db->query("SELECT setting_key, setting_value FROM system_settings WHERE setting_key = 'chat_mute_all'")->fetch(PDO::FETCH_KEY_PAIR);
+        if (($settings['chat_mute_all'] ?? '0') == '1' && !$isAdmin) {
+            echo json_encode(['success' => false, 'message' => '禁言中，仅管理员可发言']);
+            die;
+        }
+
         $data = json_decode(file_get_contents('php://input'), true);
-        $message = $data['message'];
+        $message = trim($data['message'] ?? '');
+        if(!$message) { echo json_encode(['success'=>false, 'message'=>'内容不能为空']); die; }
+
         $stmt = $db->prepare("INSERT INTO group_messages (user_id, message) VALUES (?, ?)");
         $stmt->execute([$userId, $message]);
+
+        // Bot Auto-reply in Group Chat
+        $botEnabled = $db->query("SELECT setting_value FROM system_settings WHERE setting_key = 'bot_auto_reply_enabled'")->fetchColumn();
+        if ($botEnabled == '1') {
+            $rules = $db->query("SELECT * FROM bot_rules WHERE is_active = 1")->fetchAll();
+            foreach($rules as $rule) {
+                if(!empty($rule['keyword']) && mb_strpos($message, $rule['keyword']) !== false) {
+                    $st = $db->prepare("INSERT INTO group_messages (user_id, message) VALUES (0, ?)");
+                    $st->execute([$rule['response']]);
+                    break;
+                }
+            }
+        }
+
         echo json_encode(['success' => true]);
     } else if ($action === 'claim_red_packet') {
-        $packetId = (int)$_POST['packet_id'];
+        $data = json_decode(file_get_contents('php://input'), true);
+        $packetId = (int)($data['packet_id'] ?? 0);
 
         $db->beginTransaction();
         try {
-            // Check packet
             $stmt = $db->prepare("SELECT * FROM red_packets WHERE id = ? FOR UPDATE");
             $stmt->execute([$packetId]);
             $packet = $stmt->fetch();
 
-            if (!$packet || $packet['remaining_count'] <= 0) {
-                throw new Exception("红包已领完");
-            }
+            if (!$packet || $packet['remaining_count'] <= 0) throw new Exception("红包已领完");
 
-            // Check user turnover
             $stmt = $db->prepare("SELECT daily_turnover FROM users WHERE id = ?");
             $stmt->execute([$userId]);
             $turnover = $stmt->fetchColumn();
 
-            if ($turnover < $packet['min_turnover_req']) {
-                throw new Exception("今日流水不足100，无法领取");
-            }
+            if ($turnover < $packet['min_turnover_req']) throw new Exception("今日流水不足 " . $packet['min_turnover_req'] . "，无法领取");
 
-            // Check if already claimed
             $stmt = $db->prepare("SELECT id FROM red_packet_claims WHERE packet_id = ? AND user_id = ?");
             $stmt->execute([$packetId, $userId]);
-            if ($stmt->fetch()) {
-                throw new Exception("你已经领过这个红包了");
-            }
+            if ($stmt->fetch()) throw new Exception("你已经领过这个红包了");
 
-            // Calculate amount (random)
             if ($packet['remaining_count'] == 1) {
                 $amount = $packet['remaining_amount'];
             } else {
@@ -59,28 +74,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $amount = round(mt_rand(1, $max * 100) / 100, 2);
             }
 
-            // Update packet
             $db->prepare("UPDATE red_packets SET remaining_amount = remaining_amount - ?, remaining_count = remaining_count - 1 WHERE id = ?")
                ->execute([$amount, $packetId]);
-
-            // Insert claim
             $db->prepare("INSERT INTO red_packet_claims (packet_id, user_id, amount) VALUES (?, ?, ?)")
                ->execute([$packetId, $userId, $amount]);
-
-            // Update balance
             $db->prepare("UPDATE users SET balance = balance + ? WHERE id = ?")
                ->execute([$amount, $userId]);
 
             $db->commit();
             echo json_encode(['success' => true, 'amount' => $amount]);
         } catch (Exception $e) {
-            $db->rollBack();
+            if($db->inTransaction()) $db->rollBack();
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 } else {
     // GET: load group messages
-    $stmt = $db->prepare("SELECT gm.*, u.username FROM group_messages gm JOIN users u ON gm.user_id = u.id ORDER BY gm.id DESC LIMIT 50");
+    $stmt = $db->prepare("SELECT gm.*, COALESCE(u.nickname, u.username, '系统机器人') as username FROM group_messages gm LEFT JOIN users u ON gm.user_id = u.id ORDER BY gm.id DESC LIMIT 50");
     $stmt->execute();
     $messages = array_reverse($stmt->fetchAll());
     echo json_encode(['success' => true, 'data' => $messages]);

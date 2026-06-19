@@ -9,12 +9,18 @@
     <style>body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }</style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6">
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-2xl text-sm font-bold shadow-2xl opacity-0 transition-opacity pointer-events-none z-50"></div>
+
     <div class="w-full max-w-sm bg-white rounded-[2.5rem] p-10 border border-slate-200 shadow-xl">
         <h1 class="text-2xl font-black text-center mb-10 text-slate-800">创建新账户</h1>
         <div class="space-y-5">
             <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
                 <i class="fas fa-user-plus text-slate-300 text-xs"></i>
-                <input type="text" id="username" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="设置账号">
+                <input type="text" id="username" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="设置登录账号">
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
+                <i class="fas fa-id-card text-slate-300 text-xs"></i>
+                <input type="text" id="nickname" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="设置您的昵称">
             </div>
             <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
                 <i class="fas fa-lock text-slate-300 text-xs"></i>
@@ -22,49 +28,65 @@
             </div>
             <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
                 <i class="fab fa-qq text-slate-300 text-xs"></i>
-                <input type="text" id="qq" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="您的QQ号 (找回密码凭证)">
+                <input type="text" id="qq" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="QQ号 (找回密码凭证)">
             </div>
             <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
                 <i class="fas fa-gift text-slate-300 text-xs"></i>
-                <input type="text" id="inviter_id" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="邀请码 (点击链接自动填入)">
+                <input type="text" id="inviter_id" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="邀请码 (可选)">
             </div>
-            <button onclick="register()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all">立即注册</button>
+            <button id="regBtn" onclick="register()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all">立即注册</button>
         </div>
         <p class="mt-8 text-center text-xs text-slate-400 font-bold">已有账号？ <a href="/login.html" class="text-blue-600">返回登录</a></p>
     </div>
     <script>
-        // 核心修复：自动填入邀请码，确保即时生效
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.remove('opacity-0');
+            setTimeout(() => t.classList.add('opacity-0'), 3000);
+        }
+
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const ref = urlParams.get('ref');
             if(ref) {
-                // Wait for DOM
                 window.addEventListener('DOMContentLoaded', () => {
-                    const inviteInput = document.getElementById('inviter_id');
-                    if(inviteInput) {
-                        inviteInput.value = ref;
-                        inviteInput.readOnly = true;
-                        inviteInput.style.backgroundColor = '#f1f5f9';
-                        inviteInput.style.color = '#64748b';
-                        console.log("Referral ID Auto-filled:", ref);
-                    }
+                    const i = document.getElementById('inviter_id');
+                    if(i) { i.value = ref; i.readOnly = true; }
                 });
             }
         })();
 
         async function register() {
-            const u = document.getElementById('username').value;
+            const u = document.getElementById('username').value.trim();
+            const n = document.getElementById('nickname').value.trim();
             const p = document.getElementById('password').value;
-            const q = document.getElementById('qq').value;
+            const q = document.getElementById('qq').value.trim();
             const r = document.getElementById('inviter_id').value;
-            if(!u || !p || !q) return alert('前三项为必填项');
-            const res = await fetch('/api/register.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: u, password: p, qq: q, inviter_id: r})
-            }).then(r => r.json());
-            if(res.success) { alert('注册成功'); location.href = '/login.html'; }
-            else alert(res.message);
+
+            if(!u || !n || !p || !q) return showToast('请填写完整信息');
+
+            const btn = document.getElementById('regBtn');
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/register.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username: u, nickname: n, password: p, qq: q, inviter_id: r})
+                }).then(r => r.json());
+
+                if(res.success) {
+                    alert('注册成功，请登录');
+                    location.href = '/login.html';
+                } else {
+                    showToast(res.message);
+                }
+            } catch (err) {
+                showToast('网络错误');
+            } finally {
+                btn.disabled = false;
+            }
         }
     </script>
 </body>

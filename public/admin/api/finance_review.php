@@ -9,6 +9,7 @@ $db = \App\Utils\DB::getInstance()->getConnection();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $requestId = $_POST['id'];
     $status = $_POST['status'];
+    $reason = $_POST['reason'] ?? '';
 
     $db->beginTransaction();
     try {
@@ -17,8 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $req = $stmt->fetch();
 
         if ($req && $req['status'] === 'pending') {
-            $stmt = $db->prepare("UPDATE finance_requests SET status = ? WHERE id = ?");
-            $stmt->execute([$status, $requestId]);
+            $stmt = $db->prepare("UPDATE finance_requests SET status = ?, refusal_reason = ? WHERE id = ?");
+            $stmt->execute([$status, $reason, $requestId]);
 
             if ($status === 'approved') {
                 if ($req['type'] === 'deposit') {
@@ -49,12 +50,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         \App\Model\User::addBonus($userId, $bonus, $db);
                     }
                 }
+            } else if ($status === 'rejected') {
+                // If it was a withdrawal, refund the balance
+                if ($req['type'] === 'withdraw') {
+                    $db->prepare("UPDATE users SET balance = balance + ? WHERE id = ?")
+                       ->execute([$req['amount'], $req['user_id']]);
+                }
             }
         }
         $db->commit();
         echo json_encode(['success' => true]);
     } catch (Exception $e) {
-        $db->rollBack();
+        if(isset($db) && $db->inTransaction()) $db->rollBack();
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }
 }

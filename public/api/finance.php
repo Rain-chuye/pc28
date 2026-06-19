@@ -12,10 +12,9 @@ if (!isset($_SESSION['user_id'])) {
 
 $db = \App\Utils\DB::getInstance()->getConnection();
 $userId = $_SESSION['user_id'];
+$action = $_GET['action'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_GET['action'] ?? '';
-
     if ($action === 'deposit') {
         $amount = (float)$_POST['amount'];
         if ($amount <= 0) {
@@ -29,7 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['success' => true, 'message' => '提交成功，请等待审核']);
     }
 } else {
-    $stmt = $db->prepare("SELECT * FROM finance_requests WHERE user_id = ? ORDER BY id DESC");
-    $stmt->execute([$userId]);
-    echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
+    if ($action === 'get_latest') {
+        $stmt = $db->prepare("SELECT * FROM finance_requests WHERE user_id = ? ORDER BY id DESC LIMIT 1");
+        $stmt->execute([$userId]);
+        echo json_encode(['success' => true, 'data' => $stmt->fetch()]);
+    } else {
+        $stmt = $db->prepare("SELECT * FROM finance_requests WHERE user_id = ? ORDER BY id DESC");
+        $stmt->execute([$userId]);
+        echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
+    }
 }

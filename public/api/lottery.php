@@ -7,30 +7,34 @@ header('Content-Type: application/json');
 $db = \App\Utils\DB::getInstance()->getConnection();
 $latest = \App\Model\Lottery::getLatest();
 
+// Get settings
+$settings = $db->query("SELECT setting_key, setting_value FROM system_settings")->fetchAll(PDO::FETCH_KEY_PAIR);
+$announcement = $settings['announcement'] ?? "欢迎来到 PC28 商业版，祝您游戏愉快！";
+$drawInterval = (int)($settings['custom_draw_interval'] ?? 300);
+
 if (!$latest) {
     $latest = [
         'issue_no' => '0',
         'numbers' => '0,0,0',
         'total_sum' => '0',
-        'next_draw_at' => date('Y-m-d H:i:s', time() + 215)
+        'next_draw_at' => date('Y-m-d H:i:s', time() + $drawInterval)
     ];
 }
 
-// 核心修复：下注期号必须是当前已开奖期号 + 1
 $betIssueNo = (string)((int)$latest['issue_no'] + 1);
 
 $now = time();
 $nextDrawTs = strtotime($latest['next_draw_at']);
 $countdown = $nextDrawTs - $now;
 
-if ($countdown < 0) $countdown = 0;
+// If time passed, virtual countdown
+if ($countdown < 0) {
+    $countdown = $drawInterval + ($countdown % $drawInterval);
+}
+
 $isClosed = ($countdown <= 15);
 
-// 获取后台远程配置
-$stmt = $db->query("SELECT setting_value FROM system_settings WHERE setting_key = 'announcement'");
-$announcement = $stmt->fetchColumn() ?: "欢迎来到 PC28 商业版，祝您游戏愉快！";
-
-// 获取所有赔率配置
+// Odds
 $odds = $db->query("SELECT play_type, odds_low, odds_high FROM odds_config")->fetchAll(PDO::FETCH_ASSOC);
 $oddsMap = [];
 foreach ($odds as $o) {
@@ -42,11 +46,11 @@ foreach ($odds as $o) {
 
 echo json_encode([
     'success' => true,
-    'latest' => $latest,           // 这是上一期的开奖结果，用于前端显示
-    'bet_issue_no' => $betIssueNo, // 这是当前正在接受投注的下一期期号
+    'latest' => $latest,
+    'bet_issue_no' => $betIssueNo,
     'countdown' => $countdown,
     'is_closed' => $isClosed,
     'announcement' => $announcement,
-    'odds' => $oddsMap,            // 新增赔率映射
+    'odds' => $oddsMap,
     'history' => \App\Model\Lottery::getHistory(20)
 ]);

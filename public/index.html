@@ -11,9 +11,29 @@
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .nav-item { color: #64748b; font-size: 10px; font-weight: 600; }
         .nav-item.active { color: #2563eb; }
+        .quick-action-btn { transition: all 0.2s ease; }
+        .quick-action-btn:active { transform: scale(0.95); opacity: 0.8; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
+    <!-- Chat Overlay -->
+    <div id="chat-overlay" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm hidden flex flex-col justify-end">
+        <div class="bg-white rounded-t-[2.5rem] h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><i class="fas fa-headset"></i></div>
+                    <div><h2 class="text-sm font-black">在线客服中心</h2><p class="text-[9px] text-green-500 font-bold uppercase tracking-widest flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Service Online</p></div>
+                </div>
+                <button onclick="toggleChat()" class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50"></div>
+            <div class="p-6 bg-white border-t border-slate-100 flex gap-4">
+                <input type="text" id="chat-input" class="flex-1 bg-slate-50 border-none rounded-2xl px-6 outline-none font-bold text-sm" placeholder="输入您的问题...">
+                <button onclick="sendChatMessage()" class="bg-blue-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-100"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
     <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
         <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-xs italic">28</div>
@@ -29,6 +49,22 @@
         <div class="bg-blue-600/5 border border-blue-100 rounded-xl px-4 py-2 flex items-center gap-3">
             <i class="fas fa-bullhorn text-blue-600 text-xs"></i>
             <marquee id="announcement-text" class="text-[10px] font-black text-blue-800 tracking-wide">欢迎来到 PC28 加拿大至尊版！</marquee>
+        </div>
+
+        <!-- Quick Actions Integration -->
+        <div class="grid grid-cols-3 gap-3">
+            <button onclick="location.href='/recharge.html'" class="quick-action-btn bg-indigo-600 text-white p-4 rounded-2xl shadow-lg shadow-indigo-100 flex flex-col items-center gap-2">
+                <i class="fas fa-plus-circle text-lg"></i>
+                <span class="text-[10px] font-black uppercase">充值上分</span>
+            </button>
+            <button onclick="location.href='/withdraw.html'" class="quick-action-btn bg-slate-800 text-white p-4 rounded-2xl shadow-lg shadow-slate-200 flex flex-col items-center gap-2">
+                <i class="fas fa-minus-circle text-lg"></i>
+                <span class="text-[10px] font-black uppercase">提现回分</span>
+            </button>
+            <button onclick="toggleChat()" class="quick-action-btn bg-white border border-slate-200 p-4 rounded-2xl flex flex-col items-center gap-2">
+                <i class="fas fa-headset text-indigo-600 text-lg"></i>
+                <span class="text-[10px] font-black text-slate-600 uppercase">在线客服</span>
+            </button>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -91,6 +127,41 @@
                 }
             } catch(e) {}
         }
+
+        function toggleChat() {
+            const el = document.getElementById('chat-overlay');
+            el.classList.toggle('hidden');
+            if(!el.classList.contains('hidden')) loadChat();
+        }
+
+        async function loadChat() {
+            const res = await fetch('/api/chat.php').then(r => r.json());
+            if(res.success) {
+                const box = document.getElementById('chat-box');
+                box.innerHTML = res.data.map(m => `
+                    <div class="flex ${m.sender_id == 0 ? '' : 'justify-end'}">
+                        <div class="max-w-[85%] p-4 text-sm font-bold shadow-sm rounded-2xl ${m.sender_id == 0 ? 'bg-indigo-600 text-white' : 'bg-white text-slate-800'}">
+                            ${m.message}
+                        </div>
+                    </div>
+                `).join('');
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value;
+            if(!msg) return;
+            await fetch('/api/chat.php?action=send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: msg})
+            });
+            input.value = '';
+            loadChat();
+        }
+
         refresh(); setInterval(refresh, 8000);
     </script>
 </body>

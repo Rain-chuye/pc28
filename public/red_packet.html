@@ -6,7 +6,12 @@
     <title>红包福利群 - PC28</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>body { background-color: #f1f5f9; font-family: -apple-system, sans-serif; }</style>
+    <!-- Emoji Picker -->
+    <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+    <style>
+        body { background-color: #f1f5f9; font-family: -apple-system, sans-serif; overflow: hidden; }
+        .emoji-picker { position: absolute; bottom: 80px; right: 20px; z-index: 1000; display: none; }
+    </style>
 </head>
 <body class="h-screen flex flex-col">
     <header class="bg-white border-b border-slate-200 p-4 flex justify-between items-center shrink-0">
@@ -14,23 +19,48 @@
             <button onclick="history.back()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400"><i class="fas fa-chevron-left text-xs"></i></button>
             <h1 class="font-black text-sm text-slate-800 tracking-tight">🧧 福利红包交流群</h1>
         </div>
-        <div class="bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
-            <p class="text-[10px] font-black text-blue-600 uppercase">Room: RED_PACKET</p>
+        <div id="mute-badge" class="hidden bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-100">
+            <p class="text-[10px] font-black text-rose-600 uppercase">禁言中</p>
         </div>
     </header>
 
-    <div id="chat-box" class="flex-1 overflow-y-auto p-5 space-y-4">
-        <!-- Messages -->
-    </div>
+    <div id="chat-box" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
 
-    <div class="p-4 bg-white border-t border-slate-200 flex gap-3 shrink-0">
-        <input type="text" id="msg-input" class="flex-1 bg-slate-50 border border-slate-100 rounded-xl px-5 outline-none font-bold text-sm" placeholder="来聊两句吧...">
-        <button onclick="sendMsg()" class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane"></i></button>
+    <div id="picker-container" class="emoji-picker shadow-2xl rounded-2xl"></div>
+
+    <div class="p-4 bg-white border-t border-slate-200 flex flex-col gap-2 shrink-0">
+        <div class="flex gap-3">
+            <button onclick="toggleEmoji()" class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200"><i class="far fa-smile text-lg"></i></button>
+            <input type="text" id="msg-input" class="flex-1 bg-slate-50 border border-slate-100 rounded-xl px-5 outline-none font-bold text-sm" placeholder="来聊两句吧...">
+            <button onclick="sendMsg()" class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all"><i class="fas fa-paper-plane"></i></button>
+        </div>
     </div>
 
     <script>
+        const picker = new EmojiMart.Picker({
+            onEmojiSelect: (emoji) => {
+                document.getElementById('msg-input').value += emoji.native;
+                toggleEmoji();
+            },
+            set: 'native',
+            theme: 'light'
+        });
+        document.getElementById('picker-container').appendChild(picker);
+
+        function toggleEmoji() {
+            const p = document.getElementById('picker-container');
+            p.style.display = p.style.display === 'block' ? 'none' : 'block';
+        }
+
         async function loadMsgs() {
             const res = await fetch('/api/group_chat.php').then(r => r.json());
+            const settings = await fetch('/api/system_info.php').then(r => r.json());
+
+            if(settings.success) {
+                const isMuted = settings.data.chat_mute_all == '1';
+                document.getElementById('mute-badge').classList.toggle('hidden', !isMuted);
+            }
+
             if(res.success) {
                 const box = document.getElementById('chat-box');
                 box.innerHTML = res.data.map(m => {
@@ -42,7 +72,7 @@
                                         <div class="w-12 h-12 bg-orange-400 rounded-full flex items-center justify-center mb-3 border-2 border-white/20">
                                             <i class="fas fa-gift text-xl"></i>
                                         </div>
-                                        <p class="text-[11px] font-black opacity-80 uppercase tracking-widest mb-1">东爷国际 · 专属福利</p>
+                                        <p class="text-[11px] font-black opacity-80 uppercase tracking-widest mb-1">系统派送 · 专属福利</p>
                                         <p class="text-sm font-black leading-tight">${m.message}</p>
                                         <div class="mt-4 bg-white/20 px-4 py-1.5 rounded-full text-[10px] font-black">点击立即开抢</div>
                                     </div>
@@ -50,12 +80,12 @@
                             </div>
                         `;
                     }
-                    const isSelf = m.user_id == localStorage.getItem('uid');
+                    const isRobot = m.user_id == 0;
                     return `
-                        <div class="flex ${isSelf ? 'justify-end' : ''} items-start gap-3">
-                            <div class="${isSelf ? 'order-2' : ''} w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center font-black text-xs text-slate-400">${m.username[0]}</div>
-                            <div class="${isSelf ? 'bg-blue-600 text-white' : 'bg-white text-slate-800'} p-3 rounded-2xl shadow-sm text-sm font-bold max-w-[70%]">
-                                <p class="text-[9px] mb-1 ${isSelf ? 'text-white/60' : 'text-slate-400'} font-black uppercase">${m.username}</p>
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg ${isRobot ? 'bg-indigo-600' : 'bg-slate-200'} flex items-center justify-center font-black text-xs ${isRobot ? 'text-white' : 'text-slate-400'}">${m.username[0]}</div>
+                            <div class="${isRobot ? 'bg-indigo-50 border border-indigo-100' : 'bg-white'} p-3 rounded-2xl shadow-sm text-sm font-bold max-w-[70%]">
+                                <p class="text-[9px] mb-1 font-black uppercase ${isRobot ? 'text-indigo-400' : 'text-slate-400'}">${m.username}</p>
                                 ${m.message}
                             </div>
                         </div>
@@ -69,24 +99,27 @@
             const input = document.getElementById('msg-input');
             const msg = input.value;
             if(!msg) return;
-            await fetch('/api/group_chat.php?action=send', {
+            const res = await fetch('/api/group_chat.php?action=send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({message: msg})
-            });
-            input.value = '';
-            loadMsgs();
+            }).then(r => r.json());
+
+            if(!res.success) alert(res.message);
+            else {
+                input.value = '';
+                loadMsgs();
+            }
         }
 
         async function claimRedPacket(id) {
-            const fd = new FormData(); fd.append('packet_id', id);
             const res = await fetch('/api/group_chat.php?action=claim_red_packet', {
                 method: 'POST',
-                body: fd
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({packet_id: id})
             }).then(r => r.json());
-            if(res.success) {
-                alert('🎉 恭喜！领取到红包: ' + res.amount + ' 元');
-            } else alert(res.message);
+            if(res.success) alert('🎉 恭喜！领取到红包: ' + res.amount + ' 元');
+            else alert(res.message);
         }
 
         loadMsgs();
