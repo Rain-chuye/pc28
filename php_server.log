@@ -48,3 +48,72 @@ Stack trace:
 [Fri Jun 19 07:59:23 2026] [::1]:53844 Accepted
 [Fri Jun 19 07:59:23 2026] [::1]:53844 [200]: GET /login.html
 [Fri Jun 19 07:59:23 2026] [::1]:53844 Closing
+[Fri Jun 19 08:56:44 2026] [::1]:46546 Accepted
+[Fri Jun 19 08:56:44 2026] [::1]:46546 [200]: GET /game.html?room=low
+[Fri Jun 19 08:56:44 2026] [::1]:46546 Closing
+[Fri Jun 19 08:56:45 2026] [::1]:46552 Accepted
+[Fri Jun 19 08:56:45 2026] Database Connection Error: SQLSTATE[HY000] [2002] Connection refused
+[Fri Jun 19 08:56:45 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:17
+Stack trace:
+#0 /app/src/Utils/DB.php(17): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 17
+[Fri Jun 19 08:56:45 2026] [::1]:46552 [500]: GET /api/lottery.php - Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:17
+Stack trace:
+#0 /app/src/Utils/DB.php(17): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 17
+[Fri Jun 19 08:56:45 2026] [::1]:46552 Closing
+[Fri Jun 19 08:56:47 2026] [::1]:38286 Accepted
+[Fri Jun 19 08:56:47 2026] [::1]:38286 [200]: GET /agent.html
+[Fri Jun 19 08:56:47 2026] [::1]:38286 Closing
+[Fri Jun 19 08:56:48 2026] [::1]:38292 Accepted
+[Fri Jun 19 08:56:48 2026] [::1]:38292 [200]: GET /api/agent_subordinates.php
+[Fri Jun 19 08:56:48 2026] [::1]:38292 Closing
+[Fri Jun 19 08:56:48 2026] [::1]:38304 Accepted
+[Fri Jun 19 08:56:48 2026] Database Connection Error: SQLSTATE[HY000] [2002] Connection refused
+[Fri Jun 19 08:56:48 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:17
+Stack trace:
+#0 /app/src/Utils/DB.php(17): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/system_info.php(5): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 17
+[Fri Jun 19 08:56:48 2026] [::1]:38304 [500]: GET /api/system_info.php?action=get_settings - Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:17
+Stack trace:
+#0 /app/src/Utils/DB.php(17): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/system_info.php(5): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 17
+[Fri Jun 19 08:56:48 2026] [::1]:38304 Closing
+[Fri Jun 19 08:56:50 2026] [::1]:38310 Accepted
+[Fri Jun 19 08:56:50 2026] [::1]:38310 [302]: GET /admin/index.php
+[Fri Jun 19 08:56:50 2026] [::1]:38310 Closing
+[Fri Jun 19 08:56:50 2026] [::1]:38322 Accepted
+[Fri Jun 19 08:56:50 2026] [::1]:38322 [200]: GET /login.html
+[Fri Jun 19 08:56:50 2026] [::1]:38322 Closing
+[Fri Jun 19 08:59:08 2026] [::1]:58040 Accepted
+[Fri Jun 19 08:59:08 2026] [::1]:58040 [200]: GET /game.html?room=low
+[Fri Jun 19 08:59:08 2026] [::1]:58040 Closing
+[Fri Jun 19 08:59:08 2026] [::1]:58044 Accepted
+[Fri Jun 19 08:59:08 2026] Database Connection Error: SQLSTATE[HY000] [2002] Connection refused
+[Fri Jun 19 08:59:08 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:17
+Stack trace:
+#0 /app/src/Utils/DB.php(17): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 17
+[Fri Jun 19 08:59:08 2026] [::1]:58044 [500]: GET /api/lottery.php - Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:17
+Stack trace:
+#0 /app/src/Utils/DB.php(17): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 17
+[Fri Jun 19 08:59:08 2026] [::1]:58044 Closing

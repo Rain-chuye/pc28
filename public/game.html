@@ -100,39 +100,29 @@
             <div class="flex border-b border-slate-100">
                 <button id="tab-basic" onclick="switchTab('basic')" class="flex-1 py-4 text-[11px] font-black uppercase tab-active">基础玩法</button>
                 <button id="tab-special" onclick="switchTab('special')" class="flex-1 py-4 text-[11px] font-black uppercase text-slate-400">特殊组合</button>
-                <button id="tab-numbers" onclick="switchTab('numbers')" class="flex-1 py-4 text-[11px] font-black uppercase text-slate-400">猜数字</button>
+                <button id="tab-numbers" onclick="switchTab('numbers')" class="flex-1 py-4 text-[11px] font-black uppercase text-slate-400">猜特码</button>
                 <button id="tab-history" onclick="switchTab('history')" class="flex-1 py-4 text-[11px] font-black uppercase text-slate-400">历史</button>
             </div>
 
             <div class="p-5">
                 <div id="pane-basic" class="grid grid-cols-2 gap-3">
-                    <div onclick="toggleBet(this, 'big')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">大</p><p class="text-lg font-black mt-1">2.00</p></div>
-                    <div onclick="toggleBet(this, 'small')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">小</p><p class="text-lg font-black mt-1">2.00</p></div>
-                    <div onclick="toggleBet(this, 'single')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">单</p><p class="text-lg font-black mt-1">2.00</p></div>
-                    <div onclick="toggleBet(this, 'double')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">双</p><p class="text-lg font-black mt-1">2.00</p></div>
+                    <div onclick="toggleBet(this, 'big')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">大</p><p class="text-lg font-black mt-1" id="odds-big">2.00</p></div>
+                    <div onclick="toggleBet(this, 'small')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">小</p><p class="text-lg font-black mt-1" id="odds-small">2.00</p></div>
+                    <div onclick="toggleBet(this, 'single')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">单</p><p class="text-lg font-black mt-1" id="odds-single">2.00</p></div>
+                    <div onclick="toggleBet(this, 'double')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">双</p><p class="text-lg font-black mt-1" id="odds-double">2.00</p></div>
                 </div>
 
                 <div id="pane-special" class="hidden grid grid-cols-2 gap-3">
-                    <div onclick="toggleBet(this, 'big_single')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">大单</p><p class="text-lg font-black mt-1">3.80</p></div>
-                    <div onclick="toggleBet(this, 'big_double')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">大双</p><p class="text-lg font-black mt-1">3.80</p></div>
-                    <div onclick="toggleBet(this, 'small_single')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">小单</p><p class="text-lg font-black mt-1">3.80</p></div>
-                    <div onclick="toggleBet(this, 'small_double')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">小双</p><p class="text-lg font-black mt-1">3.80</p></div>
-                    <div onclick="toggleBet(this, 'extreme_big')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">极大</p><p class="text-lg font-black mt-1">10.0</p></div>
-                    <div onclick="toggleBet(this, 'extreme_small')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">极小</p><p class="text-lg font-black mt-1">10.0</p></div>
+                    <div onclick="toggleBet(this, 'big_single')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">大单</p><p class="text-lg font-black mt-1" id="odds-big_single">3.80</p></div>
+                    <div onclick="toggleBet(this, 'big_double')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">大双</p><p class="text-lg font-black mt-1" id="odds-big_double">3.80</p></div>
+                    <div onclick="toggleBet(this, 'small_single')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">小单</p><p class="text-lg font-black mt-1" id="odds-small_single">3.80</p></div>
+                    <div onclick="toggleBet(this, 'small_double')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">小双</p><p class="text-lg font-black mt-1" id="odds-small_double">3.80</p></div>
+                    <div onclick="toggleBet(this, 'extreme_big')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">极大</p><p class="text-lg font-black mt-1" id="odds-extreme_big">10.0</p></div>
+                    <div onclick="toggleBet(this, 'extreme_small')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">极小</p><p class="text-lg font-black mt-1" id="odds-extreme_small">10.0</p></div>
                 </div>
 
                 <div id="pane-numbers" class="hidden grid grid-cols-5 gap-2">
-                    <!-- Dynamic Numbers -->
-                    <script>
-                        const pane = document.getElementById('pane-numbers');
-                        for(let i=0; i<=27; i++) {
-                            const div = document.createElement('div');
-                            div.className = 'bet-item p-2';
-                            div.onclick = () => toggleBet(div, 'num_'+i);
-                            div.innerHTML = `<p class="text-[12px] font-black">${i}</p>`;
-                            pane.appendChild(div);
-                        }
-                    </script>
+                    <!-- Dynamic Numbers will be generated here -->
                 </div>
 
                 <div id="pane-history" class="hidden space-y-2">
@@ -191,6 +181,7 @@
         let lastLotteryId = '';
         let countdownTimer = null;
         let timeLeft = 0;
+        let globalOdds = {};
 
         function showToast(m, t='info') {
             const el = document.createElement('div');
@@ -280,7 +271,37 @@
                         startCountdown();
                     }
                 }
+
+                if(res.odds && Object.keys(globalOdds).length === 0) {
+                    globalOdds = res.odds;
+                    renderOdds();
+                }
             } catch(e) {}
+        }
+
+        function renderOdds() {
+            // Update Basic/Special Odds
+            const keys = ['big', 'small', 'single', 'double', 'big_single', 'big_double', 'small_single', 'small_double', 'extreme_big', 'extreme_small'];
+            keys.forEach(k => {
+                const el = document.getElementById('odds-' + k);
+                if(el && globalOdds[k]) el.innerText = globalOdds[k][oddsMode].toFixed(2);
+            });
+
+            // Update Numbers Pane
+            const pane = document.getElementById('pane-numbers');
+            pane.innerHTML = '';
+            for(let i=0; i<=27; i++) {
+                const type = i.toString();
+                const odds = globalOdds[type] ? globalOdds[type][oddsMode] : 12.0;
+                const div = document.createElement('div');
+                div.className = 'bet-item p-2 flex flex-col items-center justify-center';
+                div.onclick = () => toggleBet(div, type);
+                div.innerHTML = `
+                    <p class="text-[12px] font-black">${i}</p>
+                    <p class="text-[8px] font-bold text-slate-400 mt-1">${odds.toFixed(1)}</p>
+                `;
+                pane.appendChild(div);
+            }
         }
 
         async function loadHistory() {

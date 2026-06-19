@@ -30,6 +30,16 @@ $isClosed = ($countdown <= 15);
 $stmt = $db->query("SELECT setting_value FROM system_settings WHERE setting_key = 'announcement'");
 $announcement = $stmt->fetchColumn() ?: "欢迎来到 PC28 商业版，祝您游戏愉快！";
 
+// 获取所有赔率配置
+$odds = $db->query("SELECT play_type, odds_low, odds_high FROM odds_config")->fetchAll(PDO::FETCH_ASSOC);
+$oddsMap = [];
+foreach ($odds as $o) {
+    $oddsMap[$o['play_type']] = [
+        'low' => (float)$o['odds_low'],
+        'high' => (float)$o['odds_high']
+    ];
+}
+
 echo json_encode([
     'success' => true,
     'latest' => $latest,           // 这是上一期的开奖结果，用于前端显示
@@ -37,5 +47,6 @@ echo json_encode([
     'countdown' => $countdown,
     'is_closed' => $isClosed,
     'announcement' => $announcement,
+    'odds' => $oddsMap,            // 新增赔率映射
     'history' => \App\Model\Lottery::getHistory(20)
 ]);

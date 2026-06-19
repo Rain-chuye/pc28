@@ -1,6 +1,6 @@
 <?php
 /**
- * PC28 结算系统完善版
+ * PC28 结算系统完善版 - 支持 13/14 保本逻辑
  */
 require_once __DIR__ . '/../src/Utils/DB.php';
 require_once __DIR__ . '/../src/Model/User.php';
@@ -26,7 +26,7 @@ function isStraight($numbers) {
 
 function settle($db) {
     // 仅查询待结算注单
-    $stmt = $db->query("SELECT * FROM bets WHERE status = 0 LIMIT 100");
+    $stmt = $db->query("SELECT * FROM bets WHERE status = 0 LIMIT 200");
     $bets = $stmt->fetchAll();
 
     foreach ($bets as $bet) {
@@ -41,8 +41,10 @@ function settle($db) {
             $isWin = false;
             $isReturn = false;
 
-            // 玩法逻辑校验
-            switch($bet['play_type']) {
+            $playType = $bet['play_type'];
+
+            // 1. 基础胜负判断
+            switch($playType) {
                 case 'big': if ($totalSum >= 14) $isWin = true; break;
                 case 'small': if ($totalSum <= 13) $isWin = true; break;
                 case 'single': if ($totalSum % 2 != 0) $isWin = true; break;
@@ -58,17 +60,25 @@ function settle($db) {
                 case 'player': if ($nums[2] > $nums[0]) $isWin = true; break;
                 case 'tie': if ($nums[0] == $nums[2]) $isWin = true; break;
                 default:
-                    if (is_numeric($bet['play_type']) && $totalSum == (int)$bet['play_type']) $isWin = true;
+                    if (is_numeric($playType) && $totalSum == (int)$playType) $isWin = true;
             }
 
-            // 模式补丁: 13, 14 规则
+            // 2. 房间模式特殊规则 (13/14 & 特殊牌型 保本/回扣)
             if ($bet['odds_type'] == 'low') {
-                if (($totalSum == 13 || $totalSum == 14) && !is_numeric($bet['play_type'])) {
-                    $isWin = false; // 标准房 13/14 大小单双不中
+                // 标准房: 13/14 大小单双组合均不中
+                if (($totalSum == 13 || $totalSum == 14) && !is_numeric($playType)) {
+                    $isWin = false;
                 }
             } else if ($bet['odds_type'] == 'high') {
+                // 加拿大房/保本房
+                // 如果是 大小单双组合 遇到 13/14，不计胜负，直接退本
+                if (!is_numeric($playType) && ($totalSum == 13 || $totalSum == 14)) {
+                    $isWin = false;
+                    $isReturn = true;
+                }
+
+                // 核心修复：特码不中，但遇到 13/14 或 特殊牌型，退回本金
                 if (!$isWin) {
-                    // 高赔房/保本房: 遇到 13, 14 或 特殊牌型，若未中则退回本金
                     if ($totalSum == 13 || $totalSum == 14 || isTriple($numbersStr) || isPair($numbersStr) || isStraight($numbersStr)) {
                         $isReturn = true;
                     }
@@ -84,7 +94,7 @@ function settle($db) {
                 $updateStmt->execute(array($status, $winAmount, $bet['id']));
 
                 if ($winAmount > 0) {
-                    \App\Model\User::updateBalance($bet['user_id'], $winAmount, 'win', "中奖回款: " . $bet['play_type'] . " (" . $bet['issue_no'] . ")", $db);
+                    \App\Model\User::updateBalance($bet['user_id'], $winAmount, 'win', "中奖回款: " . $playType . " (" . $bet['issue_no'] . ")", $db);
                 }
                 $db->commit();
             } catch (Exception $e) {
