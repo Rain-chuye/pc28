@@ -26,7 +26,6 @@
         .bet-item { background: #ffffff; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; text-align: center; transition: all 0.2s; cursor: pointer; }
         .bet-item.active { background: #2563eb; color: #fff; border-color: #2563eb; font-weight: 900; }
 
-        /* Mi Pai Styles */
         .mipai-container { position: relative; }
         .mipai-full-overlay {
             position: absolute; inset: -8px; background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
@@ -49,7 +48,7 @@
             <button onclick="history.back()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400"><i class="fas fa-chevron-left text-xs"></i></button>
             <div>
                 <h1 id="room-title" class="text-[13px] font-black uppercase text-slate-400 tracking-tighter">Canada 28</h1>
-                <p id="issue-display" class="text-[10px] font-bold text-slate-800">同步中...</p>
+                <p id="issue-display" class="text-[10px] font-bold text-slate-800">正在同步数据...</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -60,11 +59,10 @@
     </header>
 
     <main class="p-4 space-y-5">
-        <!-- Results with enhanced Mi Pai -->
+        <!-- Result Panel -->
         <div class="bg-white p-6 rounded-3xl border border-slate-200 relative overflow-hidden shadow-sm">
             <div class="flex flex-col items-center gap-4 relative z-10">
                 <div class="mipai-container" id="lottery-box">
-                    <!-- Overlay covers the whole row -->
                     <div class="mipai-full-overlay" onclick="document.getElementById('lottery-box').classList.add('revealed')">
                         <i class="fas fa-fingerprint text-blue-600 text-xl mb-1 animate-pulse"></i>
                         <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest">点击咪牌揭晓结果</span>
@@ -81,17 +79,15 @@
                     </div>
                 </div>
                 <div id="timer-display" class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">
-                    Next Draw: <span class="text-blue-600 font-mono font-black">00:00</span>
+                    NEXT DRAW: <span class="text-blue-600 font-mono font-black">00:00</span>
                 </div>
             </div>
         </div>
 
-        <!-- Ticker -->
         <div class="h-8 overflow-hidden bg-blue-50/50 rounded-xl px-4 border border-blue-100">
             <div id="live-feed-container" class="transition-transform duration-500"></div>
         </div>
 
-        <!-- Tabs -->
         <div class="flex gap-8 border-b border-slate-200 px-2">
             <button onclick="switchTab('basic')" id="tab-basic" class="pb-3 text-xs font-bold tab-active">常用玩法</button>
             <button onclick="switchTab('special')" id="tab-special" class="pb-3 text-xs font-bold text-slate-400">组合特型</button>
@@ -99,14 +95,14 @@
             <button onclick="switchTab('history')" id="tab-history" class="pb-3 text-xs font-bold text-slate-400">开奖历史</button>
         </div>
 
-        <div id="pane-basic" class="grid grid-cols-2 gap-3">
+        <div id="pane-basic" class="grid grid-cols-2 gap-3 pt-2">
             <div class="bet-item" onclick="toggleBet(this, 'big')">大 <span class="text-[10px] opacity-40 ml-1">2.00</span></div>
             <div class="bet-item" onclick="toggleBet(this, 'small')">小 <span class="text-[10px] opacity-40 ml-1">2.00</span></div>
             <div class="bet-item" onclick="toggleBet(this, 'single')">单 <span class="text-[10px] opacity-40 ml-1">2.00</span></div>
             <div class="bet-item" onclick="toggleBet(this, 'double')">双 <span class="text-[10px] opacity-40 ml-1">2.00</span></div>
         </div>
 
-        <div id="pane-special" class="hidden space-y-4">
+        <div id="pane-special" class="hidden space-y-4 pt-2">
             <div class="grid grid-cols-2 gap-3">
                 <div class="bet-item" onclick="toggleBet(this, 'big_single')">大单 <span class="text-[10px] opacity-40 ml-1">3.80</span></div>
                 <div class="bet-item" onclick="toggleBet(this, 'big_double')">大双 <span class="text-[10px] opacity-40 ml-1">3.80</span></div>
@@ -120,7 +116,7 @@
             </div>
         </div>
 
-        <div id="pane-numbers" class="hidden grid grid-cols-5 gap-2">
+        <div id="pane-numbers" class="hidden grid grid-cols-5 gap-2 pt-2">
             <script>
                 for(let i=0; i<=27; i++) {
                     document.write(`<div class="bet-item !p-2 text-sm font-bold !rounded-lg" onclick="toggleBet(this, '${i}')">${i}</div>`);
@@ -128,9 +124,10 @@
             </script>
         </div>
 
-        <div id="pane-history" class="hidden space-y-2"></div>
+        <div id="pane-history" class="hidden space-y-2 pt-2"></div>
     </main>
 
+    <!-- Footer -->
     <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-xl border-t border-slate-200 z-[60]">
         <div class="max-w-md mx-auto flex items-center gap-3">
             <div class="flex-1 bg-slate-50 rounded-xl border border-slate-200 flex items-center px-4">
@@ -159,7 +156,6 @@
         </div>
     </div>
 
-    <!-- Chat Overlay -->
     <div id="chat-overlay" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden flex flex-col p-6">
         <div class="flex-1 bg-white rounded-3xl flex flex-col overflow-hidden shadow-2xl">
             <div class="bg-blue-600 p-5 flex justify-between items-center text-white">
@@ -169,7 +165,7 @@
             <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/50"></div>
             <div class="p-4 bg-white border-t border-slate-100 flex gap-3">
                 <input type="text" id="chat-input" class="flex-1 bg-slate-50 border-none rounded-xl px-5 outline-none font-bold text-sm" placeholder="输入您的问题...">
-                <button onclick="sendChatMessage()" class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                <button onclick="sendChatMessage()" class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </div>
@@ -303,7 +299,7 @@
 
         async function quickCheckScore() {
             const res = await fetch('/api/quick_finance.php?action=check').then(r => r.json());
-            if(res.success) showToast(`账户可用分值: ¥${parseFloat(res.balance).toLocaleString()}`, 'success');
+            if(res.success) showToast(`账户分值: ¥${parseFloat(res.balance).toLocaleString()}`, 'success');
         }
 
         function openReturnModal() { document.getElementById('return-modal').classList.remove('hidden'); }

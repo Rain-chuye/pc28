@@ -26,28 +26,38 @@
             </div>
             <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
                 <i class="fas fa-gift text-slate-300 text-xs"></i>
-                <input type="text" id="inviter_id" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="邀请码 (自动填入)">
+                <input type="text" id="inviter_id" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="邀请码 (点击链接自动填入)">
             </div>
             <button onclick="register()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all">立即注册</button>
         </div>
         <p class="mt-8 text-center text-xs text-slate-400 font-bold">已有账号？ <a href="/login.html" class="text-blue-600">返回登录</a></p>
     </div>
     <script>
-        // 核心：自动填入邀请码
-        const urlParams = new URLSearchParams(window.location.search);
-        const ref = urlParams.get('ref');
-        if(ref) {
-            document.getElementById('inviter_id').value = ref;
-            // Optionally disable it so they cant change it
-            document.getElementById('inviter_id').readOnly = true;
-        }
+        // 核心修复：自动填入邀请码，确保即时生效
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ref = urlParams.get('ref');
+            if(ref) {
+                // Wait for DOM
+                window.addEventListener('DOMContentLoaded', () => {
+                    const inviteInput = document.getElementById('inviter_id');
+                    if(inviteInput) {
+                        inviteInput.value = ref;
+                        inviteInput.readOnly = true;
+                        inviteInput.style.backgroundColor = '#f1f5f9';
+                        inviteInput.style.color = '#64748b';
+                        console.log("Referral ID Auto-filled:", ref);
+                    }
+                });
+            }
+        })();
 
         async function register() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
             const q = document.getElementById('qq').value;
             const r = document.getElementById('inviter_id').value;
-            if(!u || !p || !q) return alert('请完善账号、密码及QQ号');
+            if(!u || !p || !q) return alert('前三项为必填项');
             const res = await fetch('/api/register.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
