@@ -22,9 +22,14 @@ try {
         $stmt->execute([$data['password'], $userId]);
     }
 
-    if (isset($data['qq']) && empty($user['qq_number'])) {
+    if (isset($data['qq']) && !empty($data['qq'])) {
         $stmt = $db->prepare("UPDATE users SET qq_number = ? WHERE id = ?");
         $stmt->execute([$data['qq'], $userId]);
+    }
+
+    if (isset($data['nickname']) && !empty($data['nickname'])) {
+        $stmt = $db->prepare("UPDATE users SET nickname = ? WHERE id = ?");
+        $stmt->execute([trim($data['nickname']), $userId]);
     }
 
     if (isset($data['theme_settings'])) {

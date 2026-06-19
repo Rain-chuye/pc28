@@ -11,21 +11,25 @@
 <body class="pb-10">
     <header class="bg-white border-b border-slate-200 p-4 sticky top-0 z-50 flex items-center gap-4">
         <button onclick="history.back()" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100"><i class="fas fa-chevron-left"></i></button>
-        <h1 class="font-bold text-sm">个性化系统设置</h1>
+        <h1 class="font-bold text-sm">个人资料与系统设置</h1>
     </header>
 
     <main class="p-6 space-y-6">
-        <!-- Security -->
+        <!-- Profile -->
         <section class="space-y-4">
-            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest px-2">账户安全</h3>
+            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest px-2">个人资料</h3>
             <div class="bg-white rounded-3xl border border-slate-200 p-6 space-y-4">
                 <div class="space-y-2">
-                    <p class="text-[10px] font-black text-slate-400 uppercase">绑定 QQ 号 (仅限绑定一次)</p>
-                    <input type="text" id="qq-input" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold outline-none" placeholder="输入 QQ 号">
+                    <p class="text-[10px] font-black text-slate-400 uppercase">个性昵称</p>
+                    <input type="text" id="nick-input" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-400" placeholder="设置您的公开昵称">
                 </div>
                 <div class="space-y-2">
                     <p class="text-[10px] font-black text-slate-400 uppercase">修改登录密码</p>
-                    <input type="password" id="pass-input" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold outline-none" placeholder="留空则不修改">
+                    <input type="password" id="pass-input" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-400" placeholder="留空则不修改">
+                </div>
+                <div class="space-y-2">
+                    <p class="text-[10px] font-black text-slate-400 uppercase">绑定 QQ 号 (仅限绑定一次)</p>
+                    <input type="text" id="qq-input" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-blue-400" placeholder="输入 QQ 号">
                 </div>
             </div>
         </section>
@@ -35,7 +39,7 @@
             <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest px-2">视觉风格定制</h3>
             <div class="bg-white rounded-3xl border border-slate-200 p-6 space-y-6">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-black text-slate-700">主色调 (主按钮/背景)</span>
+                    <span class="text-xs font-black text-slate-700">主色调</span>
                     <input type="color" id="theme-color" value="#2563eb" class="w-10 h-10 rounded-lg cursor-pointer">
                 </div>
                 <div class="flex items-center justify-between">
@@ -47,21 +51,13 @@
                     <input type="color" id="bssd-color" value="#2563eb" class="w-10 h-10 rounded-lg cursor-pointer">
                 </div>
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-black text-slate-700">豹子/对子/顺子颜色</span>
+                    <span class="text-xs font-black text-slate-700">组合特殊颜色</span>
                     <input type="color" id="special-color" value="#dc2626" class="w-10 h-10 rounded-lg cursor-pointer">
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-black text-slate-700">组合 (大单/小双等) 颜色</span>
-                    <input type="color" id="combo-color" value="#7c3aed" class="w-10 h-10 rounded-lg cursor-pointer">
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-black text-slate-700">极值 (极大/极小) 颜色</span>
-                    <input type="color" id="extreme-color" value="#ea580c" class="w-10 h-10 rounded-lg cursor-pointer">
                 </div>
             </div>
         </section>
 
-        <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-200 active:scale-95 transition-all">保存并应用设置</button>
+        <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-200 active:scale-95 transition-all">确认修改设置</button>
     </main>
 
     <script>
@@ -69,6 +65,7 @@
             const r = await fetch('/api/user_info.php').then(r => r.json());
             if(r.success) {
                 const u = r.user;
+                document.getElementById('nick-input').value = u.nickname || '';
                 if(u.qq_number) {
                     const qq = document.getElementById('qq-input');
                     qq.value = u.qq_number;
@@ -81,8 +78,6 @@
                     if(s.num) document.getElementById('num-color').value = s.num;
                     if(s.bssd) document.getElementById('bssd-color').value = s.bssd;
                     if(s.special) document.getElementById('special-color').value = s.special;
-                    if(s.combo) document.getElementById('combo-color').value = s.combo;
-                    if(s.extreme) document.getElementById('extreme-color').value = s.extreme;
                 }
             }
         }
@@ -92,11 +87,10 @@
                 theme: document.getElementById('theme-color').value,
                 num: document.getElementById('num-color').value,
                 bssd: document.getElementById('bssd-color').value,
-                special: document.getElementById('special-color').value,
-                combo: document.getElementById('combo-color').value,
-                extreme: document.getElementById('extreme-color').value
+                special: document.getElementById('special-color').value
             };
             const payload = {
+                nickname: document.getElementById('nick-input').value,
                 qq: document.getElementById('qq-input').value,
                 password: document.getElementById('pass-input').value,
                 theme_settings: theme
@@ -108,7 +102,7 @@
                 body: JSON.stringify(payload)
             }).then(r => r.json());
 
-            if(res.success) { alert('设置已保存'); location.href = '/profile.html'; }
+            if(res.success) { alert('设置已更新'); location.href = '/profile.html'; }
             else alert(res.message);
         }
         load();
