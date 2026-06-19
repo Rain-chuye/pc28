@@ -1,40 +1,50 @@
-[Thu Jun 18 13:17:45 2026] PHP 8.3.6 Development Server (http://0.0.0.0:8000) started
-[Thu Jun 18 13:17:50 2026] 127.0.0.1:53000 Accepted
-[Thu Jun 18 13:17:50 2026] 127.0.0.1:53000 [200]: GET /index.html
-[Thu Jun 18 13:17:50 2026] 127.0.0.1:53000 Closing
-[Thu Jun 18 13:17:51 2026] 127.0.0.1:53002 Accepted
-[Thu Jun 18 13:17:51 2026] 127.0.0.1:53002 [200]: GET /api/user_info.php
-[Thu Jun 18 13:17:51 2026] 127.0.0.1:53002 Closing
-[Thu Jun 18 13:17:51 2026] 127.0.0.1:53014 Accepted
-[Thu Jun 18 13:17:51 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
+[Fri Jun 19 07:59:12 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
+[Fri Jun 19 07:59:17 2026] [::1]:53814 Accepted
+[Fri Jun 19 07:59:17 2026] [::1]:53814 [200]: GET /game.html?room=low
+[Fri Jun 19 07:59:17 2026] [::1]:53814 Closing
+[Fri Jun 19 07:59:18 2026] [::1]:53828 Accepted
+[Fri Jun 19 07:59:18 2026] Database Connection Error: SQLSTATE[HY000] [2002] Connection refused
+[Fri Jun 19 07:59:18 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:17
 Stack trace:
-#0 /app/src/Utils/DB.php(15): PDO->__construct()
-#1 /app/src/Utils/DB.php(27): App\Utils\DB->__construct()
-#2 /app/src/Model/Lottery.php(9): App\Utils\DB::getInstance()
-#3 /app/public/api/lottery.php(7): App\Model\Lottery::getLatest()
-#4 {main}
-  thrown in /app/src/Utils/DB.php on line 15
-[Thu Jun 18 13:17:51 2026] 127.0.0.1:53014 [500]: GET /api/lottery.php?limit=5 - Uncaught PDOException: SQLSTATE[HY000] [2002] No such file or directory in /app/src/Utils/DB.php:15
+#0 /app/src/Utils/DB.php(17): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 17
+[Fri Jun 19 07:59:18 2026] [::1]:53828 [500]: GET /api/lottery.php - Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:17
 Stack trace:
-#0 /app/src/Utils/DB.php(15): PDO->__construct()
-#1 /app/src/Utils/DB.php(27): App\Utils\DB->__construct()
-#2 /app/src/Model/Lottery.php(9): App\Utils\DB::getInstance()
-#3 /app/public/api/lottery.php(7): App\Model\Lottery::getLatest()
-#4 {main}
-  thrown in /app/src/Utils/DB.php on line 15
-[Thu Jun 18 13:17:51 2026] 127.0.0.1:53014 Closing
-[Thu Jun 18 13:17:51 2026] 127.0.0.1:53030 Accepted
-[Thu Jun 18 13:17:51 2026] 127.0.0.1:53030 [200]: GET /wallet_logs.html
-[Thu Jun 18 13:17:51 2026] 127.0.0.1:53030 Closing
-[Thu Jun 18 13:17:52 2026] 127.0.0.1:53034 Accepted
-[Thu Jun 18 13:17:52 2026] 127.0.0.1:53034 [200]: GET /api/balance_logs.php?type=all
-[Thu Jun 18 13:17:52 2026] 127.0.0.1:53034 Closing
-[Thu Jun 18 13:17:52 2026] 127.0.0.1:53036 Accepted
-[Thu Jun 18 13:17:52 2026] 127.0.0.1:53036 [200]: GET /stats.html
-[Thu Jun 18 13:17:52 2026] 127.0.0.1:53036 Closing
-[Thu Jun 18 13:17:53 2026] 127.0.0.1:53046 Accepted
-[Thu Jun 18 13:17:53 2026] 127.0.0.1:53046 [200]: GET /api/user_stats.php
-[Thu Jun 18 13:17:53 2026] 127.0.0.1:53046 Closing
-[Thu Jun 18 13:17:53 2026] 127.0.0.1:53058 Accepted
-[Thu Jun 18 13:17:53 2026] 127.0.0.1:53058 [404]: GET /admin/index.php - No such file or directory
-[Thu Jun 18 13:17:53 2026] 127.0.0.1:53058 Closing
+#0 /app/src/Utils/DB.php(17): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 17
+[Fri Jun 19 07:59:18 2026] [::1]:53828 Closing
+[Fri Jun 19 07:59:21 2026] [::1]:53836 Accepted
+[Fri Jun 19 07:59:21 2026] [::1]:53836 [200]: GET /agent.html
+[Fri Jun 19 07:59:21 2026] [::1]:53836 Closing
+[Fri Jun 19 07:59:21 2026] [::1]:53838 Accepted
+[Fri Jun 19 07:59:21 2026] [::1]:53838 [200]: GET /api/agent_subordinates.php
+[Fri Jun 19 07:59:21 2026] [::1]:53838 Closing
+[Fri Jun 19 07:59:21 2026] [::1]:53840 Accepted
+[Fri Jun 19 07:59:21 2026] Database Connection Error: SQLSTATE[HY000] [2002] Connection refused
+[Fri Jun 19 07:59:21 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:17
+Stack trace:
+#0 /app/src/Utils/DB.php(17): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/system_info.php(5): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 17
+[Fri Jun 19 07:59:21 2026] [::1]:53840 [500]: GET /api/system_info.php?action=get_settings - Uncaught PDOException: SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:17
+Stack trace:
+#0 /app/src/Utils/DB.php(17): PDO->__construct()
+#1 /app/src/Utils/DB.php(37): App\Utils\DB->__construct()
+#2 /app/public/api/system_info.php(5): App\Utils\DB::getInstance()
+#3 {main}
+  thrown in /app/src/Utils/DB.php on line 17
+[Fri Jun 19 07:59:21 2026] [::1]:53840 Closing
+[Fri Jun 19 07:59:23 2026] [::1]:53842 Accepted
+[Fri Jun 19 07:59:23 2026] [::1]:53842 [302]: GET /admin/index.php
+[Fri Jun 19 07:59:23 2026] [::1]:53842 Closing
+[Fri Jun 19 07:59:23 2026] [::1]:53844 Accepted
+[Fri Jun 19 07:59:23 2026] [::1]:53844 [200]: GET /login.html
+[Fri Jun 19 07:59:23 2026] [::1]:53844 Closing
