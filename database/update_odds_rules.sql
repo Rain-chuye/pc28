@@ -1,4 +1,6 @@
--- Update Odds for 2.8 and 2.0 rooms
+-- PC28 Rules Update for MySQL 5.6+ Compatibility
+
+-- 1. Seeding / Updating Odds
 DELETE FROM odds_config;
 
 INSERT INTO odds_config (play_type, odds_low, odds_high) VALUES
@@ -19,23 +21,15 @@ INSERT INTO odds_config (play_type, odds_low, odds_high) VALUES
 ('player', 2.00, 2.00),
 ('tie', 9.00, 9.00);
 
--- Special handling for numbers (特码) defaults to 12.0 as per common practice if not specified, but user said "所有特码" can be modified.
--- For now, let's seed 0-27
-INSERT IGNORE INTO odds_config (play_type, odds_low, odds_high)
-SELECT CAST(n AS CHAR), 12.0, 12.0 FROM (
-    SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION
-    SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION
-    SELECT 12 UNION SELECT 13 UNION SELECT 14 UNION SELECT 15 UNION SELECT 16 UNION SELECT 17 UNION
-    SELECT 18 UNION SELECT 19 UNION SELECT 20 UNION SELECT 21 UNION SELECT 22 UNION SELECT 23 UNION
-    SELECT 24 UNION SELECT 25 UNION SELECT 26 UNION SELECT 27
-) numbers;
+-- Numbers Seeding
+INSERT IGNORE INTO odds_config (play_type, odds_low, odds_high) VALUES
+('0', 12.0, 12.0), ('1', 12.0, 12.0), ('2', 12.0, 12.0), ('3', 12.0, 12.0), ('4', 12.0, 12.0), ('5', 12.0, 12.0),
+('6', 12.0, 12.0), ('7', 12.0, 12.0), ('8', 12.0, 12.0), ('9', 12.0, 12.0), ('10', 12.0, 12.0), ('11', 12.0, 12.0),
+('12', 12.0, 12.0), ('13', 12.0, 12.0), ('14', 12.0, 12.0), ('15', 12.0, 12.0), ('16', 12.0, 12.0), ('17', 12.0, 12.0),
+('18', 12.0, 12.0), ('19', 12.0, 12.0), ('20', 12.0, 12.0), ('21', 12.0, 12.0), ('22', 12.0, 12.0), ('23', 12.0, 12.0),
+('24', 12.0, 12.0), ('25', 12.0, 12.0), ('26', 12.0, 12.0), ('27', 12.0, 12.0);
 
--- Update System Settings
+-- 2. System Settings
 INSERT INTO system_settings (setting_key, setting_value) VALUES
 ('announcement', '需要上分得先打开加拿大投注页面联系客服 然后发支付宝口令红包 需要你自行去充值页面点充值金额 新人首充20送21 后面是充值10送1 充值20送4 充值30送10 充值40送12 充值50送20 充值100送60')
 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
-
--- Ensure users table has necessary columns
-ALTER TABLE users ADD COLUMN IF NOT EXISTS first_recharge_done TINYINT(1) DEFAULT 0;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS theme_color VARCHAR(20) DEFAULT '#2563eb';
-ALTER TABLE users ADD COLUMN IF NOT EXISTS settings_json TEXT;
