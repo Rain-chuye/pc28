@@ -6,50 +6,46 @@
     <title>注册 - PC28</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }
-    </style>
+    <style>body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }</style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6">
-    <div class="w-full max-w-sm bg-white rounded-[2.5rem] p-10 border border-slate-200 shadow-xl shadow-slate-100">
-        <h1 class="text-2xl font-black text-center mb-2 text-slate-800">开启新篇章</h1>
-        <p class="text-slate-400 text-xs text-center mb-10 font-bold uppercase tracking-widest">创建您的至尊账户</p>
-
+    <div class="w-full max-w-sm bg-white rounded-[2.5rem] p-10 border border-slate-200 shadow-xl">
+        <h1 class="text-2xl font-black text-center mb-10 text-slate-800">创建新账户</h1>
         <div class="space-y-5">
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center focus-within:border-blue-400 transition-colors">
-                <i class="fas fa-user-plus text-slate-300 text-sm"></i>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
+                <i class="fas fa-user-plus text-slate-300 text-xs"></i>
                 <input type="text" id="username" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="设置账号">
             </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center focus-within:border-blue-400 transition-colors">
-                <i class="fas fa-shield-alt text-slate-300 text-sm"></i>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
+                <i class="fas fa-lock text-slate-300 text-xs"></i>
                 <input type="password" id="password" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="设置密码">
             </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center focus-within:border-blue-400 transition-colors">
-                <i class="fas fa-gift text-slate-300 text-sm"></i>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
+                <i class="fab fa-qq text-slate-300 text-xs"></i>
+                <input type="text" id="qq" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="您的QQ号 (找回密码凭证)">
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
+                <i class="fas fa-gift text-slate-300 text-xs"></i>
                 <input type="text" id="inviter_id" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="邀请码 (可选)">
             </div>
-            <button onclick="register()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-100 active:scale-95 transition-all">
-                立即注册
-            </button>
+            <button onclick="register()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all">立即注册</button>
         </div>
         <p class="mt-8 text-center text-xs text-slate-400 font-bold">已有账号？ <a href="/login.html" class="text-blue-600">返回登录</a></p>
     </div>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.get('ref')) document.getElementById('inviter_id').value = urlParams.get('ref');
-
         async function register() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
-            const ref = document.getElementById('inviter_id').value;
-            if(!u || !p) return alert('请完善信息');
-            const r = await fetch('/api/register.php', {
+            const q = document.getElementById('qq').value;
+            const r = document.getElementById('inviter_id').value;
+            if(!u || !p || !q) return alert('前三项必填');
+            const res = await fetch('/api/register.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: u, password: p, inviter_id: ref})
+                body: JSON.stringify({username: u, password: p, qq: q, inviter_id: r})
             }).then(r => r.json());
-            if(r.success) { alert('注册成功'); location.href = '/login.html'; }
-            else alert(r.message);
+            if(res.success) { alert('注册成功'); location.href = '/login.html'; }
+            else alert(res.message);
         }
     </script>
 </body>

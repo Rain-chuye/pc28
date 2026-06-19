@@ -5,18 +5,19 @@ header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
-    $username = $data['username'];
-    $password = $data['password'];
-    $inviterId = isset($data['inviter_id']) ? (int)$data['inviter_id'] : null;
+    $username = $data['username'] ?? '';
+    $password = $data['password'] ?? '';
+    $qq = $data['qq'] ?? '';
+    $inviterId = $data['inviter_id'] ?? null;
 
-    if (empty($username) || empty($password)) {
-        echo json_encode(['success' => false, 'message' => '用户名或密码不能为空']);
+    if (!$username || !$password || !$qq) {
+        echo json_encode(['success' => false, 'message' => '请填写完整注册信息']);
         die;
     }
 
     $db = \App\Utils\DB::getInstance()->getConnection();
 
-    // Check if user exists
+    // Check user exists
     $stmt = $db->prepare("SELECT id FROM users WHERE username = ?");
     $stmt->execute([$username]);
     if ($stmt->fetch()) {
@@ -24,11 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die;
     }
 
-    // Insert user
-    $stmt = $db->prepare("INSERT INTO users (username, password, inviter_id) VALUES (?, ?, ?)");
-    if ($stmt->execute([$username, $password, $inviterId])) {
-        echo json_encode(['success' => true, 'message' => '注册成功']);
-    } else {
-        echo json_encode(['success' => false, 'message' => '注册失败']);
+    try {
+        $stmt = $db->prepare("INSERT INTO users (username, password, qq_number, inviter_id, balance) VALUES (?, ?, ?, ?, 0)");
+        $stmt->execute([$username, $password, $qq, $inviterId]);
+
+        echo json_encode(['success' => true]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => '注册失败: ' . $e->getMessage()]);
     }
 }
