@@ -1,44 +1,44 @@
-[Sat Jun 20 13:32:10 2026] PHP 8.3.6 Development Server (http://0.0.0.0:3000) started
-[Sat Jun 20 13:32:15 2026] 127.0.0.1:49264 Accepted
-[Sat Jun 20 13:32:15 2026] 127.0.0.1:49264 [200]: GET /game.html?room=high
-[Sat Jun 20 13:32:15 2026] 127.0.0.1:49264 Closing
-[Sat Jun 20 13:32:15 2026] 127.0.0.1:49278 Accepted
-[Sat Jun 20 13:32:15 2026] PHP Fatal error:  Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
+[Sat Jun 20 14:41:49 2026] PHP 8.3.6 Development Server (http://0.0.0.0:3000) started
+[Sat Jun 20 14:41:54 2026] 127.0.0.1:34910 Accepted
+[Sat Jun 20 14:41:54 2026] 127.0.0.1:34910 [200]: GET /game.html?room=high
+[Sat Jun 20 14:41:54 2026] 127.0.0.1:34910 Closing
+[Sat Jun 20 14:41:55 2026] 127.0.0.1:34912 Accepted
+[Sat Jun 20 14:41:55 2026] PHP Fatal error:  Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
 Stack trace:
 #0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
 #1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
 #2 {main}
   thrown in /app/src/Utils/DB.php on line 43
-[Sat Jun 20 13:32:15 2026] 127.0.0.1:49278 [500]: GET /api/lottery.php - Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
+[Sat Jun 20 14:41:55 2026] 127.0.0.1:34912 [500]: GET /api/lottery.php - Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
 Stack trace:
 #0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
 #1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
 #2 {main}
   thrown in /app/src/Utils/DB.php on line 43
-[Sat Jun 20 13:32:15 2026] 127.0.0.1:49278 Closing
-[Sat Jun 20 13:32:18 2026] 127.0.0.1:49294 Accepted
-[Sat Jun 20 13:32:18 2026] PHP Fatal error:  Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
+[Sat Jun 20 14:41:55 2026] 127.0.0.1:34912 Closing
+[Sat Jun 20 14:41:58 2026] 127.0.0.1:52244 Accepted
+[Sat Jun 20 14:41:58 2026] PHP Fatal error:  Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
 Stack trace:
 #0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
 #1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
 #2 {main}
   thrown in /app/src/Utils/DB.php on line 43
-[Sat Jun 20 13:32:18 2026] 127.0.0.1:49294 [500]: GET /api/lottery.php - Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
+[Sat Jun 20 14:41:58 2026] 127.0.0.1:52244 [500]: GET /api/lottery.php - Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
 Stack trace:
 #0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
 #1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
 #2 {main}
   thrown in /app/src/Utils/DB.php on line 43
-[Sat Jun 20 13:32:18 2026] 127.0.0.1:49294 Closing
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49302 Accepted
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49302 [200]: GET /profile.html
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49302 Closing
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49312 Accepted
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49312 [200]: GET /assets/default_avatar.png
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49312 Closing
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49314 Accepted
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49314 [200]: GET /api/user_info.php
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49314 Closing
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49328 Accepted
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49328 [200]: GET /login.html
-[Sat Jun 20 13:32:19 2026] 127.0.0.1:49328 Closing
+[Sat Jun 20 14:41:58 2026] 127.0.0.1:52244 Closing
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52250 Accepted
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52250 [200]: GET /profile.html
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52250 Closing
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52266 Accepted
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52266 [200]: GET /assets/default_avatar.png
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52266 Closing
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52274 Accepted
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52274 [200]: GET /api/user_info.php
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52274 Closing
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52276 Accepted
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52276 [200]: GET /login.html
+[Sat Jun 20 14:41:59 2026] 127.0.0.1:52276 Closing

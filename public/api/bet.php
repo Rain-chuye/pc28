@@ -53,11 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($existingBets as $eb) $allPlayTypes[] = $eb['play_type'];
 
     $newInternalBets = [];
+    $broadcastLines = [];
     foreach ($betsInput as $b) {
         $pt = $b['play_type'];
         if (isset($playTypeMap[$pt])) $pt = $playTypeMap[$pt];
         $allPlayTypes[] = $pt;
         $newInternalBets[] = ['type' => $pt, 'amount' => (float)$b['amount']];
+
+        $cnType = $reversePlayTypeMap[$pt] ?? $pt;
+        $broadcastLines[] = "【{$cnType}】{$b['amount']}";
     }
 
     $uniqueTypes = array_unique($allPlayTypes);
@@ -80,9 +84,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $chatMsg = "玩家 [{$displayName}] 第 {$issueNo} 期 下注成功";
-        $chatStmt = $db->prepare("INSERT INTO group_messages (user_id, room_type, message) VALUES (0, ?, ?)");
-        $chatStmt->execute([$oddsType, $chatMsg]);
+        // Automated message as user
+        $chatMsg = "玩家 [{$displayName}] 第 {$issueNo} 期下注成功：\n" . implode("\n", $broadcastLines);
+        $chatStmt = $db->prepare("INSERT INTO group_messages (user_id, room_type, message) VALUES (?, ?, ?)");
+        $chatStmt->execute([$userId, $oddsType, $chatMsg]);
 
         $db->commit();
         echo json_encode(['success' => true, 'message' => '下单成功']);
