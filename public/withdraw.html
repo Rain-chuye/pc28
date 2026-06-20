@@ -3,75 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>回分 - PC28</title>
+    <title>申请回分 - PC28</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }
-        .reason-badge { background: #fef2f2; border: 1px solid #fee2e2; color: #ef4444; border-radius: 12px; padding: 12px 16px; margin-top: 10px; font-size: 11px; font-weight: 700; line-height: 1.4; }
+        .card { background: white; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; }
     </style>
 </head>
 <body class="p-6">
-    <div class="max-w-md mx-auto space-y-6">
-        <header class="flex items-center gap-4">
-            <button onclick="history.back()" class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 border border-slate-200"><i class="fas fa-chevron-left text-xs"></i></button>
-            <h1 class="font-black text-lg">申请回分</h1>
-        </header>
+    <header class="flex items-center gap-4 mb-8">
+        <button onclick="history.back()" class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm"><i class="fas fa-chevron-left text-xs"></i></button>
+        <h1 class="text-xl font-black text-slate-800">申请回分 (提现)</h1>
+    </header>
 
-        <div id="latest-refusal" class="hidden">
-            <div class="reason-badge">
-                <p class="text-[9px] uppercase tracking-widest opacity-60 mb-1">上笔申请被拒绝理由:</p>
-                <span id="refusal-text">--</span>
+    <div class="space-y-6">
+        <div class="card p-6">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">回分规则说明</h3>
+            <div class="space-y-3 text-xs font-bold text-slate-600 leading-relaxed">
+                <p>1. 单次最低回分为 100 积分。</p>
+                <p>2. 提现需满足总流水达到充值额的 4 倍。</p>
+                <p>3. 提现审核时间为 9:00 - 22:00，预计 30 分钟内到账。</p>
+                <p>4. 请务必确认支付宝/银行卡信息填写正确。</p>
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-8">
+        <div class="card p-6 space-y-4">
             <div>
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-4">回分金额 (最低 50)</p>
-                <div class="flex items-center gap-4 border-b border-slate-100 pb-4 focus-within:border-blue-600 transition-colors">
-                    <span class="text-3xl font-black text-blue-600">¥</span>
-                    <input type="number" id="amount" class="w-full bg-transparent text-3xl font-black outline-none" placeholder="0">
-                </div>
+                <label class="text-[10px] font-black text-slate-300 uppercase mb-2 block">回分金额</label>
+                <input type="number" id="amount" class="w-full bg-slate-50 border border-slate-100 p-4 rounded-xl font-black text-slate-800 outline-none" placeholder="输入回分金额">
             </div>
             <div>
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-4">结算账号信息</p>
-                <textarea id="note" class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold h-32 outline-none focus:border-blue-600" placeholder="请输入您的银行卡、支付宝或微信收款账号..."></textarea>
+                <label class="text-[10px] font-black text-slate-300 uppercase mb-2 block">收款详情 (支付宝/银行卡)</label>
+                <textarea id="method" class="w-full bg-slate-50 border border-slate-100 p-4 rounded-xl font-black text-slate-800 outline-none h-24" placeholder="例如：支付宝 13800000000 张三"></textarea>
             </div>
+            <button onclick="submitWithdraw()" class="w-full py-4 bg-rose-600 text-white rounded-xl font-black text-xs shadow-lg shadow-rose-100 mt-4">提交回分申请</button>
         </div>
-
-        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
-            <p class="text-[10px] text-blue-600 font-bold leading-relaxed">
-                1. 单笔回分最低 50 起。<br>
-                2. 财务人员将在 24 小时内处理。
-            </p>
-        </div>
-
-        <button onclick="submit()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black shadow-lg shadow-blue-200 active:scale-95 transition-all">
-            确认申请回分
-        </button>
     </div>
-    <script>
-        async function loadLastStatus() {
-            const res = await fetch('/api/finance.php?action=get_latest').then(r => r.json());
-            if(res.success && res.data && res.data.status === 'rejected' && res.data.refusal_reason) {
-                document.getElementById('latest-refusal').classList.remove('hidden');
-                document.getElementById('refusal-text').innerText = res.data.refusal_reason;
-            }
-        }
 
-        async function submit() {
-            const a = document.getElementById('amount').value;
-            const n = document.getElementById('note').value;
-            if(!a || a < 50) return alert('最低 50');
-            if(!n) return alert('请输入账号信息');
-            const r = await fetch('/api/withdraw.php', {
+    <script>
+        async function submitWithdraw() {
+            const amount = document.getElementById('amount').value;
+            const method = document.getElementById('method').value;
+            if(!amount || amount < 100) return alert('最低回分金额 100 元');
+            if(!method) return alert('请填写收款详情');
+
+            const res = await fetch('/api/withdraw.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ amount: parseFloat(a), note: n })
+                body: JSON.stringify({ amount, method })
             }).then(r => r.json());
-            alert(r.message); if(r.success) location.href = '/profile.html';
+
+            if(res.success) {
+                alert('回分申请已提交，请等待财务审核');
+                history.back();
+            } else alert(res.message);
         }
-        loadLastStatus();
     </script>
 </body>
 </html>

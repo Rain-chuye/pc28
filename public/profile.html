@@ -9,6 +9,7 @@
     <style>
         body { background-color: #f8fafc; color: #1e293b; font-family: -apple-system, sans-serif; }
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .avatar-img { width: 80px; height: 80px; border-radius: 2rem; object-fit: cover; border: 4px solid rgba(255,255,255,0.2); }
     </style>
 </head>
 <body class="pb-32">
@@ -18,8 +19,10 @@
             <button onclick="location.href='/api/logout.php'" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10"><i class="fas fa-power-off"></i></button>
         </div>
         <div class="relative z-10 flex items-center gap-6">
-            <div class="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center text-4xl font-black border border-white/20">
-                <span id="user-initial">U</span>
+            <div class="relative group" onclick="document.getElementById('avatar-input').click()">
+                <img id="user-avatar" src="/assets/default_avatar.png" class="avatar-img cursor-pointer hover:opacity-80 transition-opacity">
+                <input type="file" id="avatar-input" class="hidden" accept="image/*" onchange="uploadAvatar(this)">
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100"><i class="fas fa-camera text-white text-xl"></i></div>
             </div>
             <div>
                 <h2 class="text-2xl font-black" id="nickname-display">Loading...</h2>
@@ -29,98 +32,73 @@
                 </div>
             </div>
         </div>
-        <i class="fas fa-gem absolute -right-10 -bottom-10 text-[14rem] text-white/5 rotate-12"></i>
     </header>
 
     <div class="px-6 -mt-10 space-y-6 relative z-20">
-        <!-- Balance -->
+        <!-- Balance Card -->
         <div class="card p-8 flex justify-between items-center">
             <div>
                 <p class="text-[10px] text-slate-400 font-black uppercase mb-1">可用分值余额</p>
                 <h3 class="text-4xl font-black text-blue-600">¥ <span id="balance">0.00</span></h3>
             </div>
             <div class="flex gap-2">
-                <button onclick="location.href='/recharge.html'" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
-                    <i class="fas fa-add"></i>
-                </button>
+                <button onclick="location.href='/recharge.html'" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200"><i class="fas fa-add"></i></button>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div onclick="location.href='/stats.html'" class="card p-6 text-center space-y-2 cursor-pointer active:scale-95 transition-all">
-                <i class="fas fa-chart-line text-blue-600 text-xl"></i>
-                <p class="text-xs font-black text-slate-800">报表统计</p>
-            </div>
-            <div onclick="location.href='/wallet_logs.html'" class="card p-6 text-center space-y-2 cursor-pointer active:scale-95 transition-all">
-                <i class="fas fa-receipt text-slate-400 text-xl"></i>
-                <p class="text-xs font-black text-slate-800">积分明细</p>
-            </div>
-        </div>
-
-        <!-- Links -->
         <div class="card overflow-hidden divide-y divide-slate-100">
             <a href="/withdraw.html" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-xs"><i class="fas fa-university"></i></div>
-                    <span class="text-sm font-black text-slate-800">申请回分 (提现)</span>
+                    <div class="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500 text-xs"><i class="fas fa-university"></i></div>
+                    <span class="text-sm font-black text-slate-800">回分规则 & 申请 (提现)</span>
+                </div>
+                <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
+            </a>
+            <a href="/recharge.html" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500 text-xs"><i class="fas fa-wallet"></i></div>
+                    <span class="text-sm font-black text-slate-800">充值规则 & 记录</span>
                 </div>
                 <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
             </a>
             <a href="/settings.html" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-xs"><i class="fas fa-cog"></i></div>
-                    <span class="text-sm font-black text-slate-800">个性化设置</span>
+                    <span class="text-sm font-black text-slate-800">个性化设置 (修改昵称)</span>
                 </div>
                 <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
             </a>
-            <div onclick="location.href='/agent.html'" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 text-xs"><i class="fas fa-users"></i></div>
-                    <span class="text-sm font-black text-slate-800">代理中心 (赚取返利)</span>
-                </div>
-                <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
-            </div>
-            <div onclick="location.href='/wallet_logs.html?type=bet'" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-xs"><i class="fas fa-dice"></i></div>
-                    <span class="text-sm font-black text-slate-800">投注历史</span>
-                </div>
-                <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
-            </div>
         </div>
     </div>
-
-    <!-- Nav -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 pb-8 flex justify-around">
-        <a href="/" class="flex flex-col items-center gap-1 text-slate-400">
-            <i class="fas fa-home text-lg"></i>
-            <span class="text-[9px] font-bold">大厅</span>
-        </a>
-        <a href="/recharge.html" class="flex flex-col items-center gap-1 text-slate-400">
-            <i class="fas fa-add text-lg"></i>
-            <span class="text-[9px] font-bold">充值</span>
-        </a>
-        <a href="/withdraw.html" class="flex flex-col items-center gap-1 text-slate-400">
-            <i class="fas fa-wallet text-lg"></i>
-            <span class="text-[9px] font-bold">回分</span>
-        </a>
-        <a href="/profile.html" class="flex flex-col items-center gap-1 text-blue-600">
-            <i class="fas fa-user text-lg"></i>
-            <span class="text-[9px] font-bold">我的</span>
-        </a>
-    </nav>
 
     <script>
         async function load() {
             const r = await fetch('/api/user_info.php').then(r => r.json());
             if(r.success) {
                 const u = r.user;
-                const displayName = u.nickname || u.username;
-                document.getElementById('nickname-display').innerText = displayName;
-                document.getElementById('user-initial').innerText = displayName[0].toUpperCase();
+                document.getElementById('nickname-display').innerText = u.nickname || u.username;
                 document.getElementById('user-id').innerText = String(u.id).padStart(4, '0');
                 document.getElementById('balance').innerText = parseFloat(u.balance).toLocaleString();
+                if(u.avatar) document.getElementById('user-avatar').src = u.avatar;
             } else location.href = '/login.html';
+        }
+
+        async function uploadAvatar(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64 = e.target.result;
+                const res = await fetch('/api/update_avatar.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ avatar: base64 })
+                }).then(r => r.json());
+                if(res.success) {
+                    document.getElementById('user-avatar').src = base64;
+                } else alert(res.message);
+            };
+            reader.readAsDataURL(file);
         }
         load();
     </script>

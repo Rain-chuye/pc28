@@ -1,6 +1,6 @@
 <?php
 /**
- * PC28 结算系统 - 精确规则修正版 (V15)
+ * PC28 结算系统 - 精确规则修正版 (V16)
  */
 require_once __DIR__ . '/../src/Utils/DB.php';
 require_once __DIR__ . '/../src/Model/User.php';
@@ -45,7 +45,6 @@ function settle($db) {
             $playType = $bet['play_type'];
             $room = $bet['odds_type'];
 
-            // 1. Basic Win Condition
             switch($playType) {
                 case 'big': if ($totalSum >= 14) $isWin = true; break;
                 case 'small': if ($totalSum <= 13) $isWin = true; break;
@@ -64,27 +63,20 @@ function settle($db) {
                     if (is_numeric($playType) && $totalSum == (int)$playType) $isWin = true;
             }
 
-            // 2. Room Rule Processing
             if ($room == 'high') {
-                // 高倍房：开13/14/对子/顺子/豹子 -> 中奖也只回本，没中也回本
                 $isSpecial = ($totalSum == 13 || $totalSum == 14 || isPair($numbersStr) || isStraight($numbersStr) || isTriple($numbersStr));
                 if ($isSpecial) {
                     $isWin = true;
-                    $isReturn = false;
                     $finalOdds = 1.0;
                 }
             } else {
-                // 低倍房：开13、14
                 if ($totalSum == 13 || $totalSum == 14) {
                     $isCombo = in_array($playType, ['big_single','big_double','small_single','small_double']);
                     $isBSSD = in_array($playType, ['big','small','single','double']);
 
                     if ($isCombo) {
-                        // 组合全吃 (Lose)
                         $isWin = false;
-                        $isReturn = false;
                     } elseif ($isBSSD && $isWin) {
-                        // 大小单双中奖只赚1.6倍
                         $finalOdds = 1.60;
                     }
                 }
@@ -97,7 +89,6 @@ function settle($db) {
             try {
                 $updateStmt = $db->prepare("UPDATE bets SET status = ?, win_amount = ?, odds = ? WHERE id = ?");
                 $updateStmt->execute(array($status, $winAmount, $finalOdds, $bet['id']));
-
                 if ($winAmount > 0) {
                     \App\Model\User::updateBalance($bet['user_id'], $winAmount, 'win', "结算派奖: " . $playType . " (" . $bet['issue_no'] . ")", $db);
                 }

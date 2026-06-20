@@ -9,14 +9,15 @@
     <style>
         :root { --theme-color: #2563eb; --bssd-color: #3b82f6; --special-color: #ef4444; --combo-color: #8b5cf6; --extreme-color: #f59e0b; }
         body { background-color: #f8fafc; font-family: -apple-system, sans-serif; height: 100vh; overflow: hidden; }
-        .ball { width: 32px; height: 32px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 2px solid #f1f5f9; color: #1e293b; transition: all 0.5s; }
+
+        /* Scratch Card (Canvas) */
+        .scratch-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 1.5rem; position: relative; overflow: hidden; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #scratch-canvas { position: absolute; inset: 0; z-index: 10; cursor: crosshair; touch-action: none; border-radius: 1.5rem; }
+        .scratch-content { z-index: 5; display: flex; flex-direction: column; align-items: center; }
+
+        .ball { width: 32px; height: 32px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 2px solid #f1f5f9; color: #1e293b; }
         .ball-sum { background: var(--theme-color); color: white; border-color: transparent; }
         .ball-13-14 { background: #dc2626; }
-        .scratch-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 1.5rem; position: relative; overflow: hidden; height: 120px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .scratch-mask { position: absolute; inset: 0; background: #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; transition: opacity 0.5s; }
-        .scratch-card.scratched .scratch-mask { opacity: 0; pointer-events: none; }
-        .ball.hidden-ball { background: #475569; color: transparent; border-color: #475569; box-shadow: none; }
-        .scratched .ball.hidden-ball { background: white; color: #1e293b; border-color: #f1f5f9; }
 
         .chat-container { background: white; border-radius: 2rem 2rem 0 0; box-shadow: 0 -10px 25px rgba(0,0,0,0.05); flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .bet-panel { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f1f5f9; z-index: 100; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(100%); }
@@ -28,66 +29,64 @@
         .tag-special { background: #dc2626; }
         .tag-combo { background: #7c3aed; }
         .tag-extreme { background: #ea580c; }
+
+        .avatar-small { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; }
+        .btn-action { height: 44px; padding: 0 16px; border-radius: 12px; font-weight: 900; font-size: 10px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
     </style>
 </head>
 <body class="flex flex-col">
-    <!-- Header: Last Issue Result & Scratch -->
     <header class="p-4 space-y-3 shrink-0">
         <div class="flex justify-between items-center px-1">
             <div class="flex items-center gap-2">
                 <button onclick="history.back()" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm"><i class="fas fa-chevron-left text-xs"></i></button>
                 <p id="room-display" class="font-black text-sm text-slate-800 uppercase tracking-tight"></p>
             </div>
-            <div id="issue-display" class="text-[10px] font-black text-slate-400 bg-white px-3 py-1 rounded-full shadow-sm">下注期号: --</div>
+            <div class="flex gap-2">
+                <div id="user-balance" class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">¥ 0.00</div>
+                <div id="issue-display" class="text-[10px] font-black text-slate-400 bg-white px-3 py-1 rounded-full shadow-sm">下注期号: --</div>
+            </div>
         </div>
 
-        <div id="scratch-card" class="scratch-card" onclick="scratch()">
-            <div class="scratch-mask" id="scratch-mask">
-                <i class="fas fa-magic text-white/50 text-xl mb-1"></i>
-                <span class="text-white font-black uppercase text-[9px] tracking-widest">点击咪牌 (一点一点刮开)</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="ball hidden-ball" id="ball-0">-</div>
-                <i class="fas fa-plus text-[10px] text-slate-500"></i>
-                <div class="ball hidden-ball" id="ball-1">-</div>
-                <i class="fas fa-plus text-[10px] text-slate-500"></i>
-                <div class="ball hidden-ball" id="ball-2">-</div>
-                <i class="fas fa-equals text-[10px] text-slate-500"></i>
-                <div class="ball ball-sum" id="total-result">-</div>
+        <div class="scratch-card">
+            <canvas id="scratch-canvas"></canvas>
+            <div class="scratch-content">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="ball" id="ball-0">-</div>
+                    <i class="fas fa-plus text-[10px] text-slate-500"></i>
+                    <div class="ball" id="ball-1">-</div>
+                    <i class="fas fa-plus text-[10px] text-slate-500"></i>
+                    <div class="ball" id="ball-2">-</div>
+                    <i class="fas fa-equals text-[10px] text-slate-500"></i>
+                    <div class="ball ball-sum" id="total-result">-</div>
+                </div>
+                <div id="result-tags" class="flex gap-1.5 flex-wrap justify-center"></div>
             </div>
         </div>
         <div id="timer-display" class="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">NEXT DRAW: --:--</div>
     </header>
 
-    <!-- Group Chat Area -->
     <main class="chat-container">
-        <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
-            <div class="text-center p-10 text-slate-300 font-bold text-xs">正在连接游戏频道...</div>
-        </div>
+        <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50"></div>
 
-        <!-- Quick Action Bar -->
-        <div class="p-4 bg-white border-t border-slate-100 flex gap-3 shrink-0">
-            <button onclick="toggleBetPanel()" class="flex-1 h-12 bg-blue-600 text-white rounded-xl font-black text-xs shadow-lg shadow-blue-100 uppercase tracking-widest">立即下注</button>
-            <button onclick="switchTab('history')" class="w-12 h-12 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center"><i class="fas fa-history"></i></button>
+        <div class="p-4 bg-white border-t border-slate-100 grid grid-cols-4 gap-2 shrink-0">
+            <button onclick="toggleBetPanel()" class="col-span-2 btn-action bg-blue-600 text-white shadow-lg shadow-blue-100"><i class="fas fa-plus-circle"></i> 立即投注</button>
+            <button onclick="location.href='/recharge.html'" class="btn-action bg-emerald-500 text-white shadow-lg shadow-emerald-100"><i class="fas fa-wallet"></i> 充值</button>
+            <button onclick="location.href='/withdraw.html'" class="btn-action bg-rose-500 text-white shadow-lg shadow-rose-100"><i class="fas fa-coins"></i> 回分</button>
         </div>
     </main>
 
-    <!-- Betting Panel (Overlay) -->
-    <div id="bet-panel" class="bet-panel h-[70vh] flex flex-col">
+    <!-- Bet Panel -->
+    <div id="bet-panel" class="bet-panel h-[75vh] flex flex-col">
         <div class="p-4 flex justify-between items-center border-b border-slate-50">
             <h3 class="font-black text-sm text-slate-800">选择投注玩法</h3>
             <button onclick="toggleBetPanel()" class="text-slate-300"><i class="fas fa-times"></i></button>
         </div>
-
         <div class="flex-1 overflow-y-auto p-4 space-y-6">
-            <!-- Tabs -->
             <div class="flex bg-slate-50 p-1 rounded-xl">
                 <button onclick="switchBetTab('basic')" id="btab-basic" class="flex-1 py-2 rounded-lg font-black text-[10px] uppercase bg-white text-blue-600 shadow-sm">基础</button>
                 <button onclick="switchBetTab('special')" id="btab-special" class="flex-1 py-2 rounded-lg font-black text-[10px] uppercase text-slate-400">特殊</button>
                 <button onclick="switchBetTab('numbers')" id="btab-numbers" class="flex-1 py-2 rounded-lg font-black text-[10px] uppercase text-slate-400">特码</button>
             </div>
-
-            <!-- Basic -->
             <div id="bpane-basic" class="grid grid-cols-4 gap-3">
                 <div class="bet-item" onclick="toggleBet(this, 'big')"><p class="text-xs font-black">大</p><p id="odds-big" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
                 <div class="bet-item" onclick="toggleBet(this, 'small')"><p class="text-xs font-black">小</p><p id="odds-small" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
@@ -98,8 +97,6 @@
                 <div class="bet-item" onclick="toggleBet(this, 'small_single')"><p class="text-xs font-black">小单</p><p id="odds-small_single" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
                 <div class="bet-item" onclick="toggleBet(this, 'small_double')"><p class="text-xs font-black">小双</p><p id="odds-small_double" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
             </div>
-
-            <!-- Special -->
             <div id="bpane-special" class="hidden grid grid-cols-3 gap-3">
                 <div class="bet-item" onclick="toggleBet(this, 'triple')"><p class="text-xs font-black">豹子</p><p id="odds-triple" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
                 <div class="bet-item" onclick="toggleBet(this, 'straight')"><p class="text-xs font-black">顺子</p><p id="odds-straight" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
@@ -107,68 +104,64 @@
                 <div class="bet-item" onclick="toggleBet(this, 'extreme_big')"><p class="text-xs font-black">极大</p><p id="odds-extreme_big" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
                 <div class="bet-item" onclick="toggleBet(this, 'extreme_small')"><p class="text-xs font-black">极小</p><p id="odds-extreme_small" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
             </div>
-
-            <!-- Numbers -->
             <div id="bpane-numbers" class="hidden grid grid-cols-4 gap-2"></div>
         </div>
-
         <div class="p-6 bg-slate-50 border-t border-slate-100">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="flex-1 bg-white p-3 rounded-2xl flex items-center shadow-sm">
-                    <span class="text-[10px] font-black text-slate-300 mr-3 uppercase">金额</span>
-                    <input type="number" id="bet-amount" class="w-full font-black text-slate-800 outline-none text-sm" value="10">
-                </div>
+            <div class="bg-white p-3 rounded-2xl flex items-center shadow-sm mb-4">
+                <span class="text-[10px] font-black text-slate-300 mr-3 uppercase">金额</span>
+                <input type="number" id="bet-amount" class="w-full font-black text-slate-800 outline-none text-sm" value="10">
             </div>
             <button onclick="submitBets()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-xs shadow-xl shadow-blue-100">确认投注 (<span id="selected-count">0</span>)</button>
         </div>
     </div>
 
-    <!-- History Modal -->
-    <div id="history-modal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm hidden p-6 flex items-center justify-center">
-        <div class="bg-white rounded-[2rem] w-full max-w-sm h-[80vh] flex flex-col">
-            <div class="p-6 flex justify-between items-center border-b border-slate-50 shrink-0">
-                <h3 class="font-black text-slate-800">最近开奖</h3>
-                <button onclick="document.getElementById('history-modal').classList.add('hidden')" class="text-slate-300"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="history-list" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
-        </div>
-    </div>
-
     <script>
         const params = new URLSearchParams(window.location.search);
-        const oddsMode = params.get('room') || 'high';
-        document.getElementById('room-display').innerText = oddsMode === 'high' ? '🇨🇦 加拿大至尊群' : '🎰 经典游戏大厅';
+        const room = params.get('room') || 'high';
+        document.getElementById('room-display').innerText = room === 'high' ? '🇨🇦 加拿大高倍群' : '🇨🇦 加拿大标准群';
 
         let selectedBets = new Set();
-        let timeLeft = 0;
         let betIssue = '';
-        let lastLotteryId = '';
         let globalOdds = {};
-        let scratchStep = 0;
+        let timeLeft = 0;
+        let lastResultId = '';
 
-        function scratch() {
-            scratchStep++;
-            if(scratchStep === 1) document.getElementById('ball-0').classList.remove('hidden-ball');
-            else if(scratchStep === 2) document.getElementById('ball-1').classList.remove('hidden-ball');
-            else if(scratchStep === 3) document.getElementById('ball-2').classList.remove('hidden-ball');
-            else if(scratchStep >= 4) {
-                document.getElementById('scratch-card').classList.add('scratched');
-            }
+        // Canvas Scratch Logic
+        const canvas = document.getElementById('scratch-canvas');
+        const ctx = canvas.getContext('2d');
+        function initScratch() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.font = '900 10px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('咪牌揭晓 (由左向右划动)', canvas.width/2, canvas.height/2 + 5);
+            ctx.globalCompositeOperation = 'destination-out';
         }
+
+        function handleScratch(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+            ctx.beginPath(); ctx.arc(x, y, 20, 0, Math.PI * 2); ctx.fill();
+        }
+        canvas.addEventListener('mousemove', handleScratch);
+        canvas.addEventListener('touchmove', handleScratch);
 
         async function refreshData() {
             try {
                 const res = await fetch('/api/lottery.php').then(r => r.json());
+                const userRes = await fetch('/api/user_info.php').then(r => r.json());
+                if(userRes.success) document.getElementById('user-balance').innerText = `¥ ${parseFloat(userRes.data.balance).toLocaleString()}`;
+
                 if(res.latest) {
                     betIssue = res.bet_issue_no;
                     document.getElementById('issue-display').innerText = `下注期号: ${betIssue}`;
-                    if(lastLotteryId !== res.latest.issue_no) {
-                        lastLotteryId = res.latest.issue_no;
-                        scratchStep = 0;
-                        document.getElementById('scratch-card').classList.remove('scratched');
-                        document.getElementById('ball-0').classList.add('hidden-ball');
-                        document.getElementById('ball-1').classList.add('hidden-ball');
-                        document.getElementById('ball-2').classList.add('hidden-ball');
+                    if(lastResultId !== res.latest.issue_no) {
+                        lastResultId = res.latest.issue_no;
+                        initScratch();
                     }
                     const nums = res.latest.numbers.split(',').map(n => parseInt(n));
                     const sum = parseInt(res.latest.total_sum);
@@ -177,37 +170,35 @@
                     document.getElementById('ball-2').innerText = nums[2];
                     const sumBall = document.getElementById('total-result');
                     sumBall.innerText = sum;
-                    if(sum === 13 || sum === 14) sumBall.classList.add('ball-13-14');
-                    else sumBall.classList.remove('ball-13-14');
+                    if(sum === 13 || sum === 14) sumBall.classList.add('ball-13-14'); else sumBall.classList.remove('ball-13-14');
 
-                    timeLeft = res.countdown;
-                    startCountdown();
+                    const tags = [];
+                    const isBig = sum >= 14; const isSingle = sum % 2 != 0;
+                    tags.push(isBig ? '大' : '小'); tags.push(isSingle ? '单' : '双');
+                    if(nums[0] === nums[1] && nums[1] === nums[2]) tags.push('豹子');
+                    else if(isStraight(nums)) tags.push('顺子');
+                    else if(nums[0] === nums[1] || nums[1] === nums[2] || nums[0] === nums[2]) tags.push('对子');
+                    if(sum >= 22) tags.push('极大'); if(sum <= 5) tags.push('极小');
+                    document.getElementById('result-tags').innerHTML = tags.map(t => `<span class="tag ${['豹子','顺子','对子'].includes(t) ? 'tag-special' : (['极大','极小'].includes(t) ? 'tag-extreme' : (t.length > 1 ? 'tag-combo' : 'tag-win'))}">${t}</span>`).join('');
+
+                    timeLeft = res.countdown; startCountdown();
                 }
                 if(res.odds) { globalOdds = res.odds; renderOdds(); }
-                loadGroupMsgs();
+                loadMsgs();
             } catch(e) {}
         }
 
+        function isStraight(nums) { nums.sort((a,b) => a-b); return (nums[1] === nums[0]+1 && nums[2] === nums[1]+1) || JSON.stringify(nums) === '[0,1,9]' || JSON.stringify(nums) === '[0,8,9]'; }
+
         function renderOdds() {
-            const keys = {
-                'big': 'odds-big', 'small': 'odds-small', 'single': 'odds-single', 'double': 'odds-double',
-                'big_single': 'odds-big_single', 'big_double': 'odds-big_double', 'small_single': 'odds-small_single', 'small_double': 'odds-small_double',
-                'extreme_big': 'odds-extreme_big', 'extreme_small': 'odds-extreme_small', 'pair': 'odds-pair', 'straight': 'odds-straight', 'triple': 'odds-triple'
-            };
-            Object.entries(keys).forEach(([k, id]) => {
-                if(globalOdds[k]) document.getElementById(id).innerText = globalOdds[k][oddsMode].toFixed(2);
-            });
-            const pane = document.getElementById('bpane-numbers');
-            pane.innerHTML = '';
+            const keys = {'big':'odds-big','small':'odds-small','single':'odds-single','double':'odds-double','big_single':'odds-big_single','big_double':'odds-big_double','small_single':'odds-small_single','small_double':'odds-small_double','triple':'odds-triple','straight':'odds-straight','pair':'odds-pair','extreme_big':'odds-extreme_big','extreme_small':'odds-extreme_small'};
+            Object.entries(keys).forEach(([k, id]) => { if(globalOdds[k]) document.getElementById(id).innerText = globalOdds[k][room].toFixed(2); });
+            const pane = document.getElementById('bpane-numbers'); pane.innerHTML = '';
             for(let i=0; i<=27; i++) {
-                const type = i.toString();
-                const odds = globalOdds[type] ? globalOdds[type][oddsMode] : 12.0;
-                const div = document.createElement('div');
-                div.className = 'bet-item';
-                div.onclick = () => toggleBet(div, type);
+                const type = i.toString(); const odds = globalOdds[type] ? globalOdds[type][room] : 12.0;
+                const div = document.createElement('div'); div.className = 'bet-item'; div.onclick = () => toggleBet(div, type);
                 div.innerHTML = `<p class="text-[12px] font-black">${i}</p><p class="text-[8px] font-bold text-slate-400 mt-1">${odds.toFixed(1)}</p>`;
-                if(selectedBets.has(type)) div.classList.add('active');
-                pane.appendChild(div);
+                if(selectedBets.has(type)) div.classList.add('active'); pane.appendChild(div);
             }
         }
 
@@ -222,19 +213,19 @@
             }, 1000);
         }
 
-        async function loadGroupMsgs() {
-            const res = await fetch('/api/group_chat.php').then(r => r.json());
+        async function loadMsgs() {
+            const res = await fetch(`/api/group_chat.php?room=${room}`).then(r => r.json());
             if(res.success) {
                 const box = document.getElementById('chat-box');
                 const wasAtBottom = box.scrollHeight - box.scrollTop <= box.clientHeight + 100;
                 box.innerHTML = res.data.map(m => {
                     const isRobot = m.user_id == 0;
                     return `
-                        <div class="flex items-start gap-2">
-                            <div class="w-6 h-6 rounded bg-slate-200 flex items-center justify-center font-black text-[9px] text-slate-400">${isRobot ? '🤖' : m.username[0]}</div>
+                        <div class="flex items-start gap-3">
+                            <img src="${m.avatar || '/assets/default_avatar.png'}" class="w-8 h-8 rounded-lg bg-slate-100 flex-shrink-0" onerror="this.src='/assets/default_avatar.png'">
                             <div class="flex-1">
                                 <p class="text-[8px] font-black uppercase ${isRobot ? 'text-indigo-400' : 'text-slate-400'} mb-1">${m.username}</p>
-                                <div class="inline-block bg-white border border-slate-100 p-2 rounded-lg text-xs font-bold leading-relaxed shadow-sm">
+                                <div class="inline-block bg-white border border-slate-100 p-2.5 rounded-2xl text-[11px] font-bold leading-relaxed shadow-sm">
                                     ${m.message.replace(/\n/g, '<br>')}
                                 </div>
                             </div>
@@ -246,61 +237,21 @@
         }
 
         function toggleBetPanel() { document.getElementById('bet-panel').classList.toggle('active'); }
-
         function switchBetTab(t) {
-            ['basic', 'special', 'numbers'].forEach(p => {
-                document.getElementById('bpane-'+p).classList.add('hidden');
-                document.getElementById('btab-'+p).classList.remove('bg-white','text-blue-600','shadow-sm');
-                document.getElementById('btab-'+p).classList.add('text-slate-400');
-            });
-            document.getElementById('bpane-'+t).classList.remove('hidden');
-            document.getElementById('btab-'+t).classList.add('bg-white','text-blue-600','shadow-sm');
-            document.getElementById('btab-'+t).classList.remove('text-slate-400');
+            ['basic','special','numbers'].forEach(p => { document.getElementById('bpane-'+p).classList.add('hidden'); document.getElementById('btab-'+p).className = 'flex-1 py-2 rounded-lg font-black text-[10px] uppercase text-slate-400'; });
+            document.getElementById('bpane-'+t).classList.remove('hidden'); document.getElementById('btab-'+t).className = 'flex-1 py-2 rounded-lg font-black text-[10px] uppercase bg-white text-blue-600 shadow-sm';
         }
-
-        function toggleBet(el, type) {
-            if(selectedBets.has(type)) { selectedBets.delete(type); el.classList.remove('active'); }
-            else { selectedBets.add(type); el.classList.add('active'); }
-            document.getElementById('selected-count').innerText = selectedBets.size;
-        }
+        function toggleBet(el, type) { if(selectedBets.has(type)) { selectedBets.delete(type); el.classList.remove('active'); } else { selectedBets.add(type); el.classList.add('active'); } document.getElementById('selected-count').innerText = selectedBets.size; }
 
         async function submitBets() {
             const amount = document.getElementById('bet-amount').value;
             if (selectedBets.size === 0) return alert('请选择玩法');
             const bets = Array.from(selectedBets).map(t => ({ play_type: t, amount: parseFloat(amount) }));
-            const res = await fetch('/api/bet.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ bets, odds_type: oddsMode, issue_no: betIssue })
-            }).then(r => r.json());
-
-            if(res.success) {
-                selectedBets.clear();
-                document.querySelectorAll('.bet-item').forEach(i => i.classList.remove('active'));
-                document.getElementById('selected-count').innerText = 0;
-                toggleBetPanel();
-                loadGroupMsgs();
-            } else alert(res.message);
+            const res = await fetch('/api/bet.php', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ bets, odds_type: room, issue_no: betIssue }) }).then(r => r.json());
+            if(res.success) { selectedBets.clear(); document.querySelectorAll('.bet-item').forEach(i => i.classList.remove('active')); document.getElementById('selected-count').innerText = 0; toggleBetPanel(); refreshData(); } else alert(res.message);
         }
 
-        async function switchTab(t) {
-            if(t === 'history') {
-                const res = await fetch('/api/lottery.php').then(r => r.json());
-                document.getElementById('history-list').innerHTML = res.history.map(i => `
-                    <div class="px-4 py-3 bg-slate-50 rounded-xl flex justify-between items-center">
-                        <span class="text-[10px] font-black text-slate-400 uppercase">#${i.issue_no}</span>
-                        <div class="flex items-center gap-3">
-                            <div class="flex gap-1">${i.numbers.split(',').map(n => `<span class="w-5 h-5 bg-white rounded flex items-center justify-center text-[10px] font-black border border-slate-100">${n}</span>`).join('')}</div>
-                            <span class="text-sm font-black text-blue-600">${i.total_sum}</span>
-                        </div>
-                    </div>
-                `).join('');
-                document.getElementById('history-modal').classList.remove('hidden');
-            }
-        }
-
-        refreshData();
-        setInterval(refreshData, 3000);
+        window.onload = () => { initScratch(); refreshData(); setInterval(refreshData, 3000); };
     </script>
 </body>
 </html>

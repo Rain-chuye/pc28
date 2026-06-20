@@ -10,12 +10,12 @@ if (!isset($_SESSION['user_id'])) {
 
 try {
     $db = \App\Utils\DB::getInstance()->getConnection();
-    $stmt = $db->prepare("SELECT id, username, nickname, balance, role, settings_json FROM users WHERE id = ?");
+    $stmt = $db->prepare("SELECT id, username, nickname, balance, role, avatar, settings_json FROM users WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch();
 
     if ($user) {
-        echo json_encode(['success' => true, 'user' => $user]);
+        echo json_encode(['success' => true, 'user' => $user, 'data' => $user]); // Duplicated for compatibility
     } else {
         echo json_encode(['success' => false, 'message' => '用户不存在']);
     }
