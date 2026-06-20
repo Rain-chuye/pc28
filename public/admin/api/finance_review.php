@@ -24,26 +24,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($status === 'approved') {
                 if ($req['type'] === 'deposit') {
                     $userId = $req['user_id'];
-                    $amount = $req['amount'];
+                    $amount = (float)$req['amount'];
 
                     \App\Model\User::addDeposit($userId, $amount, $db);
 
-                    // Tiered Recharge Bonus Logic
+                    // First Recharge Check
                     $stmt = $db->prepare("SELECT first_recharge_done FROM users WHERE id = ?");
                     $stmt->execute([$userId]);
                     $isFirst = !$stmt->fetchColumn();
 
                     $bonus = 0;
                     if ($isFirst && $amount >= 20) {
+                        // "充值20送21" - Total bonus = 21 (as per user request)
                         $bonus = 21;
                         $db->prepare("UPDATE users SET first_recharge_done = 1 WHERE id = ?")->execute([$userId]);
                     } else {
+                        // Regular bonuses
                         if ($amount >= 100) $bonus = 60;
                         else if ($amount >= 50) $bonus = 20;
                         else if ($amount >= 40) $bonus = 12;
                         else if ($amount >= 30) $bonus = 10;
                         else if ($amount >= 20) $bonus = 4;
-                        else if ($amount >= 10) $bonus = 1;
+                        else if ($amount >= 15) $bonus = 2; // Updated for 15 min
                     }
 
                     if ($bonus > 0) {
@@ -51,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             } else if ($status === 'rejected') {
-                // If it was a withdrawal, refund the balance
                 if ($req['type'] === 'withdraw') {
                     $db->prepare("UPDATE users SET balance = balance + ? WHERE id = ?")
                        ->execute([$req['amount'], $req['user_id']]);

@@ -1,25 +1,4 @@
-[Sat Jun 20 15:48:20 2026] PHP 8.3.6 Development Server (http://0.0.0.0:3000) started
-[Sat Jun 20 15:48:25 2026] 127.0.0.1:41596 Accepted
-[Sat Jun 20 15:48:25 2026] 127.0.0.1:41596 [302]: GET /
-[Sat Jun 20 15:48:25 2026] 127.0.0.1:41596 Closing
-[Sat Jun 20 15:48:25 2026] 127.0.0.1:41604 Accepted
-[Sat Jun 20 15:48:25 2026] 127.0.0.1:41604 [200]: GET /login.html
-[Sat Jun 20 15:48:25 2026] 127.0.0.1:41604 Closing
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41616 Accepted
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41616 [200]: GET /profile.html
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41616 Closing
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41620 Accepted
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41620 [200]: GET /assets/default_avatar.png
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41620 Closing
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41624 Accepted
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41624 [200]: GET /api/user_info.php?include_avatar=1
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41624 Closing
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41640 Accepted
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41640 [200]: GET /login.html
-[Sat Jun 20 15:48:27 2026] 127.0.0.1:41640 Closing
-[Sat Jun 20 15:48:28 2026] 127.0.0.1:41650 Accepted
-[Sat Jun 20 15:48:28 2026] 127.0.0.1:41650 [302]: GET /admin/pages/chat_admin.php
-[Sat Jun 20 15:48:28 2026] 127.0.0.1:41650 Closing
-[Sat Jun 20 15:48:28 2026] 127.0.0.1:41658 Accepted
-[Sat Jun 20 15:48:28 2026] 127.0.0.1:41658 [200]: GET /login.html
-[Sat Jun 20 15:48:28 2026] 127.0.0.1:41658 Closing
+[Sat Jun 20 16:37:56 2026] PHP 8.3.6 Development Server (http://0.0.0.0:3000) started
+[Sat Jun 20 16:38:00 2026] 127.0.0.1:57352 Accepted
+[Sat Jun 20 16:38:00 2026] 127.0.0.1:57352 [200]: GET /recharge.html
+[Sat Jun 20 16:38:00 2026] 127.0.0.1:57352 Closing
