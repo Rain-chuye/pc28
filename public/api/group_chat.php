@@ -33,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         echo json_encode(['success' => true]);
     } else if ($action === 'claim_red_packet') {
+        // [Existing red packet logic remains unchanged...]
         $data = json_decode(file_get_contents('php://input'), true);
         $packetId = (int)($data['packet_id'] ?? 0);
         $db->beginTransaction();
@@ -48,9 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $db->prepare("SELECT id FROM red_packet_claims WHERE packet_id = ? AND user_id = ?");
             $stmt->execute([$packetId, $userId]);
             if ($stmt->fetch()) throw new Exception("你已经领过这个红包了");
-
             $amount = ($packet['remaining_count'] == 1) ? $packet['remaining_amount'] : round(mt_rand(1, ($packet['remaining_amount'] / $packet['remaining_count']) * 2 * 100) / 100, 2);
-
             $db->prepare("UPDATE red_packets SET remaining_amount = remaining_amount - ?, remaining_count = remaining_count - 1 WHERE id = ?")->execute([$amount, $packetId]);
             $db->prepare("INSERT INTO red_packet_claims (packet_id, user_id, amount) VALUES (?, ?, ?)")->execute([$packetId, $userId, $amount]);
             $db->prepare("UPDATE users SET balance = balance + ? WHERE id = ?")->execute([$amount, $userId]);
@@ -62,7 +61,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 } else {
-    // GET messages for specific room
+    // GET messages: Optimization - if avatar is too large, it slows down everything.
+    // We only send avatar URL/Base64 if it's less than a certain size or use a placeholder.
+    // For now, let's keep it but ensure the query is fast.
     $stmt = $db->prepare("SELECT gm.*, COALESCE(u.nickname, u.username, '系统机器人') as username, u.avatar
                          FROM group_messages gm
                          LEFT JOIN users u ON gm.user_id = u.id

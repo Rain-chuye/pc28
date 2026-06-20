@@ -18,14 +18,13 @@ require_once __DIR__ . '/auth_logic.php';
     .input-group label { display: block; font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; }
     .form-input { width: 100%; border: 1px solid #e2e8f0; background: #f8fafc; padding: 12px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; box-sizing: border-box; }
     .form-input:focus { border-color: var(--admin-primary); background: white; }
-    /* Hide desktop sidebar */
     .admin-sidebar { display: none !important; }
     .admin-main { margin-left: 0 !important; padding: 0 !important; }
 </style>
 <div class="mobile-nav">
     <a href="/admin/index.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'index.php') !== false ? 'active' : '' ?>"><i class="fas fa-th-large"></i><span>概览</span></a>
     <a href="/admin/pages/users.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'users.php') !== false ? 'active' : '' ?>"><i class="fas fa-users"></i><span>会员</span></a>
-    <a href="/admin/pages/chat.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'chat.php') !== false ? 'active' : '' ?>"><i class="fas fa-comment-dots"></i><span>客服</span></a>
+    <a href="/admin/pages/chat_admin.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'chat_admin.php') !== false ? 'active' : '' ?>"><i class="fas fa-comments"></i><span>聊天</span></a>
+    <a href="/admin/pages/chat.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'chat.php') !== false ? 'active' : '' ?>"><i class="fas fa-headset"></i><span>客服</span></a>
     <a href="/admin/pages/finance_list.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'finance_list.php') !== false ? 'active' : '' ?>"><i class="fas fa-exchange-alt"></i><span>财务</span></a>
-    <a href="/admin/pages/settings.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'settings.php') !== false ? 'active' : '' ?>"><i class="fas fa-sliders-h"></i><span>设置</span></a>
 </div>
