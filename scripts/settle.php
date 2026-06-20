@@ -1,6 +1,6 @@
 <?php
 /**
- * PC28 结算系统 - 精确规则修正版 (V11)
+ * PC28 结算系统 - 精确规则修正版 (V15)
  */
 require_once __DIR__ . '/../src/Utils/DB.php';
 require_once __DIR__ . '/../src/Model/User.php';
@@ -43,7 +43,7 @@ function settle($db) {
             $finalOdds = (float)$bet['odds'];
 
             $playType = $bet['play_type'];
-            $room = $bet['odds_type']; // 'high' = 2.8, 'low' = 2.0
+            $room = $bet['odds_type'];
 
             // 1. Basic Win Condition
             switch($playType) {
@@ -66,10 +66,11 @@ function settle($db) {
 
             // 2. Room Rule Processing
             if ($room == 'high') {
-                // 高倍房：开13/14/对子/顺子/豹子 -> 中奖回本 (Odds=1.0), 没中也回本
+                // 高倍房：开13/14/对子/顺子/豹子 -> 中奖也只回本，没中也回本
                 $isSpecial = ($totalSum == 13 || $totalSum == 14 || isPair($numbersStr) || isStraight($numbersStr) || isTriple($numbersStr));
                 if ($isSpecial) {
                     $isWin = true;
+                    $isReturn = false;
                     $finalOdds = 1.0;
                 }
             } else {
@@ -102,7 +103,7 @@ function settle($db) {
                 }
                 $db->commit();
             } catch (Exception $e) {
-                $db->rollBack();
+                if($db->inTransaction()) $db->rollBack();
             }
         }
     }

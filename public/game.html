@@ -3,161 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PC28 - 游戏中心</title>
+    <title>加拿大至尊 - PC28</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style id="custom-theme">
-        :root { --theme-color: #2563eb; --num-color: #334155; --bssd-color: #2563eb; --special-color: #dc2626; --combo-color: #7c3aed; --extreme-color: #ea580c; }
-    </style>
     <style>
-        body { background-color: #f8fafc; font-family: -apple-system, system-ui, sans-serif; color: #1e293b; }
-        .ball { width: 30px; height: 30px; background: #e2e8f0; border-radius: 50%; display: flex; items-center: center; justify-content: center; font-weight: 900; font-size: 14px; color: #475569; }
-        .ball-sum { background: var(--theme-color); color: white; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 34px; height: 34px; }
-        .ball-13-14 { background: #f59e0b !important; }
-        .scratch-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 2rem; position: relative; overflow: hidden; height: 160px; display: flex; align-items: center; justify-content: center; transition: all 0.5s ease; cursor: pointer; }
-        .scratch-mask { position: absolute; inset: 0; background: #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
-        .scratch-card.scratched .scratch-mask { transform: translateY(-100%); }
-        .scratch-content { display: flex; flex-direction: column; align-items: center; z-index: 5; }
-        .bet-item { background: white; border: 1px solid #f1f5f9; border-radius: 1.25rem; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .bet-item:active { transform: scale(0.95); }
-        .bet-item.active { border-color: var(--theme-color); background: #eff6ff; box-shadow: 0 0 0 2px var(--theme-color); }
-        .tag { font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 100px; color: white; }
+        :root { --theme-color: #2563eb; --bssd-color: #3b82f6; --special-color: #ef4444; --combo-color: #8b5cf6; --extreme-color: #f59e0b; }
+        body { background-color: #f8fafc; font-family: -apple-system, sans-serif; height: 100vh; overflow: hidden; }
+        .ball { width: 32px; height: 32px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 2px solid #f1f5f9; color: #1e293b; transition: all 0.5s; }
+        .ball-sum { background: var(--theme-color); color: white; border-color: transparent; }
+        .ball-13-14 { background: #dc2626; }
+        .scratch-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 1.5rem; position: relative; overflow: hidden; height: 120px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .scratch-mask { position: absolute; inset: 0; background: #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; transition: opacity 0.5s; }
+        .scratch-card.scratched .scratch-mask { opacity: 0; pointer-events: none; }
+        .ball.hidden-ball { background: #475569; color: transparent; border-color: #475569; box-shadow: none; }
+        .scratched .ball.hidden-ball { background: white; color: #1e293b; border-color: #f1f5f9; }
+
+        .chat-container { background: white; border-radius: 2rem 2rem 0 0; box-shadow: 0 -10px 25px rgba(0,0,0,0.05); flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .bet-panel { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #f1f5f9; z-index: 100; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(100%); }
+        .bet-panel.active { transform: translateY(0); }
+        .bet-item { background: #f8fafc; border-radius: 1rem; padding: 0.75rem; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+        .bet-item.active { border-color: var(--theme-color); background: #eff6ff; }
+        .tag { font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 100px; color: white; }
         .tag-win { background: #2563eb; }
         .tag-special { background: #dc2626; }
         .tag-combo { background: #7c3aed; }
         .tag-extreme { background: #ea580c; }
-        .tab-active { color: var(--theme-color); position: relative; }
-        .tab-active:after { content: ''; position: absolute; bottom: 0; left: 25%; width: 50%; height: 3px; background: var(--theme-color); border-radius: 100px; }
-        .chat-bubble-admin { background: #f1f5f9; color: #1e293b; border-radius: 1.5rem 1.5rem 1.5rem 0.25rem; }
-        .chat-bubble-user { background: var(--theme-color); color: white; border-radius: 1.5rem 1.5rem 0.25rem 1.5rem; }
-        .color-bssd { color: var(--bssd-color); }
-        .color-special { color: var(--special-color); }
-        .color-combo { color: var(--combo-color); }
-        .color-extreme { color: var(--extreme-color); }
     </style>
 </head>
-<body class="pb-32">
-    <header class="bg-white px-6 py-4 flex justify-between items-center border-b border-slate-100 sticky top-0 z-50">
-        <button onclick="location.href='/'" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400"><i class="fas fa-chevron-left"></i></button>
-        <div class="text-center">
-            <h1 id="issue-display" class="text-xs font-black text-slate-400 uppercase tracking-widest">下注期号: 加载中</h1>
-            <p id="room-display" class="text-[9px] font-bold text-blue-600 mt-1 uppercase">Loading Mode...</p>
+<body class="flex flex-col">
+    <!-- Header: Last Issue Result & Scratch -->
+    <header class="p-4 space-y-3 shrink-0">
+        <div class="flex justify-between items-center px-1">
+            <div class="flex items-center gap-2">
+                <button onclick="history.back()" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm"><i class="fas fa-chevron-left text-xs"></i></button>
+                <p id="room-display" class="font-black text-sm text-slate-800 uppercase tracking-tight"></p>
+            </div>
+            <div id="issue-display" class="text-[10px] font-black text-slate-400 bg-white px-3 py-1 rounded-full shadow-sm">下注期号: --</div>
         </div>
-        <button onclick="toggleChat()" class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm"><i class="fas fa-headset"></i></button>
+
+        <div id="scratch-card" class="scratch-card" onclick="scratch()">
+            <div class="scratch-mask" id="scratch-mask">
+                <i class="fas fa-magic text-white/50 text-xl mb-1"></i>
+                <span class="text-white font-black uppercase text-[9px] tracking-widest">点击咪牌 (一点一点刮开)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="ball hidden-ball" id="ball-0">-</div>
+                <i class="fas fa-plus text-[10px] text-slate-500"></i>
+                <div class="ball hidden-ball" id="ball-1">-</div>
+                <i class="fas fa-plus text-[10px] text-slate-500"></i>
+                <div class="ball hidden-ball" id="ball-2">-</div>
+                <i class="fas fa-equals text-[10px] text-slate-500"></i>
+                <div class="ball ball-sum" id="total-result">-</div>
+            </div>
+        </div>
+        <div id="timer-display" class="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">NEXT DRAW: --:--</div>
     </header>
 
-    <main class="p-5 space-y-6">
-        <!-- Scratch Result Card -->
-        <div class="space-y-3">
-            <div id="scratch-card" class="scratch-card" onclick="scratch()">
-                <div class="scratch-mask">
-                    <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mb-2"><i class="fas fa-magic text-white text-2xl animate-pulse"></i></div>
-                    <span class="text-white font-black uppercase text-[10px] tracking-widest">刮开揭晓上期开奖详情</span>
-                </div>
-                <div class="scratch-content">
-                    <div id="scratch-calc" class="text-2xl font-black text-white mb-2">? + ? + ? = ?</div>
-                    <div class="flex items-center gap-3">
-                        <div class="ball" id="ball-0">-</div>
-                        <i class="fas fa-plus text-[10px] text-slate-500"></i>
-                        <div class="ball" id="ball-1">-</div>
-                        <i class="fas fa-plus text-[10px] text-slate-500"></i>
-                        <div class="ball" id="ball-2">-</div>
-                        <i class="fas fa-equals text-[10px] text-slate-500"></i>
-                        <div class="ball ball-sum" id="total-result">-</div>
-                    </div>
-                    <div id="result-tags" class="flex gap-2 mt-3 flex-wrap justify-center"></div>
-                </div>
-            </div>
-            <div id="timer-display" class="text-center mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">NEXT DRAW: --:--</div>
+    <!-- Group Chat Area -->
+    <main class="chat-container">
+        <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+            <div class="text-center p-10 text-slate-300 font-bold text-xs">正在连接游戏频道...</div>
         </div>
 
-        <!-- Betting Tabs -->
-        <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-            <div class="flex border-b border-slate-100">
-                <button id="tab-basic" onclick="switchTab('basic')" class="flex-1 py-4 text-[11px] font-black uppercase tab-active">基础玩法</button>
-                <button id="tab-special" onclick="switchTab('special')" class="flex-1 py-4 text-[11px] font-black uppercase text-slate-400">组合/特殊</button>
-                <button id="tab-numbers" onclick="switchTab('numbers')" class="flex-1 py-4 text-[11px] font-black uppercase text-slate-400">猜特码</button>
-                <button id="tab-history" onclick="switchTab('history')" class="flex-1 py-4 text-[11px] font-black uppercase text-slate-400">历史</button>
-            </div>
-
-            <div class="p-5">
-                <div id="pane-basic" class="grid grid-cols-2 gap-3">
-                    <div onclick="toggleBet(this, '大')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">大</p><p class="text-lg font-black mt-1 color-bssd" id="odds-big">--</p></div>
-                    <div onclick="toggleBet(this, '小')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">小</p><p class="text-lg font-black mt-1 color-bssd" id="odds-small">--</p></div>
-                    <div onclick="toggleBet(this, '单')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">单</p><p class="text-lg font-black mt-1 color-bssd" id="odds-single">--</p></div>
-                    <div onclick="toggleBet(this, '双')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">双</p><p class="text-lg font-black mt-1 color-bssd" id="odds-double">--</p></div>
-                </div>
-
-                <div id="pane-special" class="hidden grid grid-cols-2 gap-3">
-                    <div onclick="toggleBet(this, '大单')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">大单</p><p class="text-lg font-black mt-1 color-combo" id="odds-big_single">--</p></div>
-                    <div onclick="toggleBet(this, '大双')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">大双</p><p class="text-lg font-black mt-1 color-combo" id="odds-big_double">--</p></div>
-                    <div onclick="toggleBet(this, '小单')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">小单</p><p class="text-lg font-black mt-1 color-combo" id="odds-small_single">--</p></div>
-                    <div onclick="toggleBet(this, '小双')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">小双</p><p class="text-lg font-black mt-1 color-combo" id="odds-small_double">--</p></div>
-                    <div onclick="toggleBet(this, '极大')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">极大</p><p class="text-lg font-black mt-1 color-extreme" id="odds-extreme_big">--</p></div>
-                    <div onclick="toggleBet(this, '极小')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">极小</p><p class="text-lg font-black mt-1 color-extreme" id="odds-extreme_small">--</p></div>
-                    <div onclick="toggleBet(this, '对子')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">对子</p><p class="text-lg font-black mt-1 color-special" id="odds-pair">--</p></div>
-                    <div onclick="toggleBet(this, '顺子')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">顺子</p><p class="text-lg font-black mt-1 color-special" id="odds-straight">--</p></div>
-                    <div onclick="toggleBet(this, '豹子')" class="bet-item"><p class="text-[10px] font-bold text-slate-400 uppercase">豹子</p><p class="text-lg font-black mt-1 color-special" id="odds-triple">--</p></div>
-                </div>
-
-                <div id="pane-numbers" class="hidden grid grid-cols-5 gap-2"></div>
-                <div id="pane-history" class="hidden space-y-2"></div>
-            </div>
+        <!-- Quick Action Bar -->
+        <div class="p-4 bg-white border-t border-slate-100 flex gap-3 shrink-0">
+            <button onclick="toggleBetPanel()" class="flex-1 h-12 bg-blue-600 text-white rounded-xl font-black text-xs shadow-lg shadow-blue-100 uppercase tracking-widest">立即下注</button>
+            <button onclick="switchTab('history')" class="w-12 h-12 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center"><i class="fas fa-history"></i></button>
         </div>
     </main>
 
-    <!-- Modal: Announcement -->
-    <div id="announce-modal" class="fixed inset-0 z-[300] bg-black/60 backdrop-blur-md hidden flex items-center justify-center p-6">
-        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl relative border-t-8 border-blue-600">
-            <h3 class="text-xl font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-bullhorn text-blue-600"></i> 系统公告</h3>
-            <div id="announce-content" class="text-sm text-slate-500 leading-relaxed font-bold max-h-60 overflow-y-auto mb-6 bg-slate-50 p-4 rounded-xl"></div>
-            <button onclick="closeAnnounce()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg">我已阅读并知晓</button>
+    <!-- Betting Panel (Overlay) -->
+    <div id="bet-panel" class="bet-panel h-[70vh] flex flex-col">
+        <div class="p-4 flex justify-between items-center border-b border-slate-50">
+            <h3 class="font-black text-sm text-slate-800">选择投注玩法</h3>
+            <button onclick="toggleBetPanel()" class="text-slate-300"><i class="fas fa-times"></i></button>
         </div>
-    </div>
 
-    <!-- Chat Overlay -->
-    <div id="chat-overlay" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm hidden flex flex-col justify-end">
-        <div class="bg-white rounded-t-[2.5rem] h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><i class="fas fa-headset"></i></div>
-                    <div><h2 class="text-sm font-black">在线客服中心</h2><p class="text-[9px] text-green-500 font-bold uppercase tracking-widest flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> 私聊客服 - 只有您和客服可见</p></div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-6">
+            <!-- Tabs -->
+            <div class="flex bg-slate-50 p-1 rounded-xl">
+                <button onclick="switchBetTab('basic')" id="btab-basic" class="flex-1 py-2 rounded-lg font-black text-[10px] uppercase bg-white text-blue-600 shadow-sm">基础</button>
+                <button onclick="switchBetTab('special')" id="btab-special" class="flex-1 py-2 rounded-lg font-black text-[10px] uppercase text-slate-400">特殊</button>
+                <button onclick="switchBetTab('numbers')" id="btab-numbers" class="flex-1 py-2 rounded-lg font-black text-[10px] uppercase text-slate-400">特码</button>
+            </div>
+
+            <!-- Basic -->
+            <div id="bpane-basic" class="grid grid-cols-4 gap-3">
+                <div class="bet-item" onclick="toggleBet(this, 'big')"><p class="text-xs font-black">大</p><p id="odds-big" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+                <div class="bet-item" onclick="toggleBet(this, 'small')"><p class="text-xs font-black">小</p><p id="odds-small" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+                <div class="bet-item" onclick="toggleBet(this, 'single')"><p class="text-xs font-black">单</p><p id="odds-single" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+                <div class="bet-item" onclick="toggleBet(this, 'double')"><p class="text-xs font-black">双</p><p id="odds-double" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+                <div class="bet-item" onclick="toggleBet(this, 'big_single')"><p class="text-xs font-black">大单</p><p id="odds-big_single" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+                <div class="bet-item" onclick="toggleBet(this, 'big_double')"><p class="text-xs font-black">大双</p><p id="odds-big_double" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+                <div class="bet-item" onclick="toggleBet(this, 'small_single')"><p class="text-xs font-black">小单</p><p id="odds-small_single" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+                <div class="bet-item" onclick="toggleBet(this, 'small_double')"><p class="text-xs font-black">小双</p><p id="odds-small_double" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+            </div>
+
+            <!-- Special -->
+            <div id="bpane-special" class="hidden grid grid-cols-3 gap-3">
+                <div class="bet-item" onclick="toggleBet(this, 'triple')"><p class="text-xs font-black">豹子</p><p id="odds-triple" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+                <div class="bet-item" onclick="toggleBet(this, 'straight')"><p class="text-xs font-black">顺子</p><p id="odds-straight" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+                <div class="bet-item" onclick="toggleBet(this, 'pair')"><p class="text-xs font-black">对子</p><p id="odds-pair" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+                <div class="bet-item" onclick="toggleBet(this, 'extreme_big')"><p class="text-xs font-black">极大</p><p id="odds-extreme_big" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+                <div class="bet-item" onclick="toggleBet(this, 'extreme_small')"><p class="text-xs font-black">极小</p><p id="odds-extreme_small" class="text-[8px] font-bold text-slate-400 mt-1">--</p></div>
+            </div>
+
+            <!-- Numbers -->
+            <div id="bpane-numbers" class="hidden grid grid-cols-4 gap-2"></div>
+        </div>
+
+        <div class="p-6 bg-slate-50 border-t border-slate-100">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="flex-1 bg-white p-3 rounded-2xl flex items-center shadow-sm">
+                    <span class="text-[10px] font-black text-slate-300 mr-3 uppercase">金额</span>
+                    <input type="number" id="bet-amount" class="w-full font-black text-slate-800 outline-none text-sm" value="10">
                 </div>
-                <button onclick="toggleChat()" class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50"></div>
-            <div class="p-6 bg-white border-t border-slate-100 flex gap-4">
-                <input type="text" id="chat-input" class="flex-1 bg-slate-50 border-none rounded-2xl px-6 outline-none font-bold text-sm" placeholder="输入您的问题...">
-                <button onclick="sendChatMessage()" class="bg-blue-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-100"><i class="fas fa-paper-plane"></i></button>
-            </div>
+            <button onclick="submitBets()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-xs shadow-xl shadow-blue-100">确认投注 (<span id="selected-count">0</span>)</button>
         </div>
     </div>
 
-    <!-- Fixed Betting Bar -->
-    <div class="fixed bottom-0 left-0 right-0 z-[100] bg-white/90 backdrop-blur-xl border-t border-slate-200 p-5 safe-bottom">
-        <div class="max-w-md mx-auto flex gap-4">
-            <div class="flex-1 bg-slate-100 rounded-2xl flex items-center px-4 gap-3">
-                <span class="text-[10px] font-black text-slate-400 uppercase">Amt</span>
-                <input type="number" id="bet-amount" class="bg-transparent border-none outline-none font-black text-blue-600 w-full" placeholder="积分" value="100">
+    <!-- History Modal -->
+    <div id="history-modal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm hidden p-6 flex items-center justify-center">
+        <div class="bg-white rounded-[2rem] w-full max-w-sm h-[80vh] flex flex-col">
+            <div class="p-6 flex justify-between items-center border-b border-slate-50 shrink-0">
+                <h3 class="font-black text-slate-800">最近开奖</h3>
+                <button onclick="document.getElementById('history-modal').classList.add('hidden')" class="text-slate-300"><i class="fas fa-times"></i></button>
             </div>
-            <button onclick="submitBets()" class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-sm shadow-xl shadow-blue-200 active:scale-95 transition-all">
-                确认下单 (<span id="selected-count">0</span>)
-            </button>
+            <div id="history-list" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
         </div>
     </div>
 
     <script>
         const params = new URLSearchParams(window.location.search);
         const oddsMode = params.get('room') || 'high';
-        document.getElementById('room-display').innerText = oddsMode === 'high' ? '加拿大至尊房' : '经典大厅';
+        document.getElementById('room-display').innerText = oddsMode === 'high' ? '🇨🇦 加拿大至尊群' : '🎰 经典游戏大厅';
 
         let selectedBets = new Set();
         let timeLeft = 0;
         let betIssue = '';
         let lastLotteryId = '';
         let globalOdds = {};
+        let scratchStep = 0;
 
-        function scratch() { document.getElementById('scratch-card').classList.add('scratched'); }
+        function scratch() {
+            scratchStep++;
+            if(scratchStep === 1) document.getElementById('ball-0').classList.remove('hidden-ball');
+            else if(scratchStep === 2) document.getElementById('ball-1').classList.remove('hidden-ball');
+            else if(scratchStep === 3) document.getElementById('ball-2').classList.remove('hidden-ball');
+            else if(scratchStep >= 4) {
+                document.getElementById('scratch-card').classList.add('scratched');
+            }
+        }
 
         async function refreshData() {
             try {
@@ -167,7 +164,11 @@
                     document.getElementById('issue-display').innerText = `下注期号: ${betIssue}`;
                     if(lastLotteryId !== res.latest.issue_no) {
                         lastLotteryId = res.latest.issue_no;
+                        scratchStep = 0;
                         document.getElementById('scratch-card').classList.remove('scratched');
+                        document.getElementById('ball-0').classList.add('hidden-ball');
+                        document.getElementById('ball-1').classList.add('hidden-ball');
+                        document.getElementById('ball-2').classList.add('hidden-ball');
                     }
                     const nums = res.latest.numbers.split(',').map(n => parseInt(n));
                     const sum = parseInt(res.latest.total_sum);
@@ -178,36 +179,13 @@
                     sumBall.innerText = sum;
                     if(sum === 13 || sum === 14) sumBall.classList.add('ball-13-14');
                     else sumBall.classList.remove('ball-13-14');
-                    document.getElementById('scratch-calc').innerText = `${nums[0]} + ${nums[1]} + ${nums[2]} = ${sum}`;
-                    const tags = [];
-                    const isBig = sum >= 14;
-                    const isSingle = sum % 2 != 0;
-                    tags.push(isBig ? '大' : '小');
-                    tags.push(isSingle ? '单' : '双');
-                    tags.push((isBig ? '大' : '小') + (isSingle ? '单' : '双'));
-                    if(nums[0] === nums[1] && nums[1] === nums[2]) tags.push('豹子');
-                    else if(isStraight(nums)) tags.push('顺子');
-                    else if(nums[0] === nums[1] || nums[1] === nums[2] || nums[0] === nums[2]) tags.push('对子');
-                    if(sum >= 22) tags.push('极大');
-                    if(sum <= 5) tags.push('极小');
-                    document.getElementById('result-tags').innerHTML = tags.map(t => `<span class="tag ${['豹子','顺子','对子'].includes(t) ? 'tag-special' : (['极大','极小'].includes(t) ? 'tag-extreme' : (t.length > 1 ? 'tag-combo' : 'tag-win'))}">${t}</span>`).join('');
+
                     timeLeft = res.countdown;
                     startCountdown();
                 }
-                if(!localStorage.getItem('announced')) {
-                    document.getElementById('announce-content').innerText = res.announcement;
-                    document.getElementById('announce-modal').classList.remove('hidden');
-                }
                 if(res.odds) { globalOdds = res.odds; renderOdds(); }
+                loadGroupMsgs();
             } catch(e) {}
-        }
-
-        function isStraight(nums) {
-            nums.sort((a,b) => a-b);
-            if(nums[1] === nums[0]+1 && nums[2] === nums[1]+1) return true;
-            const set = JSON.stringify(nums);
-            if(set === '[0,1,9]' || set === '[0,8,9]') return true;
-            return false;
         }
 
         function renderOdds() {
@@ -219,13 +197,13 @@
             Object.entries(keys).forEach(([k, id]) => {
                 if(globalOdds[k]) document.getElementById(id).innerText = globalOdds[k][oddsMode].toFixed(2);
             });
-            const pane = document.getElementById('pane-numbers');
+            const pane = document.getElementById('bpane-numbers');
             pane.innerHTML = '';
             for(let i=0; i<=27; i++) {
                 const type = i.toString();
                 const odds = globalOdds[type] ? globalOdds[type][oddsMode] : 12.0;
                 const div = document.createElement('div');
-                div.className = 'bet-item p-2 flex flex-col items-center justify-center';
+                div.className = 'bet-item';
                 div.onclick = () => toggleBet(div, type);
                 div.innerHTML = `<p class="text-[12px] font-black">${i}</p><p class="text-[8px] font-bold text-slate-400 mt-1">${odds.toFixed(1)}</p>`;
                 if(selectedBets.has(type)) div.classList.add('active');
@@ -240,33 +218,44 @@
                 timeLeft--;
                 const m = Math.floor(timeLeft/60); const s = timeLeft%60;
                 const timeStr = `${m}:${s<10?'0':''}${s}`;
-                document.getElementById('timer-display').innerHTML = timeLeft <= 15 ? `<span class="text-red-500 font-black">已封盘</span> <span class="ml-2 font-mono">${timeStr}</span>` : `NEXT DRAW: <span class="text-blue-600 font-mono font-black">${timeStr}</span>`;
+                document.getElementById('timer-display').innerHTML = timeLeft <= 20 ? `<span class="text-rose-500 font-black">封盘中</span> <span class="ml-2 font-mono">${timeStr}</span>` : `NEXT DRAW: <span class="text-blue-600 font-mono font-black">${timeStr}</span>`;
             }, 1000);
         }
 
-        function switchTab(t) {
-            ['basic', 'special', 'numbers', 'history'].forEach(p => {
-                document.getElementById('pane-'+p).classList.add('hidden');
-                document.getElementById('tab-'+p).classList.remove('tab-active');
-                document.getElementById('tab-'+p).classList.add('text-slate-400');
-            });
-            document.getElementById('pane-'+t).classList.remove('hidden');
-            document.getElementById('tab-'+t).classList.add('tab-active');
-            document.getElementById('tab-'+t).classList.remove('text-slate-400');
-            if(t === 'history') loadHistory();
+        async function loadGroupMsgs() {
+            const res = await fetch('/api/group_chat.php').then(r => r.json());
+            if(res.success) {
+                const box = document.getElementById('chat-box');
+                const wasAtBottom = box.scrollHeight - box.scrollTop <= box.clientHeight + 100;
+                box.innerHTML = res.data.map(m => {
+                    const isRobot = m.user_id == 0;
+                    return `
+                        <div class="flex items-start gap-2">
+                            <div class="w-6 h-6 rounded bg-slate-200 flex items-center justify-center font-black text-[9px] text-slate-400">${isRobot ? '🤖' : m.username[0]}</div>
+                            <div class="flex-1">
+                                <p class="text-[8px] font-black uppercase ${isRobot ? 'text-indigo-400' : 'text-slate-400'} mb-1">${m.username}</p>
+                                <div class="inline-block bg-white border border-slate-100 p-2 rounded-lg text-xs font-bold leading-relaxed shadow-sm">
+                                    ${m.message.replace(/\n/g, '<br>')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                if(wasAtBottom) box.scrollTop = box.scrollHeight;
+            }
         }
 
-        async function loadHistory() {
-            const res = await fetch('/api/lottery.php').then(r => r.json());
-            document.getElementById('pane-history').innerHTML = res.history.map(i => `
-                <div class="px-4 py-3 bg-slate-50 rounded-xl flex justify-between items-center">
-                    <span class="text-[10px] font-black text-slate-400 uppercase">#${i.issue_no}</span>
-                    <div class="flex items-center gap-3">
-                        <div class="flex gap-1">${i.numbers.split(',').map(n => `<span class="w-5 h-5 bg-white rounded-full flex items-center justify-center text-[10px] font-black border border-slate-100">${n}</span>`).join('')}</div>
-                        <span class="text-sm font-black text-blue-600">${i.total_sum}</span>
-                    </div>
-                </div>
-            `).join('');
+        function toggleBetPanel() { document.getElementById('bet-panel').classList.toggle('active'); }
+
+        function switchBetTab(t) {
+            ['basic', 'special', 'numbers'].forEach(p => {
+                document.getElementById('bpane-'+p).classList.add('hidden');
+                document.getElementById('btab-'+p).classList.remove('bg-white','text-blue-600','shadow-sm');
+                document.getElementById('btab-'+p).classList.add('text-slate-400');
+            });
+            document.getElementById('bpane-'+t).classList.remove('hidden');
+            document.getElementById('btab-'+t).classList.add('bg-white','text-blue-600','shadow-sm');
+            document.getElementById('btab-'+t).classList.remove('text-slate-400');
         }
 
         function toggleBet(el, type) {
@@ -279,32 +268,39 @@
             const amount = document.getElementById('bet-amount').value;
             if (selectedBets.size === 0) return alert('请选择玩法');
             const bets = Array.from(selectedBets).map(t => ({ play_type: t, amount: parseFloat(amount) }));
-            const res = await fetch('/api/bet.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bets, odds_type: oddsMode, issue_no: betIssue }) }).then(r => r.json());
+            const res = await fetch('/api/bet.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bets, odds_type: oddsMode, issue_no: betIssue })
+            }).then(r => r.json());
+
             if(res.success) {
                 selectedBets.clear();
                 document.querySelectorAll('.bet-item').forEach(i => i.classList.remove('active'));
                 document.getElementById('selected-count').innerText = 0;
-                alert('下单成功');
+                toggleBetPanel();
+                loadGroupMsgs();
             } else alert(res.message);
         }
 
-        function toggleChat() { const el = document.getElementById('chat-overlay'); el.classList.toggle('hidden'); if(!el.classList.contains('hidden')) loadChat(); }
-        async function loadChat() {
-            const res = await fetch('/api/chat.php').then(r => r.json());
-            if(res.success) {
-                const box = document.getElementById('chat-box');
-                box.innerHTML = res.data.map(m => `<div class="flex ${m.sender_id == 0 ? '' : 'justify-end'}"><div class="max-w-[85%] p-4 text-sm font-bold shadow-sm ${m.sender_id == 0 ? 'chat-bubble-admin' : 'chat-bubble-user'}">${m.message}<p class="text-[8px] mt-1 opacity-50 uppercase text-right">${m.created_at.split(' ')[1]}</p></div></div>`).join('');
-                box.scrollTop = box.scrollHeight;
+        async function switchTab(t) {
+            if(t === 'history') {
+                const res = await fetch('/api/lottery.php').then(r => r.json());
+                document.getElementById('history-list').innerHTML = res.history.map(i => `
+                    <div class="px-4 py-3 bg-slate-50 rounded-xl flex justify-between items-center">
+                        <span class="text-[10px] font-black text-slate-400 uppercase">#${i.issue_no}</span>
+                        <div class="flex items-center gap-3">
+                            <div class="flex gap-1">${i.numbers.split(',').map(n => `<span class="w-5 h-5 bg-white rounded flex items-center justify-center text-[10px] font-black border border-slate-100">${n}</span>`).join('')}</div>
+                            <span class="text-sm font-black text-blue-600">${i.total_sum}</span>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('history-modal').classList.remove('hidden');
             }
         }
-        async function sendChatMessage() {
-            const input = document.getElementById('chat-input'); const msg = input.value; if(!msg) return;
-            await fetch('/api/chat.php?action=send', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: msg}) });
-            input.value = ''; loadChat();
-        }
 
-        function closeAnnounce() { localStorage.setItem('announced', 'true'); document.getElementById('announce-modal').classList.add('hidden'); }
-        refreshData(); setInterval(refreshData, 8000);
+        refreshData();
+        setInterval(refreshData, 3000);
     </script>
 </body>
 </html>

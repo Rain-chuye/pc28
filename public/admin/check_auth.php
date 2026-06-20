@@ -1,9 +1,5 @@
 <?php
-session_start();
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: /login.html');
-    die();
-}
+require_once __DIR__ . '/auth_logic.php';
 ?>
 <style>
     /* Mobile-first UA styles */

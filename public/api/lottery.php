@@ -21,13 +21,23 @@ if (!$latest) {
     ];
 }
 
-$betIssueNo = (string)((int)$latest['issue_no'] + 1);
+$issueNumStr = $latest['issue_no'];
+if (is_numeric($issueNumStr)) {
+    $betIssueNo = (string)((int)$issueNumStr + 1);
+} else {
+    preg_match('/(\d+)$/', $issueNumStr, $matches);
+    if ($matches) {
+        $prefix = substr($issueNumStr, 0, -strlen($matches[1]));
+        $betIssueNo = $prefix . (string)((int)$matches[1] + 1);
+    } else {
+        $betIssueNo = $issueNumStr;
+    }
+}
 
 $now = time();
 $nextDrawTs = strtotime($latest['next_draw_at']);
 $countdown = $nextDrawTs - $now;
 
-// If time passed, virtual countdown
 if ($countdown < 0) {
     $countdown = $drawInterval + ($countdown % $drawInterval);
 }
