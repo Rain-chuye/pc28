@@ -2,94 +2,76 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>积分明细 - PC28</title>
+    <title>账单明细 - PC28</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8fafc; color: #1e293b; font-family: -apple-system, sans-serif; }
-        .log-item { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; margin-bottom: 0.75rem; transition: 0.2s; }
-        .log-item:active { background: #f1f5f9; }
+        body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }
+        .log-card { background: white; border-radius: 1.25rem; padding: 1.25rem; border: 1px solid #f1f5f9; }
     </style>
 </head>
-<body class="min-h-screen pb-20">
-    <!-- Header -->
-    <header class="bg-white border-b border-slate-200 p-4 sticky top-0 z-50 flex items-center gap-4">
-        <button onclick="history.back()" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100"><i class="fas fa-chevron-left"></i></button>
-        <h1 class="font-bold text-sm">积分变动明细</h1>
+<body class="p-6">
+    <header class="flex items-center gap-4 mb-8">
+        <button onclick="history.back()" class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm"><i class="fas fa-chevron-left text-xs"></i></button>
+        <h1 class="text-xl font-black text-slate-800">账单明细</h1>
     </header>
 
-    <main class="p-4">
-        <!-- Filters -->
-        <div class="flex gap-2 overflow-x-auto pb-4 scroll-hide">
-            <button onclick="filterLogs('all')" class="type-btn active bg-blue-600 text-white px-4 py-2 rounded-full text-[10px] font-bold shrink-0">全部</button>
-            <button onclick="filterLogs('bet')" class="type-btn bg-white border border-slate-200 text-slate-500 px-4 py-2 rounded-full text-[10px] font-bold shrink-0">投注扣分</button>
-            <button onclick="filterLogs('win')" class="type-btn bg-white border border-slate-200 text-slate-500 px-4 py-2 rounded-full text-[10px] font-bold shrink-0">中奖回分</button>
-            <button onclick="filterLogs('deposit')" class="type-btn bg-white border border-slate-200 text-slate-500 px-4 py-2 rounded-full text-[10px] font-bold shrink-0">充值</button>
-            <button onclick="filterLogs('withdraw')" class="type-btn bg-white border border-slate-200 text-slate-500 px-4 py-2 rounded-full text-[10px] font-bold shrink-0">回分</button>
-        </div>
+    <div class="flex bg-white p-1 rounded-xl mb-6 shadow-sm border border-slate-100">
+        <button onclick="switchTab('balance')" id="tab-balance" class="flex-1 py-2.5 rounded-lg font-black text-[10px] uppercase bg-blue-600 text-white shadow-lg">资金变动</button>
+        <button onclick="switchTab('bet')" id="tab-bet" class="flex-1 py-2.5 rounded-lg font-black text-[10px] uppercase text-slate-400">投注记录</button>
+    </div>
 
-        <div id="log-list" class="space-y-3">
-            <!-- Items -->
-            <div class="p-20 text-center text-slate-300 font-bold text-xs">正在拉取云端账单...</div>
-        </div>
-    </main>
+    <div id="log-container" class="space-y-4">
+        <div class="p-10 text-center text-slate-300 font-bold text-xs">正在载入账单...</div>
+    </div>
 
     <script>
-        let currentType = 'all';
-        const typeMap = {
-            'bet': { label: '投注扣分', color: 'text-slate-500', bg: 'bg-slate-50' },
-            'win': { label: '中奖派彩', color: 'text-blue-600', bg: 'bg-blue-50' },
-            'deposit': { label: '充值入账', color: 'text-green-600', bg: 'bg-green-50' },
-            'withdraw': { label: '回分申请', color: 'text-orange-600', bg: 'bg-orange-50' },
-            'bonus': { label: '福利赠送', color: 'text-purple-600', bg: 'bg-purple-50' },
-            'rebate': { label: '流水返点', color: 'text-indigo-600', bg: 'bg-indigo-50' }
-        };
+        let currentTab = new URLSearchParams(window.location.search).get('type') || 'balance';
 
-        function filterLogs(t) {
-            currentType = t;
-            document.querySelectorAll('.type-btn').forEach(b => {
-                b.classList.remove('bg-blue-600', 'text-white');
-                b.classList.add('bg-white', 'border-slate-200', 'text-slate-500');
-            });
-            event.target.classList.remove('bg-white', 'border-slate-200', 'text-slate-500');
-            event.target.classList.add('bg-blue-600', 'text-white');
+        function switchTab(t) {
+            currentTab = t;
+            document.getElementById('tab-balance').className = t === 'balance' ? 'flex-1 py-2.5 rounded-lg font-black text-[10px] uppercase bg-blue-600 text-white shadow-lg' : 'flex-1 py-2.5 rounded-lg font-black text-[10px] uppercase text-slate-400';
+            document.getElementById('tab-bet').className = t === 'bet' ? 'flex-1 py-2.5 rounded-lg font-black text-[10px] uppercase bg-blue-600 text-white shadow-lg' : 'flex-1 py-2.5 rounded-lg font-black text-[10px] uppercase text-slate-400';
             loadLogs();
         }
 
         async function loadLogs() {
-            try {
-                const res = await fetch(`/api/balance_logs.php?type=${currentType}&limit=50`).then(r => r.json());
-                const list = document.getElementById('log-list');
-                if(!res.success || res.data.length === 0) {
-                    list.innerHTML = '<div class="p-20 text-center text-slate-300 font-black text-sm">无账变记录</div>';
-                    return;
-                }
-                list.innerHTML = res.data.map(log => {
-                    const cfg = typeMap[log.type] || { label: '其他变动', color: 'text-slate-400', bg: 'bg-slate-50' };
-                    return `
-                        <div class="log-item p-5 flex justify-between items-center">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-2xl ${cfg.bg} flex items-center justify-center ${cfg.color} text-xs font-black">
-                                    <i class="fas fa-receipt"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-black text-slate-800 mb-1">${log.description || cfg.label}</p>
-                                    <p class="text-[10px] text-slate-400 font-bold">${log.created_at}</p>
-                                </div>
+            const endpoint = currentTab === 'balance' ? '/api/balance_logs.php' : '/api/bet_history.php';
+            const res = await fetch(endpoint).then(r => r.json());
+            const container = document.getElementById('log-container');
+
+            if(res.success && res.data.length > 0) {
+                if(currentTab === 'balance') {
+                    container.innerHTML = res.data.map(l => `
+                        <div class="log-card flex justify-between items-center">
+                            <div>
+                                <p class="text-xs font-black text-slate-800">${l.description || '资金变动'}</p>
+                                <p class="text-[9px] text-slate-400 font-bold mt-1 uppercase">${l.created_at}</p>
+                            </div>
+                            <p class="text-sm font-black ${l.amount > 0 ? 'text-emerald-500' : 'text-slate-800'}">${l.amount > 0 ? '+' : ''}${parseFloat(l.amount).toLocaleString()}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    const map = {'big':'大','small':'小','single':'单','double':'双','big_single':'大单','big_double':'大双','small_single':'小单','small_double':'小双','triple':'豹子','straight':'顺子','pair':'对子'};
+                    container.innerHTML = res.data.map(b => `
+                        <div class="log-card flex justify-between items-center">
+                            <div>
+                                <p class="text-xs font-black text-slate-800">期号 #${b.issue_no} [${map[b.play_type] || b.play_type}]</p>
+                                <p class="text-[9px] text-slate-400 font-bold mt-1 uppercase">${b.created_at} | ${b.odds_type === 'high' ? '高倍' : '标准'}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-black ${log.amount > 0 ? 'text-blue-600' : 'text-slate-800'}">${log.amount > 0 ? '+' : ''}${log.amount}</p>
-                                <p class="text-[9px] text-slate-400 font-bold uppercase mt-1">余: ${parseFloat(log.balance_after).toFixed(2)}</p>
+                                <p class="text-[9px] font-black text-slate-300 uppercase">投注: ${b.bet_amount}</p>
+                                <p class="text-xs font-black ${b.status == 1 ? 'text-blue-600' : (b.status == 2 ? 'text-slate-300' : 'text-emerald-500')}">${b.status == 1 ? '赢 ' + b.win_amount : (b.status == 2 ? '未中奖' : '已退本')}</p>
                             </div>
                         </div>
-                    `;
-                }).join('');
-            } catch(e) {
-                document.getElementById('log-list').innerHTML = '<div class="p-20 text-center text-red-400 font-bold">云端账单连接超时</div>';
+                    `).join('');
+                }
+            } else {
+                container.innerHTML = `<div class="p-10 text-center text-slate-300 font-bold text-xs">暂无记录</div>`;
             }
         }
-        loadLogs();
+
+        switchTab(currentTab);
     </script>
 </body>
 </html>

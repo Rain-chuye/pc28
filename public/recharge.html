@@ -2,7 +2,6 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>积分充值 - PC28</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -20,61 +19,80 @@
     <div class="space-y-6">
         <div class="card p-6">
             <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">充值福利说明</h3>
-            <div class="space-y-3 text-xs font-bold text-slate-600 leading-relaxed">
-                <p>1. 最小充值金额为 <span class="text-blue-600">15 元</span>。</p>
-                <p>2. 限时福利：首充满 20 元额外赠送 <span class="text-blue-600">21 积分</span>！</p>
-                <p>3. 转账成功后请务必上传清晰的截图凭证。</p>
-                <p>4. 财务将在 5 分钟内审核完成，请耐心等待。</p>
+            <div class="space-y-2 text-[11px] font-bold text-slate-600 leading-relaxed">
+                <p class="text-blue-600">✨ 新人首充 20 送 21 [限一次]</p>
+                <p>🎁 每日首充福利：</p>
+                <div class="grid grid-cols-2 gap-2 opacity-80">
+                    <p>• 10 送 1</p><p>• 20 送 4</p>
+                    <p>• 30 送 10</p><p>• 40 送 12</p>
+                    <p>• 50 送 20</p><p>• 100 送 60</p>
+                </div>
             </div>
         </div>
 
         <div class="card p-6 space-y-4">
             <div>
                 <label class="text-[10px] font-black text-slate-300 uppercase mb-2 block">充值金额</label>
-                <input type="number" id="amount" class="w-full bg-slate-50 border border-slate-100 p-4 rounded-xl font-black text-slate-800 outline-none focus:ring-2 focus:ring-blue-100" placeholder="输入金额 (最小15)">
+                <input type="number" id="amount" class="w-full bg-slate-50 border border-slate-100 p-4 rounded-xl font-black text-slate-800 outline-none" placeholder="输入金额">
             </div>
             <div>
-                <label class="text-[10px] font-black text-slate-300 uppercase mb-2 block">上传支付截图凭证</label>
+                <label class="text-[10px] font-black text-slate-300 uppercase mb-2 block">支付凭证截图</label>
                 <div class="relative w-full h-48 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center cursor-pointer overflow-hidden" onclick="document.getElementById('proof').click()">
                     <i class="fas fa-cloud-upload-alt text-slate-300 text-3xl mb-2"></i>
-                    <p class="text-[10px] font-black text-slate-400 uppercase">点击上传凭证截图</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase">点击上传截图</p>
                     <img id="preview" class="hidden absolute inset-0 w-full h-full object-contain p-2 bg-white rounded-xl z-20">
                 </div>
-                <input type="file" id="proof" class="hidden" accept="image/*" onchange="previewImage(this)">
+                <input type="file" id="proof" class="hidden" accept="image/*" onchange="handleImage(this)">
             </div>
-            <button onclick="submitRecharge()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-black text-xs shadow-lg shadow-blue-100 mt-4 active:scale-95 transition-all">提交充值申请</button>
+            <button id="submitBtn" onclick="submitRecharge()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-black text-xs shadow-lg active:scale-95 transition-all">提交申请</button>
         </div>
     </div>
 
     <script>
-        function previewImage(input) {
+        let base64Image = '';
+        function handleImage(input) {
             const file = input.files[0];
             if(!file) return;
             const reader = new FileReader();
             reader.onload = (e) => {
-                const img = document.getElementById('preview');
+                const img = new Image();
                 img.src = e.target.result;
-                img.classList.remove('hidden');
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const max = 800; // Limit resolution for faster upload
+                    let w = img.width, h = img.height;
+                    if(w > h) { if(w > max) { h *= max/w; w = max; } } else { if(h > max) { w *= max/h; h = max; } }
+                    canvas.width = w; canvas.height = h;
+                    ctx.drawImage(img, 0, 0, w, h);
+                    base64Image = canvas.toDataURL('image/jpeg', 0.6);
+                    document.getElementById('preview').src = base64Image;
+                    document.getElementById('preview').classList.remove('hidden');
+                };
             };
             reader.readAsDataURL(file);
         }
 
         async function submitRecharge() {
+            const btn = document.getElementById('submitBtn');
             const amount = parseFloat(document.getElementById('amount').value);
-            const proof = document.getElementById('preview').src;
-            if(isNaN(amount) || amount < 15) return alert('最小充值 15 元');
-            if(!proof || !proof.startsWith('data:')) return alert('请上传支付凭证截图');
+            if(isNaN(amount) || amount < 10) return alert('最小充值 10 元');
+            if(!base64Image) return alert('请上传凭证');
 
-            const res = await fetch('/api/finance.php?action=recharge', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ amount, proof_image: proof })
-            }).then(r => r.json());
+            btn.disabled = true; btn.innerText = '提交中...';
+            try {
+                const res = await fetch('/api/finance.php?action=recharge', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ amount, proof_image: base64Image })
+                }).then(r => r.json());
 
-            if(res.success) {
-                alert('充值申请已提交，请等待审核');
-                history.back();
-            } else alert(res.message);
+                if(res.success) {
+                    alert('申请已提交，请等待后台审核');
+                    history.back();
+                } else alert(res.message);
+            } catch(e) { alert('提交失败，请重试'); }
+            btn.disabled = false; btn.innerText = '提交申请';
         }
     </script>
 </body>

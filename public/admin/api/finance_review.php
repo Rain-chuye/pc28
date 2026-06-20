@@ -28,24 +28,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     \App\Model\User::addDeposit($userId, $amount, $db);
 
-                    // First Recharge Check
-                    $stmt = $db->prepare("SELECT first_recharge_done FROM users WHERE id = ?");
-                    $stmt->execute([$userId]);
-                    $isFirst = !$stmt->fetchColumn();
+                    $uStmt = $db->prepare("SELECT first_recharge_done, last_daily_bonus_at FROM users WHERE id = ?");
+                    $uStmt->execute([$userId]);
+                    $user = $uStmt->fetch();
 
+                    $today = date('Y-m-d');
                     $bonus = 0;
-                    if ($isFirst && $amount >= 20) {
-                        // "充值20送21" - Total bonus = 21 (as per user request)
+                    $bonusType = 'bonus';
+
+                    if (!$user['first_recharge_done'] && $amount >= 20) {
+                        // Priority 1: Newcomer 20 -> 21
                         $bonus = 21;
+                        $bonusType = 'first_recharge';
                         $db->prepare("UPDATE users SET first_recharge_done = 1 WHERE id = ?")->execute([$userId]);
-                    } else {
-                        // Regular bonuses
+                    } elseif ($user['last_daily_bonus_at'] !== $today) {
+                        // Priority 2: Daily First Recharge
                         if ($amount >= 100) $bonus = 60;
-                        else if ($amount >= 50) $bonus = 20;
-                        else if ($amount >= 40) $bonus = 12;
-                        else if ($amount >= 30) $bonus = 10;
-                        else if ($amount >= 20) $bonus = 4;
-                        else if ($amount >= 15) $bonus = 2; // Updated for 15 min
+                        elseif ($amount >= 50) $bonus = 20;
+                        elseif ($amount >= 40) $bonus = 12;
+                        elseif ($amount >= 30) $bonus = 10;
+                        elseif ($amount >= 20) $bonus = 4;
+                        elseif ($amount >= 10) $bonus = 1;
+
+                        if($bonus > 0) {
+                            $db->prepare("UPDATE users SET last_daily_bonus_at = ? WHERE id = ?")->execute([$today, $userId]);
+                        }
                     }
 
                     if ($bonus > 0) {
@@ -54,8 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             } else if ($status === 'rejected') {
                 if ($req['type'] === 'withdraw') {
-                    $db->prepare("UPDATE users SET balance = balance + ? WHERE id = ?")
-                       ->execute([$req['amount'], $req['user_id']]);
+                    $db->prepare("UPDATE users SET balance = balance + ? WHERE id = ?")->execute([$req['amount'], $req['user_id']]);
                 }
             }
         }

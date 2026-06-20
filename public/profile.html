@@ -15,7 +15,7 @@
 <body class="pb-32">
     <header class="bg-blue-600 p-8 pt-12 pb-20 text-white relative overflow-hidden">
         <div class="relative z-10 flex justify-between items-center mb-8">
-            <h1 class="text-lg font-black tracking-widest">PERSONAL</h1>
+            <h1 class="text-lg font-black tracking-widest uppercase">Member</h1>
             <button onclick="location.href='/api/logout.php'" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10"><i class="fas fa-power-off"></i></button>
         </div>
         <div class="relative z-10 flex items-center gap-6">
@@ -32,16 +32,28 @@
                 </div>
             </div>
         </div>
+        <i class="fas fa-gem absolute -right-10 -bottom-10 text-[14rem] text-white/5 rotate-12"></i>
     </header>
 
     <div class="px-6 -mt-10 space-y-6 relative z-20">
-        <div class="card p-8 flex justify-between items-center">
+        <div class="card p-8 flex justify-between items-center" onclick="location.href='/stats.html'">
             <div>
-                <p class="text-[10px] text-slate-400 font-black uppercase mb-1">可用分值余额</p>
+                <p class="text-[10px] text-slate-400 font-black uppercase mb-1">可用分值余额 (点击查看报表)</p>
                 <h3 class="text-4xl font-black text-blue-600">¥ <span id="balance">0.00</span></h3>
             </div>
             <div class="flex gap-2">
                 <button onclick="location.href='/recharge.html'" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200"><i class="fas fa-add"></i></button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div onclick="location.href='/stats.html'" class="card p-6 text-center space-y-2 cursor-pointer active:scale-95 transition-all border-blue-100 bg-blue-50/20">
+                <i class="fas fa-chart-bar text-blue-600 text-xl"></i>
+                <p class="text-xs font-black text-slate-800">统计报表</p>
+            </div>
+            <div onclick="location.href='/wallet_logs.html'" class="card p-6 text-center space-y-2 cursor-pointer active:scale-95 transition-all">
+                <i class="fas fa-receipt text-slate-400 text-xl"></i>
+                <p class="text-xs font-black text-slate-800">账单明细</p>
             </div>
         </div>
 
@@ -56,14 +68,7 @@
             <a href="/withdraw.html" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500 text-xs"><i class="fas fa-university"></i></div>
-                    <span class="text-sm font-black text-slate-800">回分规则 & 申请 (提现)</span>
-                </div>
-                <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
-            </a>
-            <a href="/recharge.html" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500 text-xs"><i class="fas fa-wallet"></i></div>
-                    <span class="text-sm font-black text-slate-800">充值规则 & 记录</span>
+                    <span class="text-sm font-black text-slate-800">回分申请 (提现)</span>
                 </div>
                 <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
             </a>
@@ -79,22 +84,10 @@
 
     <!-- Nav -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 pb-8 flex justify-around">
-        <a href="/" class="flex flex-col items-center gap-1 text-slate-400">
-            <i class="fas fa-home text-lg"></i>
-            <span class="text-[9px] font-bold">大厅</span>
-        </a>
-        <a href="/recharge.html" class="flex flex-col items-center gap-1 text-slate-400">
-            <i class="fas fa-add text-lg"></i>
-            <span class="text-[9px] font-bold">充值</span>
-        </a>
-        <a href="/withdraw.html" class="flex flex-col items-center gap-1 text-slate-400">
-            <i class="fas fa-wallet text-lg"></i>
-            <span class="text-[9px] font-bold">回分</span>
-        </a>
-        <a href="/profile.html" class="flex flex-col items-center gap-1 text-blue-600">
-            <i class="fas fa-user text-lg"></i>
-            <span class="text-[9px] font-bold">我的</span>
-        </a>
+        <a href="/" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold">大厅</span></a>
+        <a href="/recharge.html" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-add text-lg"></i><span class="text-[9px] font-bold">充值</span></a>
+        <a href="/withdraw.html" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-wallet text-lg"></i><span class="text-[9px] font-bold">回分</span></a>
+        <a href="/profile.html" class="flex flex-col items-center gap-1 text-blue-600"><i class="fas fa-user text-lg"></i><span class="text-[9px] font-bold">我的</span></a>
     </nav>
 
     <script>
@@ -112,7 +105,6 @@
         async function uploadAvatar(input) {
             const file = input.files[0];
             if(!file) return;
-            // Frontend Compression
             const img = new Image();
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -120,7 +112,7 @@
                 img.onload = async () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    const max = 120;
+                    const max = 150;
                     let w = img.width, h = img.height;
                     if(w > h) { if(w > max) { h *= max/w; w = max; } } else { if(h > max) { w *= max/h; h = max; } }
                     canvas.width = w; canvas.height = h;

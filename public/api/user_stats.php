@@ -1,46 +1,66 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../src/Utils/DB.php';
-
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => '未登录']);
+    echo json_encode(['success' => false]);
     die;
 }
 
-$db = \App\Utils\DB::getInstance()->getConnection();
 $userId = $_SESSION['user_id'];
+$db = \App\Utils\DB::getInstance()->getConnection();
 
-// 1. Overview
-$stmt = $db->prepare("SELECT
-    (SELECT SUM(bet_amount) FROM bets WHERE user_id = ?) as total_bet,
-    (SELECT SUM(win_amount) FROM bets WHERE user_id = ?) as total_win,
-    (SELECT SUM(amount) FROM finance_requests WHERE user_id = ? AND type = 'deposit' AND status = 'approved') as total_deposit,
-    (SELECT SUM(amount) FROM finance_requests WHERE user_id = ? AND type = 'withdraw' AND status = 'approved') as total_withdraw
-");
-$stmt->execute([$userId, $userId, $userId, $userId]);
-$overview = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+    // Last 7 days data
+    $dates = [];
+    $deposits = [];
+    $turnovers = [];
+    $withdrawals = [];
 
-// 2. Daily Report
-$stmt = $db->prepare("
-    SELECT
-        DATE(created_at) as date,
-        COUNT(*) as order_count,
-        SUM(bet_amount) as bet_amount,
-        SUM(win_amount) as win_amount,
-        SUM(win_amount - bet_amount) as profit
-    FROM bets
-    WHERE user_id = ?
-    GROUP BY DATE(created_at)
-    ORDER BY date DESC
-    LIMIT 30
-");
-$stmt->execute([$userId]);
-$daily_reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    for($i=6; $i>=0; $i--) {
+        $date = date('Y-m-d', strtotime("-$i days"));
+        $dates[] = date('m-d', strtotime($date));
 
-echo json_encode([
-    'success' => true,
-    'overview' => $overview,
-    'daily_reports' => $daily_reports
-]);
+        $st = $db->prepare("SELECT SUM(amount) FROM finance_requests WHERE user_id = ? AND status = 'approved' AND type = 'deposit' AND DATE(created_at) = ?");
+        $st->execute([$userId, $date]);
+        $deposits[] = (float)($st->fetchColumn() ?: 0);
+
+        $st = $db->prepare("SELECT SUM(bet_amount) FROM bets WHERE user_id = ? AND DATE(created_at) = ?");
+        $st->execute([$userId, $date]);
+        $turnovers[] = (float)($st->fetchColumn() ?: 0);
+
+        $st = $db->prepare("SELECT SUM(amount) FROM finance_requests WHERE user_id = ? AND status = 'approved' AND type = 'withdraw' AND DATE(created_at) = ?");
+        $st->execute([$userId, $date]);
+        $withdrawals[] = (float)($st->fetchColumn() ?: 0);
+    }
+
+    // Play types distribution
+    $st = $db->prepare("SELECT play_type, COUNT(*) as cnt FROM bets WHERE user_id = ? GROUP BY play_type");
+    $st->execute([$userId]);
+    $typesRaw = $st->fetchAll();
+    $types = [];
+    $totalCount = 0;
+    foreach($typesRaw as $r) { $types[$r['play_type']] = (int)$r['cnt']; $totalCount += $r['cnt']; }
+
+    // Today's summary
+    $today = date('Y-m-d');
+    $st = $db->prepare("SELECT SUM(bet_amount) FROM bets WHERE user_id = ? AND DATE(created_at) = ?");
+    $st->execute([$userId, $today]);
+    $todayTurnover = (float)$st->fetchColumn() ?: 0;
+
+    $st = $db->prepare("SELECT SUM(win_amount - bet_amount) FROM bets WHERE user_id = ? AND DATE(created_at) = ? AND status != 0");
+    $st->execute([$userId, $today]);
+    $todayProfit = (float)$st->fetchColumn() ?: 0;
+
+    echo json_encode(['success' => true, 'data' => [
+        'dates' => $dates,
+        'deposits' => $deposits,
+        'turnovers' => $turnovers,
+        'withdrawals' => $withdrawals,
+        'types' => $types,
+        'total_count' => $totalCount,
+        'today_turnover' => $todayTurnover,
+        'today_profit' => $todayProfit
+    ]]);
+} catch (Exception $e) { echo json_encode(['success' => false, 'message' => $e->getMessage()]); }

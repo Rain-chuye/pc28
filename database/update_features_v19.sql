@@ -1,0 +1,2 @@
+ALTER TABLE finance_requests MODIFY COLUMN proof_img LONGTEXT DEFAULT NULL;
+ALTER TABLE users ADD COLUMN last_daily_bonus_at DATE DEFAULT NULL;

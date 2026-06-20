@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $amount = (float)($input['amount'] ?? 0);
         $proof = $input['proof_image'] ?? '';
 
-        if ($amount < 15) {
+        if ($amount < 10) {
             echo json_encode(['success' => false, 'message' => '最低充值金额为 15 元']);
             die;
         }

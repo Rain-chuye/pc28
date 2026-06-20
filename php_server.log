@@ -1,4 +1,16 @@
-[Sat Jun 20 16:37:56 2026] PHP 8.3.6 Development Server (http://0.0.0.0:3000) started
-[Sat Jun 20 16:38:00 2026] 127.0.0.1:57352 Accepted
-[Sat Jun 20 16:38:00 2026] 127.0.0.1:57352 [200]: GET /recharge.html
-[Sat Jun 20 16:38:00 2026] 127.0.0.1:57352 Closing
+[Sat Jun 20 23:24:11 2026] PHP 8.3.6 Development Server (http://0.0.0.0:3000) started
+[Sat Jun 20 23:24:16 2026] 127.0.0.1:36386 Accepted
+[Sat Jun 20 23:24:16 2026] 127.0.0.1:36386 [200]: GET /stats.html
+[Sat Jun 20 23:24:16 2026] 127.0.0.1:36386 Closing
+[Sat Jun 20 23:24:17 2026] 127.0.0.1:36390 Accepted
+[Sat Jun 20 23:24:17 2026] 127.0.0.1:36390 [200]: GET /api/user_stats.php
+[Sat Jun 20 23:24:17 2026] 127.0.0.1:36390 Closing
+[Sat Jun 20 23:24:19 2026] 127.0.0.1:36394 Accepted
+[Sat Jun 20 23:24:19 2026] 127.0.0.1:36394 [200]: GET /wallet_logs.html
+[Sat Jun 20 23:24:19 2026] 127.0.0.1:36394 Closing
+[Sat Jun 20 23:24:19 2026] 127.0.0.1:36398 Accepted
+[Sat Jun 20 23:24:19 2026] 127.0.0.1:36398 [200]: GET /api/balance_logs.php
+[Sat Jun 20 23:24:19 2026] 127.0.0.1:36398 Closing
+[Sat Jun 20 23:24:20 2026] 127.0.0.1:36408 Accepted
+[Sat Jun 20 23:24:20 2026] 127.0.0.1:36408 [200]: GET /recharge.html
+[Sat Jun 20 23:24:20 2026] 127.0.0.1:36408 Closing

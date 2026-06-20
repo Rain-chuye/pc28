@@ -2,69 +2,99 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>报表 - PC28</title>
+    <title>数据报表分析 - PC28</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }
+        .card { background: white; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; }
     </style>
 </head>
-<body class="pb-20">
-    <header class="bg-white border-b border-slate-200 p-4 sticky top-0 z-50 flex items-center gap-4">
-        <button onclick="history.back()" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100"><i class="fas fa-chevron-left text-xs"></i></button>
-        <h1 class="font-bold text-sm">财务报表统计</h1>
+<body class="p-6 pb-24">
+    <header class="flex items-center gap-4 mb-8">
+        <button onclick="history.back()" class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm"><i class="fas fa-chevron-left text-xs"></i></button>
+        <h1 class="text-xl font-black text-slate-800">报表分析</h1>
     </header>
 
-    <div class="p-5 grid grid-cols-2 gap-4">
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">累计下单</p>
-            <p id="total-bet" class="text-lg font-black text-slate-800">¥ 0</p>
+    <div class="space-y-6">
+        <div class="card p-6">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase mb-6 tracking-widest">近 7 日财务趋势 (充值/流水/提现)</h3>
+            <canvas id="mainChart" height="200"></canvas>
         </div>
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">盈亏统计</p>
-            <p id="total-profit" class="text-lg font-black text-blue-600">¥ 0</p>
-        </div>
-    </div>
 
-    <div class="px-5">
-        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-            <table class="w-full text-[11px]">
-                <thead class="bg-slate-50 text-slate-500 font-black border-b border-slate-200">
-                    <tr>
-                        <th class="py-4 px-4 text-left">时间</th>
-                        <th class="py-4 px-2 text-right">单数</th>
-                        <th class="py-4 px-2 text-right">下单</th>
-                        <th class="py-4 px-4 text-right">盈亏</th>
-                    </tr>
-                </thead>
-                <tbody id="stats-body" class="divide-y divide-slate-100"></tbody>
-            </table>
+        <div class="card p-6">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase mb-6 tracking-widest">下注偏好分析 (组合 vs 基础)</h3>
+            <div class="space-y-6">
+                <div id="pref-bars"></div>
+            </div>
+        </div>
+
+        <div class="card p-6">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">今日统计摘要</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-blue-50 p-4 rounded-2xl">
+                    <p class="text-[9px] font-black text-blue-400 uppercase mb-1">今日流水</p>
+                    <p id="stat-turnover" class="text-lg font-black text-blue-600">¥ 0.00</p>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-2xl">
+                    <p class="text-[9px] font-black text-emerald-400 uppercase mb-1">盈亏统计</p>
+                    <p id="stat-profit" class="text-lg font-black text-emerald-600">¥ 0.00</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        async function fetchStats() {
-            const r = await fetch('/api/user_stats.php').then(r => r.json());
-            if (r.success) {
-                const ov = r.overview;
-                document.getElementById('total-bet').innerText = '¥' + Math.floor(ov.total_bet || 0);
-                const p = parseFloat(ov.total_win || 0) - parseFloat(ov.total_bet || 0);
-                document.getElementById('total-profit').innerText = '¥' + Math.floor(p);
-                document.getElementById('total-profit').className = p >= 0 ? 'text-lg font-black text-blue-600' : 'text-lg font-black text-red-500';
-                document.getElementById('stats-body').innerHTML = r.daily_reports.map(row => `
-                    <tr>
-                        <td class="py-4 px-4 font-bold text-slate-500">${row.date.substring(5)}</td>
-                        <td class="py-4 px-2 text-right text-slate-400">${row.order_count}</td>
-                        <td class="py-4 px-2 text-right text-slate-800">¥${Math.floor(row.bet_amount)}</td>
-                        <td class="py-4 px-4 text-right font-black ${row.profit >= 0 ? 'text-blue-600' : 'text-red-500'}">
-                            ${row.profit > 0 ? '+' : ''}${Math.floor(row.profit)}
-                        </td>
-                    </tr>
-                `).join('');
+        async function loadStats() {
+            const res = await fetch('/api/user_stats.php').then(r => r.json());
+            if(res.success) {
+                const data = res.data;
+
+                // 1. Line/Bar Chart for Finance
+                const ctx = document.getElementById('mainChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.dates,
+                        datasets: [
+                            { label: '充值', data: data.deposits, backgroundColor: '#10b981', borderRadius: 6 },
+                            { label: '流水', data: data.turnovers, backgroundColor: '#3b82f6', borderRadius: 6 },
+                            { label: '提现', data: data.withdrawals, backgroundColor: '#f43f5e', borderRadius: 6 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' } } }, x: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' } } } }
+                    }
+                });
+
+                // 2. Play Type Preference Bars
+                const prefContainer = document.getElementById('pref-bars');
+                const total = data.total_count || 1;
+                const combos = ['big_single','big_double','small_single','small_double'];
+                let comboCount = 0;
+                Object.entries(data.types).forEach(([type, count]) => { if(combos.includes(type)) comboCount += count; });
+                const comboPerc = Math.round((comboCount / total) * 100);
+                const basicPerc = 100 - comboPerc;
+
+                prefContainer.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[10px] font-black uppercase text-slate-400"><span>组合类 (大单/小双等)</span><span>${comboPerc}%</span></div>
+                        <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-600" style="width: ${comboPerc}%"></div></div>
+                    </div>
+                    <div class="space-y-2 mt-4">
+                        <div class="flex justify-between text-[10px] font-black uppercase text-slate-400"><span>基础类 (大小/特码等)</span><span>${basicPerc}%</span></div>
+                        <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-slate-300" style="width: ${basicPerc}%"></div></div>
+                    </div>
+                `;
+
+                document.getElementById('stat-turnover').innerText = '¥ ' + data.today_turnover.toLocaleString();
+                document.getElementById('stat-profit').innerText = '¥ ' + data.today_profit.toLocaleString();
             }
         }
-        fetchStats();
+        loadStats();
     </script>
 </body>
 </html>
