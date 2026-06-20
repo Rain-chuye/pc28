@@ -32,7 +32,7 @@ if ($countdown < 0) {
     $countdown = $drawInterval + ($countdown % $drawInterval);
 }
 
-$isClosed = ($countdown <= 15);
+$isClosed = ($countdown <= 20);
 
 // Odds
 $odds = $db->query("SELECT play_type, odds_low, odds_high FROM odds_config")->fetchAll(PDO::FETCH_ASSOC);

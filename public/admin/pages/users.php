@@ -49,27 +49,38 @@
 
     <script>
         let currentUser = null;
+        let userCache = {};
 
         async function loadUsers() {
-            const res = await fetch('/admin/api/users_list.php').then(r => r.json());
-            const container = document.getElementById('user-list-container');
-            if(res.success) {
-                container.innerHTML = res.data.map(u => `
-                    <div class="card p-6 flex justify-between items-center">
-                        <div>
-                            <p class="text-sm font-black text-slate-800">${u.nickname || u.username}</p>
-                            <p class="text-[9px] text-slate-400 font-bold uppercase mt-1">ID: ${u.id} | ${u.username}</p>
-                            <p class="text-xs font-black text-indigo-600 mt-2">¥ ${parseFloat(u.balance).toLocaleString()}</p>
+            try {
+                const res = await fetch('/admin/api/users_list.php').then(r => r.json());
+                const container = document.getElementById('user-list-container');
+                if(res.success) {
+                    userCache = {};
+                    res.data.forEach(u => userCache[u.id] = u);
+
+                    container.innerHTML = res.data.map(u => `
+                        <div class="card p-6 flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-black text-slate-800">${u.nickname || u.username}</p>
+                                <p class="text-[9px] text-slate-400 font-bold uppercase mt-1">ID: ${u.id} | ${u.username}</p>
+                                <p class="text-xs font-black text-indigo-600 mt-2">¥ ${parseFloat(u.balance).toLocaleString()}</p>
+                            </div>
+                            <button onclick="openEdit(${u.id})" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                                <i class="fas fa-pen text-xs"></i>
+                            </button>
                         </div>
-                        <button onclick='openEdit(${JSON.stringify(u)})' class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
-                            <i class="fas fa-pen text-xs"></i>
-                        </button>
-                    </div>
-                `).join('');
+                    `).join('');
+                } else {
+                    container.innerHTML = `<div class="p-10 text-center text-red-400 font-bold text-xs">加载失败: ${res.message}</div>`;
+                }
+            } catch (e) {
+                document.getElementById('user-list-container').innerHTML = `<div class="p-10 text-center text-red-400 font-bold text-xs">网络错误</div>`;
             }
         }
 
-        function openEdit(user) {
+        function openEdit(id) {
+            const user = userCache[id];
             currentUser = user;
             document.getElementById('edit-nick').value = user.nickname || '';
             document.getElementById('edit-qq').value = user.qq_number || '';
@@ -94,17 +105,21 @@
                 password: document.getElementById('edit-pass').value.trim()
             };
 
-            const res = await fetch('/admin/api/update_profile.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            }).then(r => r.json());
+            try {
+                const res = await fetch('/admin/api/update_profile.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                }).then(r => r.json());
 
-            if(res.success) {
-                alert('修改成功');
-                closeModal();
-                loadUsers();
-            } else alert(res.message);
+                if(res.success) {
+                    alert('修改成功');
+                    closeModal();
+                    loadUsers();
+                } else alert(res.message);
+            } catch (e) {
+                alert('系统繁忙，请稍后再试');
+            }
 
             btn.disabled = false; btn.innerText = '保存修改';
         }

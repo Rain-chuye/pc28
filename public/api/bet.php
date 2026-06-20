@@ -17,6 +17,8 @@ $playTypeMap = [
     '极大' => 'extreme_big', '极小' => 'extreme_small', '对子' => 'pair', '顺子' => 'straight', '豹子' => 'triple'
 ];
 
+$reversePlayTypeMap = array_flip($playTypeMap);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
     $betsInput = isset($input['bets']) ? $input['bets'] : [$input];
@@ -31,7 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userId = $_SESSION['user_id'];
     $db = \App\Utils\DB::getInstance()->getConnection();
 
-    // 1. Fetch existing bets for this issue to enforce rules
+    // 1. Fetch user info for broadcast
+    $userStmt = $db->prepare("SELECT nickname, username FROM users WHERE id = ?");
+    $userStmt->execute([$userId]);
+    $user = $userStmt->fetch();
+    $displayName = $user['nickname'] ?: $user['username'];
+
+    // 2. Fetch existing bets for this issue to enforce rules
     $stmt = $db->prepare("SELECT play_type, odds_type FROM bets WHERE user_id = ? AND issue_no = ?");
     $stmt->execute([$userId, $issueNo]);
     $existingBets = $stmt->fetchAll();
@@ -44,22 +52,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // 2. Aggregate all play types (existing + new)
+    // 3. Aggregate all play types (existing + new)
     $allPlayTypes = [];
     foreach ($existingBets as $eb) $allPlayTypes[] = $eb['play_type'];
 
     $newInternalBets = [];
+    $broadcastLines = [];
     foreach ($betsInput as $b) {
-        $pt = $b['play_type'];
+        $rawPt = $b['play_type'];
+        $pt = $rawPt;
         if (isset($playTypeMap[$pt])) $pt = $playTypeMap[$pt];
         $allPlayTypes[] = $pt;
         $newInternalBets[] = ['type' => $pt, 'amount' => (float)$b['amount']];
+
+        $cnType = $reversePlayTypeMap[$pt] ?? $pt;
+        $broadcastLines[] = "【{$cnType}】{$b['amount']}";
     }
 
-    // 3. Rule Enforcement Logic
+    // 4. Rule Enforcement Logic
     $uniqueTypes = array_unique($allPlayTypes);
 
-    // Rule: Big/Small, Single/Double exclusivity
     if (in_array('big', $uniqueTypes) && in_array('small', $uniqueTypes)) {
         echo json_encode(['success' => false, 'message' => '不可同时下注大和小']); die;
     }
@@ -67,14 +79,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['success' => false, 'message' => '不可同时下注单和双']); die;
     }
 
-    // Rule: Combo limit (max 3 of the 4 combos)
     $combos = ['big_single', 'big_double', 'small_single', 'small_double'];
     $activeCombos = array_intersect($combos, $uniqueTypes);
     if (count($activeCombos) >= 4) {
         echo json_encode(['success' => false, 'message' => '不可同时下注四门组合']); die;
     }
 
-    // Rule: Specific number limit (max 4)
     $numberBets = 0;
     foreach ($uniqueTypes as $ut) {
         if (is_numeric($ut)) $numberBets++;
@@ -83,13 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['success' => false, 'message' => '每期最多下注 4 个特码']); die;
     }
 
-    // 4. Execution
-    // 封盘逻辑校验
+    // 5. Execution
     $latest = \App\Model\Lottery::getLatest();
     if ($latest) {
         $now = time();
         $nextDrawTs = strtotime($latest['next_draw_at']);
-        if (($nextDrawTs - $now) <= 15) {
+        if (($nextDrawTs - $now) <= 20) {
             echo json_encode(['success' => false, 'message' => '已封盘，停止下单']);
             die;
         }
@@ -104,10 +113,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Final sanity check on issue total
         $stmt = $db->prepare("SELECT SUM(bet_amount) FROM bets WHERE user_id = ? AND issue_no = ?");
         $stmt->execute([$userId, $issueNo]);
         if ($stmt->fetchColumn() > 20000) throw new Exception("单期投注总额超过 20000 限制");
+
+        // Broadcast to group chat
+        $chatMsg = "玩家 [{$displayName}] 下注成功：\n" . implode("\n", $broadcastLines);
+        $chatStmt = $db->prepare("INSERT INTO group_messages (user_id, message) VALUES (0, ?)");
+        $chatStmt->execute([$chatMsg]);
 
         $db->commit();
         echo json_encode(['success' => true, 'message' => '下单成功']);

@@ -1,6 +1,6 @@
 <?php
 /**
- * PC28 结算系统 - 最终规则修正版
+ * PC28 结算系统 - 精确规则修正版 (V11)
  */
 require_once __DIR__ . '/../src/Utils/DB.php';
 require_once __DIR__ . '/../src/Model/User.php';
@@ -45,7 +45,7 @@ function settle($db) {
             $playType = $bet['play_type'];
             $room = $bet['odds_type']; // 'high' = 2.8, 'low' = 2.0
 
-            // 1. Determine Winning Status (Core Mechanics)
+            // 1. Basic Win Condition
             switch($playType) {
                 case 'big': if ($totalSum >= 14) $isWin = true; break;
                 case 'small': if ($totalSum <= 13) $isWin = true; break;
@@ -65,23 +65,27 @@ function settle($db) {
             }
 
             // 2. Room Rule Processing
-            if ($room == 'high') { // 2.8 Canada Room
-                // "开13/14/对子/顺子 豹子/中奖单注或组合回本"
-                // Interpretation: If result is special and you didn't win, return principal.
-                $isSpecialResult = ($totalSum == 13 || $totalSum == 14 || isPair($numbersStr) || isStraight($numbersStr) || isTriple($numbersStr));
-                if (!$isWin && $isSpecialResult) {
-                    $isReturn = true;
+            if ($room == 'high') {
+                // 高倍房：开13/14/对子/顺子/豹子 -> 中奖回本 (Odds=1.0), 没中也回本
+                $isSpecial = ($totalSum == 13 || $totalSum == 14 || isPair($numbersStr) || isStraight($numbersStr) || isTriple($numbersStr));
+                if ($isSpecial) {
+                    $isWin = true;
+                    $finalOdds = 1.0;
                 }
-            } else { // 2.0 Standard Room
-                // "开13/14/中奖组合回本"
-                $isCombo = in_array($playType, ['big_single','big_double','small_single','small_double']);
-                if (!$isWin && $isCombo && ($totalSum == 13 || $totalSum == 14)) {
-                    $isReturn = true;
-                }
-                // "开13/14/中奖单注1.6倍"
-                $isBSSD = in_array($playType, ['big','small','single','double']);
-                if ($isWin && $isBSSD && ($totalSum == 13 || $totalSum == 14)) {
-                    $finalOdds = 1.60;
+            } else {
+                // 低倍房：开13、14
+                if ($totalSum == 13 || $totalSum == 14) {
+                    $isCombo = in_array($playType, ['big_single','big_double','small_single','small_double']);
+                    $isBSSD = in_array($playType, ['big','small','single','double']);
+
+                    if ($isCombo) {
+                        // 组合全吃 (Lose)
+                        $isWin = false;
+                        $isReturn = false;
+                    } elseif ($isBSSD && $isWin) {
+                        // 大小单双中奖只赚1.6倍
+                        $finalOdds = 1.60;
+                    }
                 }
             }
 

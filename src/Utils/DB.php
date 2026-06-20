@@ -40,7 +40,7 @@ class DB {
                     $this->connection = new PDO($dsn_alt, $config['user'], $config['password'], $options);
                     return;
                 } catch (Exception $e2) {
-                    throw new Exception("Database Connection Failed (tried both localhost and 127.0.0.1): " . $e2.getMessage());
+                    throw new Exception("Database Connection Failed (tried both localhost and 127.0.0.1): " . $e2->getMessage());
                 }
             }
             throw new Exception("Database Connection Failed: " . $e->getMessage());
