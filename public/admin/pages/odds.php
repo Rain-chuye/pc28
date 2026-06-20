@@ -3,64 +3,48 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>赔率管理 - PC28 PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .admin-sidebar { height: 100vh; position: fixed; left: 0; top: 0; width: 260px; background: #0f172a; color: white; }
-        .admin-main { margin-left: 260px; min-height: 100vh; background: #f8fafc; }
-    </style>
 </head>
 <body>
-    <div class="admin-sidebar p-6 flex flex-col">
-        <div class="flex items-center gap-3 mb-10">
-            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black italic">28</div>
-            <h1 class="text-xl font-black">PC28 <span class="text-indigo-400">PRO</span></h1>
-        </div>
-        <nav class="flex-1 space-y-2">
-            <a href="/admin/index.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-home w-5 text-slate-400"></i> 控制台大盘</a>
-            <a href="/admin/pages/settings.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-cog w-5 text-slate-400"></i> 系统全局配置</a>
-            <a href="/admin/pages/odds.php" class="bg-indigo-600 flex items-center gap-3 px-4 py-3 rounded-xl font-bold"><i class="fas fa-percentage w-5"></i> 赔率规则管理</a>
-            <a href="/admin/pages/users.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-users w-5 text-slate-400"></i> 会员管理</a>
-            <a href="/admin/pages/chat.php" class="flex items-center gap-3 hover:bg-white/5 px-4 py-3 rounded-xl transition-colors"><i class="fas fa-headset w-5 text-slate-400"></i> 在线客服中心</a>
-        </nav>
-    </div>
+    <header class="admin-header">
+        <h1>赔率配置中心</h1>
+        <div class="w-6"></div>
+    </header>
 
-    <div class="admin-main p-10">
-        <header class="mb-10">
-            <h2 class="text-2xl font-black text-slate-900">赔率配置中心</h2>
-            <p class="text-slate-400 text-sm">支持修改所有特码、组合、大小单双、豹子对子顺子倍率</p>
-        </header>
-
-        <div class="grid grid-cols-1 gap-8">
-            <div class="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm">
-                <div class="grid grid-cols-4 gap-4" id="odds-list">
-                    <div class="p-10 text-center col-span-4 text-slate-300 font-black uppercase">加载数据中...</div>
-                </div>
+    <main class="space-y-4">
+        <div class="card">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">全玩法赔率设定</h3>
+            <div id="odds-list" class="grid grid-cols-2 gap-4">
+                <div class="p-10 text-center col-span-2 text-slate-300 font-bold text-xs">正在载入赔率数据...</div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script>
         async function loadOdds() {
             const res = await fetch('/api/lottery.php').then(r => r.json());
             const list = document.getElementById('odds-list');
-            list.innerHTML = Object.keys(res.odds).map(k => `
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">${k}</p>
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="text-[9px] font-bold text-slate-400">2.0房</span>
-                            <input type="number" id="low-${k}" value="${res.odds[k].low}" class="w-16 bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-black text-indigo-600">
+            if(res.success) {
+                list.innerHTML = Object.keys(res.odds).map(k => `
+                    <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
+                        <p class="text-[10px] font-black text-indigo-600 uppercase mb-4 tracking-widest">${k}</p>
+                        <div class="space-y-4">
+                            <div class="input-group mb-0">
+                                <label>低倍房 (2.0)</label>
+                                <input type="number" id="low-${k}" value="${res.odds[k].low}" class="form-input">
+                            </div>
+                            <div class="input-group mb-0">
+                                <label>高倍房 (2.8)</label>
+                                <input type="number" id="high-${k}" value="${res.odds[k].high}" class="form-input">
+                            </div>
+                            <button onclick="updateOdds('${k}')" class="w-full py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black hover:bg-indigo-600 hover:text-white transition-all">保存</button>
                         </div>
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="text-[9px] font-bold text-slate-400">2.8房</span>
-                            <input type="number" id="high-${k}" value="${res.odds[k].high}" class="w-16 bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-black text-indigo-600">
-                        </div>
-                        <button onclick="updateOdds('${k}')" class="w-full mt-2 py-1.5 bg-white border border-slate-200 rounded-lg text-[9px] font-black hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all">确认</button>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+            }
         }
 
         async function updateOdds(key) {
@@ -74,7 +58,7 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
             }).then(r => r.json());
-            if(res.success) console.log(key + ' Updated');
+            if(res.success) alert(key + ' 已更新');
         }
 
         loadOdds();

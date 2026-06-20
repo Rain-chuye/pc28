@@ -6,29 +6,42 @@ header('Content-Type: application/json');
 
 try {
     $data = json_decode(file_get_contents('php://input'), true);
-    $userId = (int)$data['user_id'];
+    $userId = $data['user_id'];
     $nickname = trim($data['nickname'] ?? '');
     $qq = trim($data['qq'] ?? '');
-    $balance = (float)($data['balance'] ?? 0);
+    $balance = isset($data['balance']) ? (float)$data['balance'] : null;
     $password = trim($data['password'] ?? '');
 
     $db = \App\Utils\DB::getInstance()->getConnection();
 
-    $sql = "UPDATE users SET nickname = ?, qq_number = ?, balance = ?";
-    $params = [$nickname, $qq, $balance];
+    // Handle admin self-update
+    if($userId === 'admin') {
+        $stmt = $db->prepare("UPDATE users SET password = ? WHERE role = 'admin'");
+        $stmt->execute([$password]);
+        echo json_encode(['success' => true]);
+    } else {
+        $userId = (int)$userId;
+        $sql = "UPDATE users SET nickname = ?, qq_number = ?";
+        $params = [$nickname, $qq];
 
-    if (!empty($password)) {
-        $sql .= ", password = ?";
-        $params[] = $password;
+        if ($balance !== null) {
+            $sql .= ", balance = ?";
+            $params[] = $balance;
+        }
+
+        if (!empty($password)) {
+            $sql .= ", password = ?";
+            $params[] = $password;
+        }
+
+        $sql .= " WHERE id = ?";
+        $params[] = $userId;
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+
+        echo json_encode(['success' => true]);
     }
-
-    $sql .= " WHERE id = ?";
-    $params[] = $userId;
-
-    $stmt = $db->prepare($sql);
-    $stmt->execute($params);
-
-    echo json_encode(['success' => true]);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
