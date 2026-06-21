@@ -1,6 +1,6 @@
 <?php
 /**
- * PC28 结算系统 - 精确规则修正版 (V16)
+ * PC28 结算系统 - 精确规则修正版 (V21)
  */
 require_once __DIR__ . '/../src/Utils/DB.php';
 require_once __DIR__ . '/../src/Model/User.php';
@@ -45,6 +45,7 @@ function settle($db) {
             $playType = $bet['play_type'];
             $room = $bet['odds_type'];
 
+            // 1. Basic Win Condition
             switch($playType) {
                 case 'big': if ($totalSum >= 14) $isWin = true; break;
                 case 'small': if ($totalSum <= 13) $isWin = true; break;
@@ -63,20 +64,32 @@ function settle($db) {
                     if (is_numeric($playType) && $totalSum == (int)$playType) $isWin = true;
             }
 
+            // 2. Room Rule Processing
             if ($room == 'high') {
-                $isSpecial = ($totalSum == 13 || $totalSum == 14 || isPair($numbersStr) || isStraight($numbersStr) || isTriple($numbersStr));
-                if ($isSpecial) {
-                    $isWin = true;
-                    $finalOdds = 1.0;
+                // "打高倍不中就吃完完 中了如果是对子豹子顺子13和14才回本"
+                // Interpretation: Only winners of BSSD/Combos are capped at Odds 1.0 (Principal return).
+                $isSpecialResult = ($totalSum == 13 || $totalSum == 14 || isPair($numbersStr) || isStraight($numbersStr) || isTriple($numbersStr));
+
+                if ($isWin && $isSpecialResult) {
+                    // Only cap non-number bets (Big/Small/Single/Double/Combos/Extreme/Special Plays)
+                    // Winners of specific numbers (e.g. betting "13") still get full payout.
+                    if (!is_numeric($playType)) {
+                        $finalOdds = 1.0;
+                    }
                 }
+                // Losers remain losers (status 2).
             } else {
+                // Low Room: 13/14 rules
                 if ($totalSum == 13 || $totalSum == 14) {
                     $isCombo = in_array($playType, ['big_single','big_double','small_single','small_double']);
                     $isBSSD = in_array($playType, ['big','small','single','double']);
 
                     if ($isCombo) {
+                        // Combos always eaten
                         $isWin = false;
+                        $isReturn = false;
                     } elseif ($isBSSD && $isWin) {
+                        // BSSD capped at 1.6x
                         $finalOdds = 1.60;
                     }
                 }
@@ -89,6 +102,7 @@ function settle($db) {
             try {
                 $updateStmt = $db->prepare("UPDATE bets SET status = ?, win_amount = ?, odds = ? WHERE id = ?");
                 $updateStmt->execute(array($status, $winAmount, $finalOdds, $bet['id']));
+
                 if ($winAmount > 0) {
                     \App\Model\User::updateBalance($bet['user_id'], $winAmount, 'win', "结算派奖: " . $playType . " (" . $bet['issue_no'] . ")", $db);
                 }
