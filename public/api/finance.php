@@ -20,28 +20,25 @@ try {
 
         if ($action === 'recharge') {
             $amount = (float)($input['amount'] ?? 0);
-            $proof = $input['proof_image'] ?? '';
+            $token = $input['token'] ?? '';
 
             if ($amount < 15) {
                 echo json_encode(['success' => false, 'message' => '最低充值金额为 15 元']);
                 die;
             }
-            if (empty($proof)) {
-                echo json_encode(['success' => false, 'message' => '请提供支付凭证截图']);
+            if (empty($token)) {
+                echo json_encode(['success' => false, 'message' => '请填写红包口令或说明']);
                 die;
             }
 
+            // Using 'proof_img' column to store the Alipay Token string instead of Base64
             $stmt = $db->prepare("INSERT INTO finance_requests (user_id, type, amount, proof_img, status) VALUES (?, 'deposit', ?, ?, 'pending')");
-            $stmt->execute([$userId, $amount, $proof]);
+            $stmt->execute([$userId, $amount, "TOKEN: " . $token]);
 
             echo json_encode(['success' => true]);
             die;
         }
-
-        // Default error
-        echo json_encode(['success' => false, 'message' => 'Invalid action']);
     } else {
-        // GET requests...
         $stmt = $db->prepare("SELECT * FROM finance_requests WHERE user_id = ? ORDER BY id DESC LIMIT 50");
         $stmt->execute([$userId]);
         echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);

@@ -1,16 +1,35 @@
-[Sat Jun 20 23:24:11 2026] PHP 8.3.6 Development Server (http://0.0.0.0:3000) started
-[Sat Jun 20 23:24:16 2026] 127.0.0.1:36386 Accepted
-[Sat Jun 20 23:24:16 2026] 127.0.0.1:36386 [200]: GET /stats.html
-[Sat Jun 20 23:24:16 2026] 127.0.0.1:36386 Closing
-[Sat Jun 20 23:24:17 2026] 127.0.0.1:36390 Accepted
-[Sat Jun 20 23:24:17 2026] 127.0.0.1:36390 [200]: GET /api/user_stats.php
-[Sat Jun 20 23:24:17 2026] 127.0.0.1:36390 Closing
-[Sat Jun 20 23:24:19 2026] 127.0.0.1:36394 Accepted
-[Sat Jun 20 23:24:19 2026] 127.0.0.1:36394 [200]: GET /wallet_logs.html
-[Sat Jun 20 23:24:19 2026] 127.0.0.1:36394 Closing
-[Sat Jun 20 23:24:19 2026] 127.0.0.1:36398 Accepted
-[Sat Jun 20 23:24:19 2026] 127.0.0.1:36398 [200]: GET /api/balance_logs.php
-[Sat Jun 20 23:24:19 2026] 127.0.0.1:36398 Closing
-[Sat Jun 20 23:24:20 2026] 127.0.0.1:36408 Accepted
-[Sat Jun 20 23:24:20 2026] 127.0.0.1:36408 [200]: GET /recharge.html
-[Sat Jun 20 23:24:20 2026] 127.0.0.1:36408 Closing
+[Wed Jun 24 21:27:27 2026] PHP 8.3.6 Development Server (http://0.0.0.0:3000) started
+[Wed Jun 24 21:27:36 2026] 127.0.0.1:41016 Accepted
+[Wed Jun 24 21:27:36 2026] 127.0.0.1:41016 [200]: GET /game.html?room=high
+[Wed Jun 24 21:27:36 2026] 127.0.0.1:41016 Closing
+[Wed Jun 24 21:27:38 2026] 127.0.0.1:48246 Accepted
+[Wed Jun 24 21:27:38 2026] PHP Fatal error:  Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
+Stack trace:
+#0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
+#1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#2 {main}
+  thrown in /app/src/Utils/DB.php on line 43
+[Wed Jun 24 21:27:38 2026] 127.0.0.1:48246 [500]: GET /api/lottery.php - Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
+Stack trace:
+#0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
+#1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#2 {main}
+  thrown in /app/src/Utils/DB.php on line 43
+[Wed Jun 24 21:27:38 2026] 127.0.0.1:48246 Closing
+[Wed Jun 24 21:27:41 2026] 127.0.0.1:48256 Accepted
+[Wed Jun 24 21:27:41 2026] PHP Fatal error:  Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
+Stack trace:
+#0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
+#1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#2 {main}
+  thrown in /app/src/Utils/DB.php on line 43
+[Wed Jun 24 21:27:41 2026] 127.0.0.1:48256 [500]: GET /api/lottery.php - Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
+Stack trace:
+#0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
+#1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
+#2 {main}
+  thrown in /app/src/Utils/DB.php on line 43
+[Wed Jun 24 21:27:41 2026] 127.0.0.1:48256 Closing
+[Wed Jun 24 21:27:41 2026] 127.0.0.1:48258 Accepted
+[Wed Jun 24 21:27:41 2026] 127.0.0.1:48258 [200]: GET /recharge.html
+[Wed Jun 24 21:27:41 2026] 127.0.0.1:48258 Closing
