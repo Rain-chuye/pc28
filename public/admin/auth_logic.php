@@ -9,4 +9,17 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     }
     die();
 }
+
+// Security: Check if admin is frozen
+require_once __DIR__ . '/../../src/Utils/DB.php';
+try {
+    $db = \App\Utils\DB::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT status FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    if ($stmt->fetchColumn() === 'frozen') {
+        session_destroy();
+        header('Location: /login.html?msg=frozen');
+        die();
+    }
+} catch (Exception $e) {}
 ?>

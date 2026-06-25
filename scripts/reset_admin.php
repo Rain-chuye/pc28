@@ -1,29 +1,29 @@
 <?php
 /**
- * 管理员重置工具
+ * Admin Recovery Script
+ * Usage: php scripts/reset_admin.php <username> <new_password>
  */
 require_once __DIR__ . '/../src/Utils/DB.php';
 
-$username = 'admin';
-$password = 'admin123'; // 默认密码
+if ($argc < 3) {
+    die("Usage: php reset_admin.php <username> <new_password>\n");
+}
 
-$db = \App\Utils\DB::getInstance()->getConnection();
+$user = $argv[1];
+$pass = $argv[2];
 
 try {
-    // 检查是否存在
-    $stmt = $db->prepare("SELECT id FROM users WHERE username = ?");
-    $stmt->execute([$username]);
-    $user = $stmt->fetch();
+    $db = \App\Utils\DB::getInstance()->getConnection();
+    $hash = password_hash($pass, PASSWORD_DEFAULT);
 
-    if ($user) {
-        $stmt = $db->prepare("UPDATE users SET password = ?, role = 'admin' WHERE id = ?");
-        $stmt->execute([$password, $user['id']]);
-        echo "管理员密码已重置为: $password\n";
+    $stmt = $db->prepare("UPDATE users SET password = ?, status = 'active', role = 'admin' WHERE username = ?");
+    $stmt->execute([$hash, $user]);
+
+    if ($stmt->rowCount() > 0) {
+        echo "Successfully updated password and activated user '{$user}' as admin.\n";
     } else {
-        $stmt = $db->prepare("INSERT INTO users (username, password, role, balance) VALUES (?, ?, 'admin', 0)");
-        $stmt->execute([$username, $password]);
-        echo "管理员账号已创建。用户名: $username, 密码: $password\n";
+        echo "Error: User '{$user}' not found in database.\n";
     }
 } catch (Exception $e) {
-    die("Error: " . $e->getMessage());
+    echo "Fatal Error: " . $e->getMessage() . "\n";
 }
