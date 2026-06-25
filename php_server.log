@@ -1,35 +1,19 @@
-[Wed Jun 24 21:27:27 2026] PHP 8.3.6 Development Server (http://0.0.0.0:3000) started
-[Wed Jun 24 21:27:36 2026] 127.0.0.1:41016 Accepted
-[Wed Jun 24 21:27:36 2026] 127.0.0.1:41016 [200]: GET /game.html?room=high
-[Wed Jun 24 21:27:36 2026] 127.0.0.1:41016 Closing
-[Wed Jun 24 21:27:38 2026] 127.0.0.1:48246 Accepted
-[Wed Jun 24 21:27:38 2026] PHP Fatal error:  Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
-Stack trace:
-#0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
-#1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
-#2 {main}
-  thrown in /app/src/Utils/DB.php on line 43
-[Wed Jun 24 21:27:38 2026] 127.0.0.1:48246 [500]: GET /api/lottery.php - Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
-Stack trace:
-#0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
-#1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
-#2 {main}
-  thrown in /app/src/Utils/DB.php on line 43
-[Wed Jun 24 21:27:38 2026] 127.0.0.1:48246 Closing
-[Wed Jun 24 21:27:41 2026] 127.0.0.1:48256 Accepted
-[Wed Jun 24 21:27:41 2026] PHP Fatal error:  Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
-Stack trace:
-#0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
-#1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
-#2 {main}
-  thrown in /app/src/Utils/DB.php on line 43
-[Wed Jun 24 21:27:41 2026] 127.0.0.1:48256 [500]: GET /api/lottery.php - Uncaught Exception: Database Connection Failed (tried both localhost and 127.0.0.1): SQLSTATE[HY000] [2002] Connection refused in /app/src/Utils/DB.php:43
-Stack trace:
-#0 /app/src/Utils/DB.php(52): App\Utils\DB->__construct()
-#1 /app/public/api/lottery.php(7): App\Utils\DB::getInstance()
-#2 {main}
-  thrown in /app/src/Utils/DB.php on line 43
-[Wed Jun 24 21:27:41 2026] 127.0.0.1:48256 Closing
-[Wed Jun 24 21:27:41 2026] 127.0.0.1:48258 Accepted
-[Wed Jun 24 21:27:41 2026] 127.0.0.1:48258 [200]: GET /recharge.html
-[Wed Jun 24 21:27:41 2026] 127.0.0.1:48258 Closing
+[Thu Jun 25 09:23:12 2026] PHP 8.3.6 Development Server (http://0.0.0.0:3000) started
+[Thu Jun 25 09:23:17 2026] 127.0.0.1:36640 Accepted
+[Thu Jun 25 09:23:17 2026] 127.0.0.1:36640 [302]: GET /admin/pages/users.php
+[Thu Jun 25 09:23:17 2026] 127.0.0.1:36640 Closing
+[Thu Jun 25 09:23:17 2026] 127.0.0.1:36654 Accepted
+[Thu Jun 25 09:23:17 2026] 127.0.0.1:36654 [200]: GET /login.html
+[Thu Jun 25 09:23:17 2026] 127.0.0.1:36654 Closing
+[Thu Jun 25 09:23:19 2026] 127.0.0.1:36670 Accepted
+[Thu Jun 25 09:23:19 2026] 127.0.0.1:36670 [302]: GET /admin/pages/chat.php
+[Thu Jun 25 09:23:19 2026] 127.0.0.1:36670 Closing
+[Thu Jun 25 09:23:19 2026] 127.0.0.1:36684 Accepted
+[Thu Jun 25 09:23:19 2026] 127.0.0.1:36684 [200]: GET /login.html
+[Thu Jun 25 09:23:19 2026] 127.0.0.1:36684 Closing
+[Thu Jun 25 09:23:20 2026] 127.0.0.1:57870 Accepted
+[Thu Jun 25 09:23:20 2026] 127.0.0.1:57870 [302]: GET /
+[Thu Jun 25 09:23:20 2026] 127.0.0.1:57870 Closing
+[Thu Jun 25 09:23:20 2026] 127.0.0.1:57874 Accepted
+[Thu Jun 25 09:23:20 2026] 127.0.0.1:57874 [200]: GET /login.html
+[Thu Jun 25 09:23:20 2026] 127.0.0.1:57874 Closing

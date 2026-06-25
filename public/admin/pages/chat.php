@@ -13,16 +13,22 @@
 <body class="bg-slate-50 min-h-screen">
     <header class="admin-header">
         <h1>客服私聊中心</h1>
-        <button onclick="loadAllChat()" class="text-indigo-600"><i class="fas fa-sync-alt"></i></button>
+        <div class="flex gap-2">
+            <button onclick="clearAllChat()" class="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase">清空全部</button>
+            <button onclick="loadAllChat()" class="text-indigo-600"><i class="fas fa-sync-alt"></i></button>
+        </div>
     </header>
 
     <main id="chat-list" class="p-4 space-y-4 pb-32">
         <div class="p-10 text-center text-slate-300 font-bold text-xs uppercase italic">SYNCING PRIVATE LOGS...</div>
     </main>
 
-    <!-- Admin Reply Bar -->
     <div id="reply-panel" class="fixed bottom-[80px] left-0 right-0 bg-white border-t border-slate-100 p-4 shadow-xl z-[900] hidden">
         <div class="max-w-2xl mx-auto space-y-4">
+            <div class="flex justify-between items-center px-1">
+                <p class="text-[9px] font-black text-slate-400 uppercase">正在回复 UID: <span id="reply-uid"></span></p>
+                <button onclick="clearSingleChat()" class="text-rose-500 font-black text-[9px] uppercase tracking-widest"><i class="fas fa-eraser mr-1"></i> 清除此人记录</button>
+            </div>
             <div id="reply-preview" class="hidden relative inline-block">
                 <img id="reply-img-preview" class="w-16 h-16 object-cover rounded-lg border border-slate-100">
                 <button onclick="clearReplyImg()" class="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[8px]"><i class="fas fa-times"></i></button>
@@ -44,7 +50,6 @@
             const res = await fetch('/api/chat.php?action=get_all_admin').then(r => r.json());
             if(res.success) {
                 const container = document.getElementById('chat-list');
-                // Group by user
                 const groups = {};
                 res.data.forEach(m => {
                     const uid = m.sender_id == 0 ? m.receiver_id : m.sender_id;
@@ -62,7 +67,7 @@
                                 <span class="text-[8px] font-black text-slate-300 uppercase">${last.created_at}</span>
                             </div>
                             <div class="space-y-3 max-h-40 overflow-y-auto no-scrollbar pr-2">
-                                ${msgs.slice(-3).map(m => {
+                                ${msgs.slice(-5).map(m => {
                                     const isSystem = m.sender_id == 0;
                                     const isImg = m.type === 'image';
                                     const body = isImg ? `<img src="${m.message}" class="chat-img-admin" onclick="event.stopPropagation();window.open(this.src)">` : m.message;
@@ -77,8 +82,22 @@
 
         function openReply(uid) {
             currentTargetId = uid;
+            document.getElementById('reply-uid').innerText = uid;
             document.getElementById('reply-panel').classList.remove('hidden');
             document.getElementById('reply-msg').focus();
+        }
+
+        async function clearSingleChat() {
+            if(!confirm('确定清除该用户的聊天记录吗？')) return;
+            await fetch(`/api/chat.php?action=clear_private&user_id=${currentTargetId}`);
+            document.getElementById('reply-panel').classList.add('hidden');
+            loadAllChat();
+        }
+
+        async function clearAllChat() {
+            if(!confirm('危险！确定清除所有会员的客服私聊记录吗？')) return;
+            await fetch(`/api/chat.php?action=clear_private&user_id=0`);
+            loadAllChat();
         }
 
         function handleReplyImg(input) {

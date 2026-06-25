@@ -19,34 +19,17 @@ try {
         if(!$userId) throw new Exception("Unauthorized");
         $data = json_decode(file_get_contents('php://input'), true);
         $msg = trim($data['message'] ?? '');
-        $type = $data['type'] ?? 'text'; // 'text' or 'image'
+        $type = $data['type'] ?? 'text';
 
-        if(!$msg) throw new Exception("内容不能为空");
-
-        // Security check for base64 images
-        if ($type === 'image' && strlen($msg) > 500000) {
-            throw new Exception("图片文件过大，请压缩后上传");
-        }
+        if(!$msg) throw new Exception("Message empty");
+        if ($type === 'image' && strlen($msg) > 1000000) throw new Exception("Image too large");
 
         $stmt = $db->prepare("INSERT INTO chat_messages (sender_id, receiver_id, message, type) VALUES (?, 0, ?, ?)");
         $stmt->execute([$userId, $msg, $type]);
-
-        // Auto-reply logic (Existing)
-        $botEnabled = $db->query("SELECT setting_value FROM system_settings WHERE setting_key = 'bot_auto_reply_enabled'")->fetchColumn();
-        if($botEnabled == '1' && $type === 'text') {
-            $rules = $db->query("SELECT * FROM bot_rules WHERE is_active = 1")->fetchAll();
-            foreach($rules as $rule) {
-                if(!empty($rule['keyword']) && mb_strpos($msg, $rule['keyword']) !== false) {
-                    $st = $db->prepare("INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (0, ?, ?)");
-                    $st->execute([$userId, $rule['response']]);
-                    break;
-                }
-            }
-        }
         echo json_encode(['success' => true]);
     }
     elseif ($action === 'get_all_admin' && $isAdmin) {
-        $stmt = $db->query("SELECT c.*, u.username as sender_name FROM chat_messages c LEFT JOIN users u ON c.sender_id = u.id ORDER BY c.id ASC LIMIT 200");
+        $stmt = $db->query("SELECT c.*, u.username as sender_name FROM chat_messages c LEFT JOIN users u ON c.sender_id = u.id ORDER BY c.id ASC LIMIT 500");
         echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
     }
     elseif ($action === 'send_admin' && $isAdmin) {
@@ -57,6 +40,16 @@ try {
 
         $stmt = $db->prepare("INSERT INTO chat_messages (sender_id, receiver_id, message, type) VALUES (0, ?, ?, ?)");
         $stmt->execute([$targetId, $msg, $type]);
+        echo json_encode(['success' => true]);
+    }
+    elseif ($action === 'clear_private' && $isAdmin) {
+        $uid = (int)$_GET['user_id'];
+        if(!$uid) {
+            $db->query("TRUNCATE TABLE chat_messages"); // Clear all
+        } else {
+            $stmt = $db->prepare("DELETE FROM chat_messages WHERE sender_id = ? OR receiver_id = ?");
+            $stmt->execute([$uid, $uid]);
+        }
         echo json_encode(['success' => true]);
     }
 } catch (Exception $e) {

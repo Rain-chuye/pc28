@@ -7,9 +7,14 @@ header('Content-Type: application/json');
 $db = \App\Utils\DB::getInstance()->getConnection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $requestId = $_POST['id'];
-    $status = $_POST['status'];
+    $requestId = $_POST['id'] ?? 0;
+    $status = $_POST['status'] ?? '';
     $reason = $_POST['reason'] ?? '';
+
+    if (!$requestId || !$status) {
+        echo json_encode(['success' => false, 'message' => 'Missing ID or Status']);
+        die;
+    }
 
     $db->beginTransaction();
     try {
@@ -28,21 +33,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     \App\Model\User::addDeposit($userId, $amount, $db);
 
-                    $uStmt = $db->prepare("SELECT first_recharge_done, last_daily_bonus_at FROM users WHERE id = ?");
-                    $uStmt->execute([$userId]);
-                    $user = $uStmt->fetch();
+                    // Robust column check
+                    $user = $db->query("SELECT * FROM users WHERE id = $userId")->fetch();
+                    $hasDailyCol = array_key_exists('last_daily_bonus_at', $user);
 
                     $today = date('Y-m-d');
                     $bonus = 0;
-                    $bonusType = 'bonus';
 
                     if (!$user['first_recharge_done'] && $amount >= 20) {
-                        // Priority 1: Newcomer 20 -> 21
                         $bonus = 21;
-                        $bonusType = 'first_recharge';
                         $db->prepare("UPDATE users SET first_recharge_done = 1 WHERE id = ?")->execute([$userId]);
-                    } elseif ($user['last_daily_bonus_at'] !== $today) {
-                        // Priority 2: Daily First Recharge
+                    } elseif ($hasDailyCol && $user['last_daily_bonus_at'] !== $today) {
                         if ($amount >= 100) $bonus = 60;
                         elseif ($amount >= 50) $bonus = 20;
                         elseif ($amount >= 40) $bonus = 12;
@@ -68,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db->commit();
         echo json_encode(['success' => true]);
     } catch (Exception $e) {
-        if(isset($db) && $db->inTransaction()) $db->rollBack();
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        if($db->inTransaction()) $db->rollBack();
+        echo json_encode(['success' => false, 'message' => 'Review Failed: ' . $e->getMessage()]);
     }
 }
