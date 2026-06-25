@@ -20,34 +20,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$username]);
         $user = $stmt->fetch();
 
-        // 1. Check if user exists
         if (!$user) {
             echo json_encode(['success' => false, 'message' => '用户不存在']);
             die;
         }
 
-        // 2. Flexible Password Check (Hashed vs Plaintext)
         $valid = false;
         if (password_verify($password, $user['password'])) {
             $valid = true;
         } elseif ($password === $user['password']) {
-            // Plaintext fallback (usually for newly seeded bots/admins)
             $valid = true;
-            // Auto-upgrade to hash for security
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $upStmt = $db->prepare("UPDATE users SET password = ? WHERE id = ?");
-            $upStmt->execute([$hash, $user['id']]);
+            $db->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hash, $user['id']]);
         }
 
         if ($valid) {
-            // 3. Status Check (if column exists)
+            // Flexible Status Check (Handles INT or STRING)
             $status = $user['status'] ?? 'active';
-            if ($status === 'frozen') {
+            if ($status === 'frozen' || $status === '0' || $status === 0) {
                 echo json_encode(['success' => false, 'message' => '您的账号已被冻结，请联系客服']);
                 die;
             }
 
-            // 4. Session Setup
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role'];
@@ -56,6 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['success' => false, 'message' => '密码错误']);
         }
     } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => '数据库连接失败: ' . $e->getMessage()]);
+        echo json_encode(['success' => false, 'message' => '登录异常: ' . $e->getMessage()]);
     }
 }

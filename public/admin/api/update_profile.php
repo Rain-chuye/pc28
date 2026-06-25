@@ -23,19 +23,27 @@ try {
         $nickname = $data['nickname'] ?? '';
         $qq = $data['qq'] ?? '';
         $balance = (float)($data['balance'] ?? 0);
+        $statusStr = trim($data['status'] ?? 'active');
 
-        // Fix: Ensure status is handled as string 'active'/'frozen'
-        // And check if column exists before updating to avoid SQL error if migration not run yet
-        $status = trim($data['status'] ?? 'active');
-        if (empty($status)) $status = 'active';
+        // Robust Type Check for Status Column
+        $stmtCol = $db->prepare("DESCRIBE users 'status'");
+        $stmtCol->execute();
+        $colInfo = $stmtCol->fetch();
+        $isInteger = strpos(strtolower($colInfo['Type'] ?? ''), 'int') !== false;
+
+        $finalStatus = $statusStr;
+        if ($isInteger) {
+            // Map strings to integers if the DB column is INT
+            $finalStatus = ($statusStr === 'active' || $statusStr === '1') ? 1 : 0;
+        }
 
         $sql = "UPDATE users SET nickname = ?, qq_number = ?, balance = ?, status = ? WHERE id = ?";
-        $params = [$nickname, $qq, $balance, $status, $userId];
+        $params = [$nickname, $qq, $balance, $finalStatus, $userId];
 
         $password = trim($data['password'] ?? '');
         if (!empty($password)) {
             $sql = "UPDATE users SET nickname = ?, qq_number = ?, balance = ?, status = ?, password = ? WHERE id = ?";
-            $params = [$nickname, $qq, $balance, $status, password_hash($password, PASSWORD_DEFAULT), $userId];
+            $params = [$nickname, $qq, $balance, $finalStatus, password_hash($password, PASSWORD_DEFAULT), $userId];
         }
 
         $stmt = $db->prepare($sql);
