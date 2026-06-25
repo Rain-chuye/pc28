@@ -3,43 +3,34 @@ require_once __DIR__ . '/../auth_logic.php';
 require_once __DIR__ . '/../../../src/Utils/DB.php';
 
 header('Content-Type: application/json');
+$db = \App\Utils\DB::getInstance()->getConnection();
+
+$data = json_decode(file_get_contents('php://input'), true);
+$action = $data['action'] ?? 'update';
+$userId = $data['user_id'];
 
 try {
-    $data = json_decode(file_get_contents('php://input'), true);
-    $userId = $data['user_id'];
-    $nickname = trim($data['nickname'] ?? '');
-    $qq = trim($data['qq'] ?? '');
-    $balance = isset($data['balance']) ? (float)$data['balance'] : null;
-    $password = trim($data['password'] ?? '');
-
-    $db = \App\Utils\DB::getInstance()->getConnection();
-
-    // Handle admin self-update
-    if($userId === 'admin') {
-        $stmt = $db->prepare("UPDATE users SET password = ? WHERE role = 'admin'");
-        $stmt->execute([$password]);
+    if ($action === 'delete') {
+        $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
         echo json_encode(['success' => true]);
     } else {
-        $userId = (int)$userId;
-        $sql = "UPDATE users SET nickname = ?, qq_number = ?";
-        $params = [$nickname, $qq];
+        $nickname = $data['nickname'] ?? '';
+        $qq = $data['qq'] ?? '';
+        $balance = (float)($data['balance'] ?? 0);
+        $status = $data['status'] ?? 'active';
+        $password = $data['password'] ?? '';
 
-        if ($balance !== null) {
-            $sql .= ", balance = ?";
-            $params[] = $balance;
-        }
+        $sql = "UPDATE users SET nickname = ?, qq_number = ?, balance = ?, status = ? WHERE id = ?";
+        $params = [$nickname, $qq, $balance, $status, $userId];
 
         if (!empty($password)) {
-            $sql .= ", password = ?";
-            $params[] = $password;
+            $sql = "UPDATE users SET nickname = ?, qq_number = ?, balance = ?, status = ?, password = ? WHERE id = ?";
+            $params = [$nickname, $qq, $balance, $status, password_hash($password, PASSWORD_DEFAULT), $userId];
         }
-
-        $sql .= " WHERE id = ?";
-        $params[] = $userId;
 
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
-
         echo json_encode(['success' => true]);
     }
 } catch (Exception $e) {

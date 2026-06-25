@@ -1,96 +1,103 @@
 <?php require_once __DIR__ . '/../check_auth.php'; ?>
-<?php
-require_once __DIR__ . '/../../../src/Utils/DB.php';
-$db = \App\Utils\DB::getInstance()->getConnection();
-$stmt = $db->query("SELECT f.*, u.username FROM finance_requests f JOIN users u ON f.user_id = u.id ORDER BY f.id DESC LIMIT 50");
-$requests = $stmt->fetchAll();
-?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>财务审核 - PC28 PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .type-deposit { color: #10b981; }
-        .type-withdraw { color: #f43f5e; }
-        .status-pending { background: #eef2ff; color: #4f46e5; }
-        .status-approved { background: #f0fdf4; color: #10b981; }
-        .status-rejected { background: #fef2f2; color: #f43f5e; }
+        .token-box { word-break: break-all; font-family: monospace; }
+        .proof-img-admin { max-width: 100%; border-radius: 1rem; cursor: zoom-in; margin-top: 10px; border: 1px solid #f1f5f9; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 min-h-screen">
     <header class="admin-header">
-        <h1>财务充提审批</h1>
-        <div class="w-6"></div>
+        <h1>财务审核流水</h1>
+        <button onclick="loadFinance()" class="text-indigo-600"><i class="fas fa-sync-alt"></i></button>
     </header>
 
-    <main class="space-y-4 pt-2">
-        <?php foreach ($requests as $req): ?>
-        <div class="card p-6">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <span class="px-2 py-0.5 rounded text-[8px] font-black uppercase status-<?= $req['status'] ?>">
-                        <?= $req['status'] === 'pending' ? '待审核' : ($req['status'] === 'approved' ? '已通过' : '已拒绝') ?>
-                    </span>
-                    <h3 class="text-sm font-black text-slate-800 mt-2"><?= htmlspecialchars($req['username']) ?></h3>
-                    <p class="text-[9px] text-slate-400 font-bold mt-1"><?= $req['created_at'] ?></p>
-                </div>
-                <div class="text-right">
-                    <p class="text-lg font-black <?= $req['type'] === 'deposit' ? 'type-deposit' : 'type-withdraw' ?>">
-                        <?= $req['type'] === 'deposit' ? '+' : '-' ?> ¥ <?= number_format($req['amount'], 2) ?>
-                    </p>
-                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest"><?= $req['type'] === 'deposit' ? '充值上分' : '提现回分' ?></p>
-                </div>
-            </div>
-
-            <?php if($req['status'] === 'pending'): ?>
-            <div class="flex gap-3 pt-4 border-t border-slate-50">
-                <button onclick="review(<?= $req['id'] ?>, 'approved')" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-black text-[10px] shadow-lg shadow-indigo-100">通过</button>
-                <button onclick="openRefusal(<?= $req['id'] ?>)" class="flex-1 py-3 bg-white border border-slate-200 text-rose-500 rounded-xl font-black text-[10px]">拒绝</button>
-            </div>
-            <?php elseif($req['status'] === 'rejected' && !empty($req['refusal_reason'])): ?>
-            <div class="mt-3 p-3 bg-rose-50 rounded-xl border border-rose-100">
-                <p class="text-[9px] text-rose-400 font-bold">拒绝理由: <?= htmlspecialchars($req['refusal_reason']) ?></p>
-            </div>
-            <?php endif; ?>
-        </div>
-        <?php endforeach; ?>
+    <main id="finance-container" class="p-4 space-y-4 pt-2">
+        <div class="p-10 text-center text-slate-300 font-bold text-xs uppercase">同步实时账单中...</div>
     </main>
 
-    <!-- Refusal Modal -->
-    <div id="refusalModal" class="fixed inset-0 z-[2000] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-6">
-        <div class="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-2xl">
-            <h3 class="text-lg font-black text-slate-800 mb-4">拒绝申请</h3>
-            <textarea id="refusal-reason" class="form-input h-24 mb-6" placeholder="请输入拒绝理由..."></textarea>
-            <div class="flex gap-4">
-                <button onclick="closeRefusal()" class="flex-1 py-4 bg-slate-100 text-slate-400 rounded-xl font-black text-xs">取消</button>
-                <button onclick="confirmRefusal()" class="flex-1 py-4 bg-rose-600 text-white rounded-xl font-black text-xs shadow-lg">确认拒绝</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        let currentId = null;
-        function openRefusal(id) { currentId = id; document.getElementById('refusalModal').classList.remove('hidden'); }
-        function closeRefusal() { document.getElementById('refusalModal').classList.add('hidden'); }
+        async function loadFinance() {
+            try {
+                const res = await fetch('/admin/api/finance_list_all.php').then(r => r.json());
+                if(res.success) {
+                    const container = document.getElementById('finance-container');
+                    container.innerHTML = res.data.map(f => {
+                        const isDeposit = f.type === 'deposit';
+                        const statusColor = f.status === 'pending' ? 'bg-amber-50 text-amber-600' : (f.status === 'approved' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600');
 
-        async function review(id, status, reason = '') {
-            const fd = new FormData();
-            fd.append('id', id);
-            fd.append('status', status);
-            fd.append('reason', reason);
-            const res = await fetch('/admin/api/finance_review.php', { method: 'POST', body: fd }).then(r => r.json());
-            if(res.success) location.reload(); else alert(res.message);
+                        let proofHtml = '';
+                        if(f.proof_img) {
+                            if(f.proof_img.includes('data:image')) {
+                                proofHtml = `<img src="${f.proof_img}" class="proof-img-admin" onclick="window.open(this.src)">`;
+                            } else {
+                                proofHtml = `<div class="token-box text-xs font-black text-slate-800 select-all">${f.proof_img}</div>
+                                             <button onclick="copyToClipboard('${f.proof_img}')" class="mt-3 text-[9px] font-black text-blue-600 uppercase border-b-2 border-blue-100 pb-0.5">复制详细信息</button>`;
+                            }
+                        }
+
+                        return `
+                            <div class="card p-6 border border-slate-100 shadow-sm relative overflow-hidden">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">${isDeposit ? '📥 充值上分' : '📤 提现回分'}</p>
+                                        <h3 class="text-lg font-black text-slate-800">¥ ${parseFloat(f.amount).toLocaleString()}</h3>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-lg text-[9px] font-black uppercase ${statusColor}">${f.status}</span>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase">会员: <span class="text-slate-800 font-black">${f.username} (UID: ${f.user_id})</span></p>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase">时间: ${f.created_at}</p>
+
+                                    ${isDeposit ? `
+                                        <div class="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                            <p class="text-[8px] font-black text-indigo-500 uppercase mb-2">支付宝口令 / 凭证</p>
+                                            ${proofHtml}
+                                        </div>
+                                    ` : `<div class="text-[10px] font-bold text-slate-500 uppercase">回分方式/账号: <span class="text-rose-600 font-black">${f.proof_img}</span></div>`}
+                                </div>
+
+                                ${f.status === 'pending' ? `
+                                    <div class="flex gap-3 mt-6 pt-6 border-t border-slate-50">
+                                        <button onclick="review(${f.id}, 'approved')" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase shadow-lg shadow-indigo-100">确认入账</button>
+                                        <button onclick="review(${f.id}, 'rejected')" class="flex-1 py-3 bg-slate-100 text-slate-400 rounded-xl font-black text-[10px] uppercase">驳回</button>
+                                    </div>
+                                ` : (f.status === 'rejected' ? `<p class="mt-4 text-[9px] font-black text-rose-400 uppercase">原因: ${f.refusal_reason || '无'}</p>` : '')}
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (e) { console.error(e); }
         }
 
-        function confirmRefusal() {
-            const r = document.getElementById('refusal-reason').value;
-            if(!r) return alert('请输入理由');
-            review(currentId, 'rejected', r);
+        async function review(id, status) {
+            let reason = '';
+            if(status === 'rejected') reason = prompt('请输入驳回原因:');
+
+            const res = await fetch('/admin/api/finance_review.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `id=${id}&status=${status}&reason=${reason}`
+            }).then(r => r.json());
+
+            if(res.success) {
+                alert('状态已更新');
+                loadFinance();
+            } else alert(res.message);
         }
+
+        function copyToClipboard(text) {
+            const clean = text.replace('口令: ', '');
+            navigator.clipboard.writeText(clean).then(() => alert('内容已复制'));
+        }
+
+        loadFinance();
     </script>
 </body>
 </html>

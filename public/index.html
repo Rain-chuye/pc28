@@ -2,125 +2,115 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PC28 - 商务大厅</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PC28 加拿大 - 官方至尊版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8fafc; font-family: -apple-system, system-ui, sans-serif; color: #1e293b; }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .nav-item { color: #64748b; font-size: 10px; font-weight: 600; }
+        body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .nav-item { color: #94a3b8; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .nav-item.active { color: #2563eb; }
-        .quick-action-btn { transition: all 0.2s ease; }
-        .quick-action-btn:active { transform: scale(0.95); opacity: 0.8; }
+        .chat-img { max-width: 200px; border-radius: 1rem; cursor: pointer; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
-    <!-- Chat Overlay -->
-    <div id="chat-overlay" class="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm hidden flex flex-col justify-end">
-        <div class="bg-white rounded-t-[2.5rem] h-full flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
+<body class="min-h-screen flex flex-col pb-24">
+    <!-- Private CS Chat -->
+    <div id="chat-overlay" class="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm hidden flex flex-col justify-end">
+        <div class="bg-white rounded-t-[2.5rem] h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-slate-50 flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><i class="fas fa-headset"></i></div>
-                    <div><h2 class="text-sm font-black">在线客服中心</h2><p class="text-[9px] text-green-500 font-bold uppercase tracking-widest flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> 私聊客服 - 只有您和客服可见</p></div>
+                    <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white"><i class="fas fa-headset"></i></div>
+                    <div><h2 class="text-sm font-black">专属客服</h2><p class="text-[9px] text-green-500 font-bold uppercase tracking-widest">在线受理中</p></div>
                 </div>
-                <button onclick="toggleChat()" class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center"><i class="fas fa-times"></i></button>
+                <button onclick="toggleChat()" class="w-10 h-10 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
             <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50"></div>
-            <div class="p-6 bg-white border-t border-slate-100 flex gap-4">
-                <input type="text" id="chat-input" class="flex-1 bg-slate-50 border-none rounded-2xl px-6 outline-none font-bold text-sm" placeholder="输入您的问题...">
-                <button onclick="sendChatMessage()" class="bg-blue-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-100"><i class="fas fa-paper-plane"></i></button>
+            <div class="p-6 bg-white border-t border-slate-50 flex flex-col gap-4">
+                <div id="chat-preview-container" class="hidden relative inline-block self-start">
+                    <img id="chat-image-preview" class="w-20 h-20 object-cover rounded-xl border-2 border-blue-100">
+                    <button onclick="clearChatImage()" class="absolute -top-2 -right-2 bg-rose-500 text-white w-5 h-5 rounded-full text-[10px]"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="document.getElementById('chat-img-input').click()" class="w-12 h-12 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center border border-slate-100 hover:bg-slate-100"><i class="fas fa-image"></i></button>
+                    <input type="file" id="chat-img-input" class="hidden" accept="image/*" onchange="handleChatImage(this)">
+                    <input type="text" id="chat-input" class="flex-1 bg-slate-50 border-none rounded-xl px-5 outline-none font-bold text-sm" placeholder="输入消息...">
+                    <button onclick="sendChatMessage()" class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100"><i class="fas fa-paper-plane"></i></button>
+                </div>
             </div>
         </div>
     </div>
 
-    <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+    <header class="bg-white border-b border-slate-100 px-6 py-4 flex justify-between items-center sticky top-0 z-[100]">
         <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-xs italic">28</div>
-            <span class="font-bold text-slate-800 tracking-tight">PC28 CANADA</span>
+            <span class="font-black text-slate-800 tracking-tight text-sm uppercase">Canada Pro</span>
         </div>
-        <div class="text-right">
-            <p class="text-[9px] text-slate-400 font-bold uppercase">账户分值</p>
+        <div onclick="location.href='/profile.html'" class="text-right cursor-pointer">
+            <p class="text-[9px] text-slate-400 font-black uppercase">我的余额</p>
             <p id="user-balance" class="text-sm font-black text-blue-600">¥ 0.00</p>
         </div>
     </header>
 
     <main class="flex-1 p-5 space-y-6">
-        <div class="bg-blue-600/5 border border-blue-100 rounded-xl px-4 py-2 flex items-center gap-3">
-            <i class="fas fa-bullhorn text-blue-600 text-xs"></i>
-            <marquee id="announcement-text" class="text-[10px] font-black text-blue-800 tracking-wide">欢迎来到 PC28 加拿大至尊版！</marquee>
-        </div>
-
-        <!-- Quick Actions Integration -->
-        <div class="grid grid-cols-3 gap-3">
-            <button onclick="location.href='/recharge.html'" class="quick-action-btn bg-indigo-600 text-white p-4 rounded-2xl shadow-lg shadow-indigo-100 flex flex-col items-center gap-2">
-                <i class="fas fa-plus-circle text-lg"></i>
-                <span class="text-[10px] font-black uppercase">充值上分</span>
-            </button>
-            <button onclick="location.href='/withdraw.html'" class="quick-action-btn bg-slate-800 text-white p-4 rounded-2xl shadow-lg shadow-slate-200 flex flex-col items-center gap-2">
-                <i class="fas fa-minus-circle text-lg"></i>
-                <span class="text-[10px] font-black uppercase">提现回分</span>
-            </button>
-            <button onclick="toggleChat()" class="quick-action-btn bg-white border border-slate-200 p-4 rounded-2xl flex flex-col items-center gap-2">
-                <i class="fas fa-headset text-indigo-600 text-lg"></i>
-                <span class="text-[10px] font-black text-slate-600 uppercase">在线客服</span>
-            </button>
+        <div class="bg-blue-600/5 border border-blue-100 rounded-2xl p-4 flex items-center gap-3">
+            <i class="fas fa-bullhorn text-blue-600 text-xs animate-bounce"></i>
+            <marquee id="announce" class="text-[10px] font-black text-blue-800 tracking-wider">正在同步官方公告...</marquee>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <div onclick="location.href='/game.html?room=low'" class="card p-6 text-center space-y-3 cursor-pointer">
+            <div onclick="location.href='/game.html?room=low'" class="card p-6 text-center space-y-3 active:scale-95 transition-all cursor-pointer">
                 <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-xl"><i class="fas fa-layer-group"></i></div>
-                <h3 class="font-bold text-sm">标准玩法</h3>
-                <p class="text-[10px] text-slate-400">2.0 经典倍率</p>
+                <h3 class="font-black text-sm text-slate-800">标准大厅</h3>
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">2.0 经典模式</p>
             </div>
-            <div onclick="location.href='/game.html?room=high'" class="card p-6 text-center space-y-3 cursor-pointer bg-blue-50/30 border-blue-100">
-                <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto text-xl shadow-lg shadow-blue-200"><i class="fas fa-crown"></i></div>
-                <h3 class="font-bold text-sm text-blue-800">至尊高倍</h3>
-                <p class="text-[10px] text-blue-400">2.8 加拿大模式</p>
+            <div onclick="location.href='/game.html?room=high'" class="card p-6 text-center space-y-3 active:scale-95 transition-all cursor-pointer bg-blue-600 border-blue-500 shadow-xl shadow-blue-100">
+                <div class="w-12 h-12 bg-white/20 text-white rounded-2xl flex items-center justify-center mx-auto text-xl"><i class="fas fa-crown"></i></div>
+                <h3 class="font-black text-sm text-white">至尊高倍</h3>
+                <p class="text-[9px] text-white/60 font-bold uppercase tracking-widest">2.8 加拿大模式</p>
             </div>
-            <div onclick="location.href='/red_packet.html'" class="card p-6 text-center space-y-3 cursor-pointer bg-orange-50 border-orange-100 col-span-2">
-                <div class="w-12 h-12 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto text-xl shadow-lg shadow-orange-200"><i class="fas fa-gift"></i></div>
-                <h3 class="font-bold text-sm text-orange-800">红包福利房</h3>
-                <p class="text-[10px] text-orange-400">每日 01:00 准时开抢 1000 元现金红包</p>
+            <div onclick="location.href='/red_packet.html'" class="card p-6 text-center space-y-3 active:scale-95 transition-all cursor-pointer bg-rose-50 border-rose-100 col-span-2">
+                <div class="w-12 h-12 bg-rose-500 text-white rounded-2xl flex items-center justify-center mx-auto text-xl shadow-lg shadow-rose-100"><i class="fas fa-gift"></i></div>
+                <h3 class="font-black text-sm text-rose-800">官方红包福利群</h3>
+                <p class="text-[9px] text-rose-400 font-bold uppercase tracking-widest">每日派发 8888 元现金红包</p>
             </div>
         </div>
 
         <div class="card overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                <h4 class="text-[11px] font-black text-slate-500 uppercase tracking-widest">近期开奖公告</h4>
-                <a href="/game.html" class="text-[10px] text-blue-600 font-bold">详情 <i class="fas fa-chevron-right ml-1"></i></a>
+            <div class="px-5 py-4 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
+                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">实时开奖动态</h4>
+                <a href="/game.html" class="text-[9px] text-blue-600 font-black uppercase">查看更多 <i class="fas fa-arrow-right ml-1"></i></a>
             </div>
-            <div id="latest-results" class="divide-y divide-slate-50">
-                <div class="p-10 text-center text-slate-300 text-xs font-bold">同步云端数据中...</div>
+            <div id="results" class="divide-y divide-slate-50">
+                <div class="p-10 text-center text-slate-200 text-xs font-bold italic">FETCHING LIVE DATA...</div>
             </div>
         </div>
     </main>
 
-    <nav class="bg-white border-t border-slate-200 p-4 pb-8 flex justify-around items-center sticky bottom-0">
+    <!-- Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 pb-8 flex justify-around items-center z-[500]">
         <a href="/" class="nav-item active flex flex-col items-center gap-1"><i class="fas fa-home text-lg"></i><span>大厅</span></a>
-        <a href="/recharge.html" class="nav-item flex flex-col items-center gap-1"><i class="fas fa-add text-lg"></i><span>充值</span></a>
-        <a href="/withdraw.html" class="nav-item flex flex-col items-center gap-1"><i class="fas fa-wallet text-lg"></i><span>回分</span></a>
-        <a href="/profile.html" class="nav-item flex flex-col items-center gap-1"><i class="fas fa-user text-lg"></i><span>我的</span></a>
+        <a href="/recharge.html" class="nav-item flex flex-col items-center gap-1"><i class="fas fa-plus-circle text-lg"></i><span>充值</span></a>
+        <button onclick="toggleChat()" class="nav-item flex flex-col items-center gap-1"><i class="fas fa-headset text-lg"></i><span>客服</span></button>
+        <a href="/profile.html" class="nav-item flex flex-col items-center gap-1"><i class="fas fa-user-circle text-lg"></i><span>我的</span></a>
     </nav>
 
     <script>
+        let chatImageBase64 = '';
         async function refresh() {
             try {
                 const res = await fetch('/api/lottery.php').then(r => r.json());
                 if(res.success) {
-                    if(res.announcement) document.getElementById('announcement-text').innerText = res.announcement;
+                    if(res.announcement) document.getElementById('announce').innerText = res.announcement;
                     const uRes = await fetch('/api/user_info.php').then(r => r.json());
-                    if(uRes.success) {
-                        document.getElementById('user-balance').innerText = '¥ ' + parseFloat(uRes.user.balance).toLocaleString();
-                        localStorage.setItem('uid', uRes.user.id);
-                    }
+                    if(uRes.success) document.getElementById('user-balance').innerText = '¥ ' + parseFloat(uRes.user.balance).toLocaleString();
 
-                    document.getElementById('latest-results').innerHTML = res.history.map(i => `
-                        <div class="px-5 py-4 flex justify-between items-center">
-                            <span class="text-[11px] text-slate-400 font-medium">#${i.issue_no}</span>
-                            <div class="flex items-center gap-4">
-                                <div class="flex gap-1.5">${i.numbers.split(',').map(n => `<span class="w-6 h-6 bg-slate-100 rounded flex items-center justify-center text-[11px] font-bold text-slate-600 border border-slate-200/50">${n}</span>`).join('')}</div>
-                                <span class="w-7 text-right text-sm font-black text-blue-600">${i.total_sum}</span>
+                    document.getElementById('results').innerHTML = res.history.map(i => `
+                        <div class="px-6 py-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
+                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-tighter">#${i.issue_no}</span>
+                            <div class="flex items-center gap-3">
+                                <div class="flex gap-1">${i.numbers.split(',').map(n => `<span class="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-black text-slate-600 border border-slate-200">${n}</span>`).join('')}</div>
+                                <span class="w-8 text-right text-xs font-black text-blue-600">${i.total_sum}</span>
                             </div>
                         </div>
                     `).join('');
@@ -138,28 +128,65 @@
             const res = await fetch('/api/chat.php').then(r => r.json());
             if(res.success) {
                 const box = document.getElementById('chat-box');
-                box.innerHTML = res.data.map(m => `
-                    <div class="flex ${m.sender_id == 0 ? '' : 'justify-end'}">
-                        <div class="max-w-[85%] p-4 text-sm font-bold shadow-sm rounded-2xl ${m.sender_id == 0 ? 'bg-indigo-600 text-white' : 'bg-white text-slate-800'}">
-                            ${m.message}
+                box.innerHTML = res.data.map(m => {
+                    const isSystem = m.sender_id == 0;
+                    const isImg = m.type === 'image';
+                    const content = isImg ? `<img src="${m.message}" class="chat-img" onclick="window.open(this.src)">` : m.message;
+                    return `
+                        <div class="flex ${isSystem ? '' : 'justify-end'}">
+                            <div class="max-w-[85%] p-4 text-sm font-bold shadow-sm rounded-2xl ${isSystem ? 'bg-blue-600 text-white' : 'bg-white text-slate-800 border border-slate-100'}">
+                                ${content}
+                                <p class="text-[8px] mt-1 opacity-50 uppercase text-right">${m.created_at.split(' ')[1]}</p>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
                 box.scrollTop = box.scrollHeight;
             }
         }
 
+        function handleChatImage(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const max = 600;
+                    let w = img.width, h = img.height;
+                    if(w > h) { if(w > max) { h *= max/w; w = max; } } else { if(h > max) { w *= max/h; h = max; } }
+                    canvas.width = w; canvas.height = h;
+                    ctx.drawImage(img, 0, 0, w, h);
+                    chatImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                    document.getElementById('chat-image-preview').src = chatImageBase64;
+                    document.getElementById('chat-preview-container').classList.remove('hidden');
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearChatImage() { chatImageBase64 = ''; document.getElementById('chat-preview-container').classList.add('hidden'); }
+
         async function sendChatMessage() {
             const input = document.getElementById('chat-input');
-            const msg = input.value;
+            const msg = chatImageBase64 || input.value.trim();
+            const type = chatImageBase64 ? 'image' : 'text';
             if(!msg) return;
-            await fetch('/api/chat.php?action=send', {
+
+            const res = await fetch('/api/chat.php?action=send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({message: msg})
-            });
-            input.value = '';
-            loadChat();
+                body: JSON.stringify({ message: msg, type: type })
+            }).then(r => r.json());
+
+            if(res.success) {
+                input.value = '';
+                clearChatImage();
+                loadChat();
+            } else alert(res.message);
         }
 
         refresh(); setInterval(refresh, 8000);

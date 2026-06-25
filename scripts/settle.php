@@ -1,6 +1,6 @@
 <?php
 /**
- * PC28 结算系统 - 精确规则修正版 (V21)
+ * PC28 结算系统 - 精确规则修正版 (V23)
  */
 require_once __DIR__ . '/../src/Utils/DB.php';
 require_once __DIR__ . '/../src/Model/User.php';
@@ -67,31 +67,20 @@ function settle($db) {
             // 2. Room Rule Processing
             if ($room == 'high') {
                 // "打高倍不中就吃完完 中了如果是对子豹子顺子13和14才回本"
-                // Interpretation: Only winners of BSSD/Combos are capped at Odds 1.0 (Principal return).
                 $isSpecialResult = ($totalSum == 13 || $totalSum == 14 || isPair($numbersStr) || isStraight($numbersStr) || isTriple($numbersStr));
 
                 if ($isWin && $isSpecialResult) {
-                    // Only cap non-number bets (Big/Small/Single/Double/Combos/Extreme/Special Plays)
-                    // Winners of specific numbers (e.g. betting "13") still get full payout.
-                    if (!is_numeric($playType)) {
-                        $finalOdds = 1.0;
-                    }
+                    // All winning bets on special results return principal (Odds 1.0)
+                    $finalOdds = 1.0;
                 }
-                // Losers remain losers (status 2).
+                // Losers get nothing (eaten).
             } else {
                 // Low Room: 13/14 rules
                 if ($totalSum == 13 || $totalSum == 14) {
                     $isCombo = in_array($playType, ['big_single','big_double','small_single','small_double']);
                     $isBSSD = in_array($playType, ['big','small','single','double']);
-
-                    if ($isCombo) {
-                        // Combos always eaten
-                        $isWin = false;
-                        $isReturn = false;
-                    } elseif ($isBSSD && $isWin) {
-                        // BSSD capped at 1.6x
-                        $finalOdds = 1.60;
-                    }
+                    if ($isCombo) { $isWin = false; }
+                    elseif ($isBSSD && $isWin) { $finalOdds = 1.60; }
                 }
             }
 

@@ -33,9 +33,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userId = $_SESSION['user_id'];
     $db = \App\Utils\DB::getInstance()->getConnection();
 
-    $userStmt = $db->prepare("SELECT nickname, username FROM users WHERE id = ?");
+    $userStmt = $db->prepare("SELECT nickname, username, status FROM users WHERE id = ?");
     $userStmt->execute([$userId]);
     $user = $userStmt->fetch();
+
+    if (!$user || $user['status'] === 'frozen') {
+        echo json_encode(['success' => false, 'message' => '您的账号已被冻结，无法下注']);
+        die;
+    }
+
     $displayName = $user['nickname'] ?: $user['username'];
 
     $stmt = $db->prepare("SELECT play_type, odds_type FROM bets WHERE user_id = ? AND issue_no = ?");

@@ -3,168 +3,129 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>客服中心 - PC28 PRO</title>
+    <title>私聊客服管理 - PC28 PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .view-hidden { display: none !important; }
-        .chat-bubble-admin { background: #4f46e5; color: white; border-radius: 1.25rem 1.25rem 0.25rem 1.25rem; }
-        .chat-bubble-user { background: white; color: #1e293b; border-radius: 1.25rem 1.25rem 1.25rem 0.25rem; border: 1px solid #f1f5f9; }
+        .chat-img-admin { max-width: 150px; border-radius: 0.5rem; cursor: zoom-in; }
     </style>
 </head>
-<body class="bg-slate-50">
-    <!-- View 1: Conversation List -->
-    <div id="view-list">
-        <header class="admin-header">
-            <h1>客服中心</h1>
-            <button onclick="switchView('rules')" class="text-indigo-600 text-xs font-black uppercase"><i class="fas fa-robot mr-1"></i>机器人</button>
-        </header>
-        <main id="conversation-list" class="space-y-1">
-            <div class="p-10 text-center text-slate-300 font-bold text-xs">正在载入咨询列表...</div>
-        </main>
-    </div>
+<body class="bg-slate-50 min-h-screen">
+    <header class="admin-header">
+        <h1>客服私聊中心</h1>
+        <button onclick="loadAllChat()" class="text-indigo-600"><i class="fas fa-sync-alt"></i></button>
+    </header>
 
-    <!-- View 2: Chat Detail -->
-    <div id="view-detail" class="view-hidden fixed inset-0 z-[2000] bg-white flex flex-col">
-        <header class="p-4 border-b flex justify-between items-center bg-white shrink-0">
-            <button onclick="switchView('list')" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400"><i class="fas fa-chevron-left"></i></button>
-            <h1 id="detail-title" class="font-black text-sm">正在对话</h1>
-            <div class="w-10"></div>
-        </header>
-        <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50"></div>
-        <div class="p-4 border-t bg-white flex gap-3 shrink-0">
-            <input type="text" id="reply-msg" class="flex-1 bg-slate-50 border-none rounded-xl px-5 outline-none font-bold text-sm" placeholder="输入回复内容...">
-            <button onclick="sendReply()" class="bg-indigo-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane"></i></button>
+    <main id="chat-list" class="p-4 space-y-4 pb-32">
+        <div class="p-10 text-center text-slate-300 font-bold text-xs uppercase italic">SYNCING PRIVATE LOGS...</div>
+    </main>
+
+    <!-- Admin Reply Bar -->
+    <div id="reply-panel" class="fixed bottom-[80px] left-0 right-0 bg-white border-t border-slate-100 p-4 shadow-xl z-[900] hidden">
+        <div class="max-w-2xl mx-auto space-y-4">
+            <div id="reply-preview" class="hidden relative inline-block">
+                <img id="reply-img-preview" class="w-16 h-16 object-cover rounded-lg border border-slate-100">
+                <button onclick="clearReplyImg()" class="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[8px]"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('reply-file').click()" class="w-12 h-12 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center border border-slate-100"><i class="fas fa-image"></i></button>
+                <input type="file" id="reply-file" class="hidden" accept="image/*" onchange="handleReplyImg(this)">
+                <input type="text" id="reply-msg" class="flex-1 bg-slate-100 border-none rounded-xl px-5 outline-none font-bold text-sm" placeholder="回复该会员...">
+                <button onclick="sendReply()" class="bg-indigo-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane"></i></button>
+            </div>
         </div>
     </div>
 
-    <!-- View 3: Robot Rules -->
-    <div id="view-rules" class="view-hidden">
-        <header class="admin-header">
-            <button onclick="switchView('list')" class="text-slate-400"><i class="fas fa-chevron-left"></i></button>
-            <h1>机器人规则</h1>
-            <div class="w-6"></div>
-        </header>
-        <main class="p-4 space-y-4">
-            <div class="card p-6 space-y-4">
-                <input type="text" id="rule-keyword" class="form-input" placeholder="触发关键词 (如: 赔率)">
-                <textarea id="rule-response" class="form-input h-20" placeholder="自动回复内容..."></textarea>
-                <button onclick="addRule()" class="w-full btn-indigo">添加规则</button>
-            </div>
-            <div id="rules-list" class="space-y-2"></div>
-        </main>
-    </div>
-
     <script>
-        let currentUserId = null;
-        let view = 'list';
+        let currentTargetId = null;
+        let replyImageBase64 = '';
 
-        function switchView(v) {
-            view = v;
-            document.getElementById('view-list').classList.toggle('view-hidden', v !== 'list');
-            document.getElementById('view-detail').classList.toggle('view-hidden', v !== 'detail');
-            document.getElementById('view-rules').classList.toggle('view-hidden', v !== 'rules');
-            if(v === 'list') loadConversations();
-        }
-
-        async function loadConversations() {
+        async function loadAllChat() {
             const res = await fetch('/api/chat.php?action=get_all_admin').then(r => r.json());
             if(res.success) {
+                const container = document.getElementById('chat-list');
+                // Group by user
                 const groups = {};
                 res.data.forEach(m => {
-                    const uid = m.sender_id === 0 ? m.receiver_id : m.sender_id;
-                    if(!groups[uid]) groups[uid] = {id: uid, name: m.sender_name || '用户'+uid, last_msg: '', last_time: '', msgs: []};
-                    groups[uid].last_msg = m.message;
-                    groups[uid].last_time = m.created_at;
-                    groups[uid].msgs.push(m);
+                    const uid = m.sender_id == 0 ? m.receiver_id : m.sender_id;
+                    if(!groups[uid]) groups[uid] = [];
+                    groups[uid].push(m);
                 });
 
-                const list = document.getElementById('conversation-list');
-                const html = Object.values(groups).sort((a,b) => b.id - a.id).map(u => `
-                    <div onclick='openChat(${JSON.stringify(u)})' class="bg-white p-6 border-b border-slate-50 flex justify-between items-center active:bg-slate-50 transition-colors">
-                        <div class="flex-1 min-w-0 pr-4">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-sm font-black text-slate-800">${u.name}</span>
-                                <span class="text-[8px] text-slate-300 font-bold">${u.last_time.split(' ')[1]}</span>
+                container.innerHTML = Object.entries(groups).map(([uid, msgs]) => {
+                    const last = msgs[msgs.length - 1];
+                    const name = last.sender_name || '会员' + uid;
+                    return `
+                        <div class="card p-5 border border-slate-100 hover:border-indigo-200 transition-all cursor-pointer" onclick="openReply(${uid})">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="text-xs font-black text-slate-800 uppercase tracking-tighter">${name} (UID: ${uid})</p>
+                                <span class="text-[8px] font-black text-slate-300 uppercase">${last.created_at}</span>
                             </div>
-                            <p class="text-[10px] text-slate-400 font-bold truncate">${u.last_msg}</p>
+                            <div class="space-y-3 max-h-40 overflow-y-auto no-scrollbar pr-2">
+                                ${msgs.slice(-3).map(m => {
+                                    const isSystem = m.sender_id == 0;
+                                    const isImg = m.type === 'image';
+                                    const body = isImg ? `<img src="${m.message}" class="chat-img-admin" onclick="event.stopPropagation();window.open(this.src)">` : m.message;
+                                    return `<div class="flex ${isSystem ? 'justify-end' : ''}"><div class="max-w-[80%] p-2.5 rounded-xl text-[10px] font-bold ${isSystem ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-600'}">${body}</div></div>`;
+                                }).join('')}
+                            </div>
                         </div>
-                        <i class="fas fa-chevron-right text-[10px] text-slate-200"></i>
-                    </div>
-                `).join('');
-                list.innerHTML = html || '<div class="p-20 text-center text-slate-300 font-bold text-xs">无活跃咨询</div>';
+                    `;
+                }).join('');
             }
         }
 
-        function openChat(user) {
-            currentUserId = user.id;
-            document.getElementById('detail-title').innerText = `对话: ${user.name}`;
-            renderChat(user.msgs);
-            switchView('detail');
+        function openReply(uid) {
+            currentTargetId = uid;
+            document.getElementById('reply-panel').classList.remove('hidden');
+            document.getElementById('reply-msg').focus();
         }
 
-        function renderChat(msgs) {
-            const box = document.getElementById('chat-box');
-            box.innerHTML = msgs.map(m => `
-                <div class="flex ${m.sender_id === 0 ? 'justify-end' : ''}">
-                    <div class="max-w-[85%] p-4 shadow-sm ${m.sender_id === 0 ? 'chat-bubble-admin' : 'chat-bubble-user'}">
-                        <p class="text-xs font-bold">${m.message}</p>
-                        <p class="text-[8px] mt-1 opacity-50 font-black uppercase text-right">${m.created_at.split(' ')[1]}</p>
-                    </div>
-                </div>
-            `).join('');
-            box.scrollTop = box.scrollHeight;
+        function handleReplyImg(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const max = 800;
+                    let w = img.width, h = img.height;
+                    if(w > h) { if(w > max) { h *= max/w; w = max; } } else { if(h > max) { w *= max/h; h = max; } }
+                    canvas.width = w; canvas.height = h;
+                    ctx.drawImage(img, 0, 0, w, h);
+                    replyImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                    document.getElementById('reply-img-preview').src = replyImageBase64;
+                    document.getElementById('reply-preview').classList.remove('hidden');
+                };
+            };
+            reader.readAsDataURL(file);
         }
+
+        function clearReplyImg() { replyImageBase64 = ''; document.getElementById('reply-preview').classList.add('hidden'); }
 
         async function sendReply() {
-            const msg = document.getElementById('reply-msg').value;
-            if(!msg) return;
+            const msg = replyImageBase64 || document.getElementById('reply-msg').value.trim();
+            const type = replyImageBase64 ? 'image' : 'text';
+            if(!msg || !currentTargetId) return;
+
             const res = await fetch('/api/chat.php?action=send_admin', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({user_id: currentUserId, message: msg})
+                body: JSON.stringify({ user_id: currentTargetId, message: msg, type: type })
             }).then(r => r.json());
+
             if(res.success) {
                 document.getElementById('reply-msg').value = '';
-                // Reload specific chat
-                const allRes = await fetch('/api/chat.php?action=get_all_admin').then(r => r.json());
-                renderChat(allRes.data.filter(m => m.sender_id == currentUserId || m.receiver_id == currentUserId));
-            }
+                clearReplyImg();
+                loadAllChat();
+            } else alert(res.message);
         }
 
-        async function loadRules() {
-            const res = await fetch('/api/chat.php?action=get_bot_rules').then(r => r.json());
-            if(res.success) {
-                document.getElementById('rules-list').innerHTML = res.data.map(r => `
-                    <div class="card p-4 flex justify-between items-center">
-                        <div class="flex-1 min-w-0 pr-4">
-                            <p class="text-[8px] font-black text-indigo-600 uppercase mb-1">关键词: ${r.keyword || '通用'}</p>
-                            <p class="text-xs font-bold text-slate-700 truncate">${r.response}</p>
-                        </div>
-                        <button onclick="deleteRule(${r.id})" class="text-rose-400"><i class="fas fa-trash-alt"></i></button>
-                    </div>
-                `).join('');
-            }
-        }
-
-        async function addRule() {
-            const k = document.getElementById('rule-keyword').value;
-            const r = document.getElementById('rule-response').value;
-            if(!r) return alert('内容不能为空');
-            await fetch('/api/chat.php?action=add_bot_rule', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({keyword: k, response: r}) });
-            document.getElementById('rule-keyword').value = ''; document.getElementById('rule-response').value = '';
-            loadRules();
-        }
-
-        async function deleteRule(id) {
-            await fetch(`/api/chat.php?action=delete_bot_rule&id=${id}`);
-            loadRules();
-        }
-
-        loadConversations();
-        loadRules();
-        setInterval(() => { if(view === 'list') loadConversations(); }, 5000);
+        loadAllChat();
+        setInterval(loadAllChat, 10000);
     </script>
 </body>
 </html>
