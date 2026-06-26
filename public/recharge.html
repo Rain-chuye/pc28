@@ -2,53 +2,59 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>积分充值 - PC28</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>积分充值 - 东爷国际</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }
-        .card { background: white; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; }
+        .card { background: white; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; }
+        .input-group label { display: block; font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.05em; }
+        .form-input { width: 100%; border: 1px solid #f1f5f9; background: #f8fafc; padding: 14px 18px; border-radius: 1rem; font-size: 14px; font-weight: 700; outline: none; transition: all 0.2s; }
+        .form-input:focus { border-color: #2563eb; background: white; box-shadow: 0 0 0 4px rgba(37,99,235,0.05); }
     </style>
 </head>
-<body class="p-6">
+<body class="p-6 pb-12">
     <header class="flex items-center gap-4 mb-8">
-        <button onclick="history.back()" class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm"><i class="fas fa-chevron-left text-xs"></i></button>
-        <h1 class="text-xl font-black text-slate-800">积分充值</h1>
+        <button onclick="history.back()" class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center text-slate-400 border border-slate-100 shadow-sm transition-transform active:scale-90"><i class="fas fa-chevron-left text-xs"></i></button>
+        <div>
+            <h1 class="text-xl font-black text-slate-800">积分充值</h1>
+            <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-0.5">Top-up Balance</p>
+        </div>
     </header>
 
     <div class="space-y-6">
-        <div class="card p-6">
-            <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">充值福利说明</h3>
-            <div class="space-y-2 text-[11px] font-bold text-slate-600 leading-relaxed">
-                <p class="text-blue-600">✨ 新人注册首充 20 送 21 [仅一次]</p>
-                <p>🎁 每日首次充值福利：</p>
-                <div class="grid grid-cols-2 gap-2 opacity-80">
-                    <p>• 10 送 1</p><p>• 20 送 4</p>
-                    <p>• 30 送 10</p><p>• 40 送 12</p>
-                    <p>• 50 送 20</p><p>• 100 送 60</p>
+        <div class="card p-6 bg-blue-600 border-none relative overflow-hidden">
+            <i class="fas fa-gift absolute -right-6 -bottom-6 text-7xl text-white opacity-10 rotate-12"></i>
+            <h3 class="text-[10px] font-black text-blue-100 uppercase mb-4 tracking-widest relative z-10">限时充值福利 / Promotions</h3>
+            <div class="space-y-3 text-xs font-bold text-white leading-relaxed relative z-10">
+                <p class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-yellow-400 rounded-full"></span> 新人首充 20 元额外赠送 21 积分</p>
+                <div class="grid grid-cols-2 gap-x-6 gap-y-2 pt-2 border-t border-white/10 opacity-90">
+                    <p>• 10 送 1</p><p>• 50 送 20</p>
+                    <p>• 20 送 4</p><p>• 100 送 60</p>
                 </div>
             </div>
         </div>
 
-        <div class="card p-6 space-y-4">
-            <div>
-                <label class="text-[10px] font-black text-slate-300 uppercase mb-2 block">充值金额 (最低15)</label>
-                <input type="number" id="amount" class="w-full bg-slate-50 border border-slate-100 p-4 rounded-xl font-black text-slate-800 outline-none" placeholder="输入金额">
+        <div class="card p-7 space-y-5">
+            <div class="input-group">
+                <label>充值金额 (MIN 15)</label>
+                <input type="number" id="amount" class="form-input" placeholder="0.00" inputmode="numeric">
             </div>
-            <div>
-                <label class="text-[10px] font-black text-slate-300 uppercase mb-2 block">支付详情 / 红包口令</label>
-                <input type="text" id="token" class="w-full bg-slate-50 border border-slate-100 p-4 rounded-xl font-black text-slate-800 outline-none" placeholder="输入口令或支付描述">
+            <div class="input-group">
+                <label>支付凭证 / 红包口令</label>
+                <input type="text" id="token" class="form-input" placeholder="输入口令或支付说明">
             </div>
-            <div>
-                <label class="text-[10px] font-black text-slate-300 uppercase mb-2 block">上传支付凭证 (可选)</label>
-                <div class="relative w-full h-40 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center cursor-pointer overflow-hidden" onclick="document.getElementById('proof').click()">
-                    <i class="fas fa-camera text-slate-300 text-2xl mb-2"></i>
-                    <p class="text-[9px] font-black text-slate-400">点击拍照或上传</p>
-                    <img id="preview" class="hidden absolute inset-0 w-full h-full object-contain p-2 bg-white rounded-xl z-20">
+            <div class="input-group">
+                <label>转账截图 (可选)</label>
+                <div class="relative w-full h-44 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer overflow-hidden transition-colors hover:bg-slate-100" onclick="document.getElementById('proof').click()">
+                    <i class="fas fa-cloud-upload-alt text-slate-300 text-3xl mb-3"></i>
+                    <p class="text-[10px] font-black text-slate-400">点击选择图片或拍照上传</p>
+                    <img id="preview" class="hidden absolute inset-0 w-full h-full object-contain p-2 bg-white rounded-2xl z-20">
                 </div>
                 <input type="file" id="proof" class="hidden" accept="image/*" onchange="handleImage(this)">
             </div>
-            <button id="submitBtn" onclick="submitRecharge()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-black text-xs shadow-lg active:scale-95 transition-all">提交充值申请</button>
+            <button id="submitBtn" onclick="submitRecharge()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase shadow-xl shadow-blue-100 transition-all active:scale-95">提交申请 / Submit</button>
         </div>
     </div>
 
@@ -64,12 +70,12 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    const max = 600;
+                    const max = 800;
                     let w = img.width, h = img.height;
                     if(w > h) { if(w > max) { h *= max/w; w = max; } } else { if(h > max) { w *= max/h; h = max; } }
                     canvas.width = w; canvas.height = h;
                     ctx.drawImage(img, 0, 0, w, h);
-                    base64Image = canvas.toDataURL('image/jpeg', 0.5);
+                    base64Image = canvas.toDataURL('image/jpeg', 0.6);
                     document.getElementById('preview').src = base64Image;
                     document.getElementById('preview').classList.remove('hidden');
                 };
@@ -81,24 +87,23 @@
             const btn = document.getElementById('submitBtn');
             const amount = parseFloat(document.getElementById('amount').value);
             const token = document.getElementById('token').value.trim();
-            if(isNaN(amount) || amount < 15) return alert('最低充值 15 元');
+            if(isNaN(amount) || amount < 15) return alert('最低充值金额为 15 元');
             if(!token && !base64Image) return alert('请提供支付口令或凭证截图');
 
-            btn.disabled = true; btn.innerText = '提交中...';
+            btn.disabled = true; btn.innerText = '正在提交...';
             try {
-                const payload = { amount, token, proof_image: base64Image };
                 const res = await fetch('/api/finance.php?action=recharge', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ amount, token, proof_image: base64Image })
                 }).then(r => r.json());
 
                 if(res.success) {
-                    alert('申请已提交，财务将尽快核实并入账');
+                    alert('申请已提交，请耐心等待财务审核');
                     history.back();
                 } else alert(res.message);
-            } catch(e) { alert('提交失败，请重试'); }
-            btn.disabled = false; btn.innerText = '提交申请';
+            } catch(e) { alert('服务异常，请重试'); }
+            btn.disabled = false; btn.innerText = '提交申请 / Submit';
         }
     </script>
 </body>

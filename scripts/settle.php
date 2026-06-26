@@ -1,6 +1,6 @@
 <?php
 /**
- * PC28 结算系统 - 精确规则修正版 (V23)
+ * 东爷国际 结算系统 - 精确规则修正版 (V23)
  */
 require_once __DIR__ . '/../src/Utils/DB.php';
 require_once __DIR__ . '/../src/Model/User.php';

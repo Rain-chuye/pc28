@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>系统配置 - PC28 PRO</title>
+    <title>系统配置 - 东爷国际 PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -21,6 +21,10 @@
                 <div class="input-group">
                     <label>首页滚动公告</label>
                     <textarea id="announcement" class="form-input h-24"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>登录弹窗公告 (支持 HTML)</label>
+                    <textarea id="login_announcement" class="form-input h-32" placeholder="用户每次登录会话看到一次"></textarea>
                 </div>
                 <div class="input-group">
                     <label>邀请链接前缀</label>
@@ -64,6 +68,7 @@
             const res = await fetch('/api/system_info.php?action=get_settings').then(r => r.json());
             if(res.success) {
                 document.getElementById('announcement').value = res.data.announcement || '';
+                document.getElementById('login_announcement').value = res.data.login_announcement || '';
                 document.getElementById('agent-link').value = res.data.agent_link_prefix || '';
                 document.getElementById('draw-interval').value = res.data.custom_draw_interval || 300;
                 document.getElementById('mute-all').checked = res.data.chat_mute_all == '1';
@@ -73,6 +78,7 @@
         async function saveSettings() {
             const payload = {
                 announcement: document.getElementById('announcement').value,
+                login_announcement: document.getElementById('login_announcement').value,
                 agent_link_prefix: document.getElementById('agent-link').value,
                 custom_draw_interval: document.getElementById('draw-interval').value,
                 chat_mute_all: document.getElementById('mute-all').checked ? '1' : '0',
@@ -88,5 +94,14 @@
         }
         loadSettings();
     </script>
+    <style>
+        body { background: #f8fafc; padding: 20px; font-family: sans-serif; }
+        .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+        .admin-header h1 { font-size: 18px; font-weight: 900; color: #1e293b; }
+        .card { background: white; padding: 24px; border-radius: 24px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+        .input-group label { display: block; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+        .form-input { w-full: 100%; width: 100%; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; font-size: 12px; font-weight: 600; outline: none; transition: all 0.2s; }
+        .form-input:focus { border-color: #6366f1; background: white; }
+    </style>
 </body>
 </html>

@@ -1,6 +1,6 @@
 <?php
 /**
- * PC28 采集器 - 深度28 (shendu28.com) 倒计时同步版
+ * 东爷国际 采集器 - 深度28 (shendu28.com) 倒计时同步版
  */
 require_once __DIR__ . '/../src/Utils/DB.php';
 require_once __DIR__ . '/../src/Config/database.php';

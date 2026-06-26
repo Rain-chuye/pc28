@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PC28 加拿大 - 官方至尊版</title>
+    <title>东爷国际 - 官方至尊版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -12,9 +12,27 @@
         .nav-item { color: #94a3b8; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .nav-item.active { color: #2563eb; }
         .chat-img { max-width: 200px; border-radius: 1rem; cursor: pointer; }
+        .modal-backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col pb-24">
+    <!-- Login Announcement Modal -->
+    <div id="login-announce-modal" class="fixed inset-0 z-[2000] modal-backdrop hidden flex items-center justify-center p-6">
+        <div class="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in duration-300">
+            <div class="bg-blue-600 p-8 text-center relative">
+                <i class="fas fa-bullhorn text-white text-4xl mb-4 opacity-20 absolute top-4 right-4 rotate-12"></i>
+                <h2 class="text-white font-black text-xl relative z-10">系统公告</h2>
+                <p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest mt-1 relative z-10">Official Announcement</p>
+            </div>
+            <div id="login-announce-content" class="p-8 text-slate-600 text-sm font-bold leading-relaxed max-h-[50vh] overflow-y-auto">
+                <!-- Content injected here -->
+            </div>
+            <div class="p-6 pt-0">
+                <button onclick="closeAnnounce()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-xs shadow-lg shadow-blue-100 hover:bg-blue-700 transition-colors">我知道了</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Private CS Chat -->
     <div id="chat-overlay" class="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm hidden flex flex-col justify-end">
         <div class="bg-white rounded-t-[2.5rem] h-[90vh] flex flex-col shadow-2xl overflow-hidden">
@@ -43,8 +61,8 @@
 
     <header class="bg-white border-b border-slate-100 px-6 py-4 flex justify-between items-center sticky top-0 z-[100]">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-xs italic">28</div>
-            <span class="font-black text-slate-800 tracking-tight text-sm uppercase">Canada Pro</span>
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-xs italic">DY</div>
+            <span class="font-black text-slate-800 tracking-tight text-sm uppercase">东爷国际 PRO</span>
         </div>
         <div onclick="location.href='/profile.html'" class="text-right cursor-pointer">
             <p class="text-[9px] text-slate-400 font-black uppercase">我的余额</p>
@@ -53,8 +71,8 @@
     </header>
 
     <main class="flex-1 p-5 space-y-6">
-        <div class="bg-blue-600/5 border border-blue-100 rounded-2xl p-4 flex items-center gap-3">
-            <i class="fas fa-bullhorn text-blue-600 text-xs animate-bounce"></i>
+        <div class="bg-white border border-slate-100 rounded-2xl p-3 flex items-center gap-3 shadow-sm">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shrink-0"><i class="fas fa-bullhorn text-[10px] animate-pulse"></i></div>
             <marquee id="announce" class="text-[10px] font-black text-blue-800 tracking-wider">正在同步官方公告...</marquee>
         </div>
 
@@ -103,7 +121,12 @@
                 if(res.success) {
                     if(res.announcement) document.getElementById('announce').innerText = res.announcement;
                     const uRes = await fetch('/api/user_info.php').then(r => r.json());
-                    if(uRes.success) document.getElementById('user-balance').innerText = '¥ ' + parseFloat(uRes.user.balance).toLocaleString();
+                    if(uRes.success) {
+                        document.getElementById('user-balance').innerText = '¥ ' + parseFloat(uRes.user.balance).toLocaleString();
+                        checkLoginAnnounce();
+                    } else {
+                        location.href = '/login.html';
+                    }
 
                     document.getElementById('results').innerHTML = res.history.map(i => `
                         <div class="px-6 py-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
@@ -116,6 +139,20 @@
                     `).join('');
                 }
             } catch(e) {}
+        }
+
+        async function checkLoginAnnounce() {
+            if (sessionStorage.getItem('announce_shown')) return;
+            const res = await fetch('/api/system_info.php').then(r => r.json());
+            if (res.success && res.data.login_announcement) {
+                document.getElementById('login-announce-content').innerHTML = res.data.login_announcement;
+                document.getElementById('login-announce-modal').classList.remove('hidden');
+                sessionStorage.setItem('announce_shown', 'true');
+            }
+        }
+
+        function closeAnnounce() {
+            document.getElementById('login-announce-modal').classList.add('hidden');
         }
 
         function toggleChat() {

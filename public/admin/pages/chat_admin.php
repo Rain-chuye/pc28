@@ -3,57 +3,68 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>聊天室监控 - PC28 管理后台</title>
+    <title>聊天室监控 - 东爷国际</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .room-tab.active { border-color: #4f46e5; color: #4f46e5; background: #f5f3ff; }
+        body { background: #f8fafc; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .chat-scroll { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+        .bubble { max-width: 80%; padding: 0.75rem 1rem; border-radius: 1rem; font-size: 13px; font-weight: 500; }
+        .bubble-admin { background: #6366f1; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .bubble-user { background: white; color: #1e293b; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #f1f5f9; }
+        .room-tab { padding: 0.5rem 1.5rem; border-radius: 100px; font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .room-tab.active { background: #6366f1; color: white; }
+        .room-tab:not(.active) { color: #94a3b8; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
-    <header class="admin-header">
-        <h1>聊天监控与管理</h1>
-        <div class="flex gap-2">
-            <button onclick="clearRoom()" class="bg-rose-500 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase"><i class="fas fa-trash-alt mr-1"></i> 清空当前频道</button>
+<body>
+    <header class="bg-white border-b border-slate-100 p-6 flex justify-between items-center shrink-0 shadow-sm">
+        <div class="flex items-center gap-6">
+            <h1 class="text-lg font-black text-slate-800">公共聊天室监控</h1>
+            <div class="flex bg-slate-50 p-1 rounded-full border border-slate-100">
+                <div id="tab-low" onclick="switchRoom('low')" class="room-tab">标准房</div>
+                <div id="tab-high" onclick="switchRoom('high')" class="room-tab active">至尊房</div>
+            </div>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="openRedPacketModal()" class="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest"><i class="fas fa-gift mr-1"></i> 派发红包</button>
+            <button onclick="clearRoom()" class="text-slate-400 hover:text-rose-500 transition-colors"><i class="fas fa-trash-alt"></i></button>
         </div>
     </header>
 
-    <div class="p-4 flex gap-2 bg-white sticky top-[60px] z-[800] shadow-sm">
-        <button onclick="switchRoom('high')" id="tab-high" class="room-tab flex-1 py-3 border-b-4 border-transparent font-black text-xs uppercase active">🇨🇦 加拿大高倍</button>
-        <button onclick="switchRoom('low')" id="tab-low" class="room-tab flex-1 py-3 border-b-4 border-transparent font-black text-xs uppercase text-slate-400">🇨🇦 加拿大标准</button>
-        <button onclick="switchRoom('red_packet')" id="tab-red_packet" class="room-tab flex-1 py-3 border-b-4 border-transparent font-black text-xs uppercase text-slate-400">🧧 福利红包房</button>
-    </div>
+    <main id="chat-box" class="chat-scroll no-scrollbar bg-slate-50/50"></main>
 
-    <main class="max-w-2xl mx-auto p-4 space-y-4" id="chat-stream">
-        <div class="p-10 text-center text-slate-300 font-bold text-xs">正在实时同步消息...</div>
-    </main>
-
-    <div class="fixed bottom-[80px] left-0 right-0 p-4 bg-white border-t border-slate-100 z-[900] space-y-4">
-        <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-            <button onclick="addEmoji('🧧')" class="p-2 bg-slate-50 rounded-lg text-lg">🧧</button>
-            <button onclick="addEmoji('🚀')" class="p-2 bg-slate-50 rounded-lg text-lg">🚀</button>
-            <button onclick="addEmoji('💰')" class="p-2 bg-slate-50 rounded-lg text-lg">💰</button>
-            <button onclick="addEmoji('🎉')" class="p-2 bg-slate-50 rounded-lg text-lg">🎉</button>
-            <button onclick="openRedPacketModal()" class="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase">派发红包</button>
+    <footer class="p-6 bg-white border-t border-slate-100 shadow-2xl shrink-0">
+        <div class="max-w-4xl mx-auto flex gap-4">
+            <input type="text" id="admin-msg" class="flex-1 bg-slate-50 border-none rounded-2xl px-6 outline-none font-bold text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 transition-all" placeholder="以管理员身份发言..." onkeydown="if(event.key==='Enter') sendMsg()">
+            <button onclick="sendMsg()" class="bg-indigo-600 text-white px-8 rounded-2xl font-black text-xs uppercase shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-transform active:scale-95">发送</button>
         </div>
-        <div class="flex gap-3">
-            <input type="text" id="admin-msg" class="flex-1 bg-slate-100 border-none rounded-xl px-5 outline-none font-bold text-sm" placeholder="以系统身份发送消息...">
-            <button onclick="sendMsg()" class="bg-indigo-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
+    </footer>
 
-    <!-- Red Packet Modal -->
     <div id="rpModal" class="fixed inset-0 z-[2000] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-6">
-        <div class="bg-white rounded-3xl p-8 w-full max-w-sm">
-            <h3 class="font-black text-slate-800 mb-6 uppercase text-xs tracking-widest">发布群红包</h3>
-            <div class="space-y-4">
-                <input type="number" id="rp-amount" class="form-input" placeholder="总金额 (¥)">
-                <input type="number" id="rp-count" class="form-input" placeholder="红包个数">
-                <input type="number" id="rp-req" class="form-input" placeholder="流水门槛 (¥, 可不填)">
+        <div class="bg-white rounded-[2.5rem] w-full max-w-sm p-8 space-y-6 shadow-2xl">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto text-2xl mb-4"><i class="fas fa-gift"></i></div>
+                <h2 class="text-xl font-black text-slate-800">发送全服红包</h2>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Global Red Packet</p>
             </div>
-            <div class="flex gap-4 mt-8">
-                <button onclick="closeRp()" class="flex-1 py-3 text-slate-400 font-black text-[10px]">取消</button>
-                <button onclick="submitRp()" class="flex-1 py-3 bg-orange-500 text-white rounded-xl font-black text-[10px]">确认派发</button>
+            <div class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-1">红包总金额</label>
+                    <input type="number" id="rp-amount" class="w-full bg-slate-50 border-none rounded-xl p-4 font-black text-slate-800 outline-none" value="100">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-1">红包总个数</label>
+                    <input type="number" id="rp-count" class="w-full bg-slate-50 border-none rounded-xl p-4 font-black text-slate-800 outline-none" value="10">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-1">领取流水要求</label>
+                    <input type="number" id="rp-req" class="w-full bg-slate-50 border-none rounded-xl p-4 font-black text-slate-800 outline-none" value="0">
+                </div>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="closeRp()" class="flex-1 py-4 bg-slate-100 text-slate-400 rounded-2xl font-black text-xs uppercase">取消</button>
+                <button onclick="submitRp()" class="flex-1 py-4 bg-rose-500 text-white rounded-2xl font-black text-xs uppercase shadow-lg shadow-rose-100">立即派发</button>
             </div>
         </div>
     </div>
@@ -62,27 +73,29 @@
         let currentRoom = 'high';
         function switchRoom(r) {
             currentRoom = r;
-            document.querySelectorAll('.room-tab').forEach(t => {
-                t.classList.toggle('active', t.id === 'tab-'+r);
-                t.classList.toggle('text-slate-400', t.id !== 'tab-'+r);
-            });
+            document.querySelectorAll('.room-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-'+r).classList.add('active');
             loadMsgs();
         }
 
         async function loadMsgs() {
             const res = await fetch(`/admin/api/chat_management.php?action=get&room=${currentRoom}`).then(r => r.json());
             if(res.success) {
-                document.getElementById('chat-stream').innerHTML = res.data.map(m => `
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center font-black text-[10px] text-slate-400">${m.username[0]}</div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-center mb-1">
-                                <p class="text-[9px] font-black text-slate-400 uppercase">${m.username} <span class="ml-2 opacity-50">${m.created_at}</span></p>
+                const box = document.getElementById('chat-box');
+                const wasAtBottom = box.scrollHeight - box.scrollTop <= box.clientHeight + 100;
+                box.innerHTML = res.data.reverse().map(m => {
+                    const isSystem = m.user_id == 0;
+                    return `
+                        <div class="bubble ${isSystem ? 'bubble-admin' : 'bubble-user'}">
+                            <div class="flex items-center gap-2 mb-1 opacity-50 text-[9px] font-black uppercase">
+                                <span>${m.username}</span>
+                                <span>${m.created_at.split(' ')[1]}</span>
                             </div>
-                            <p class="text-xs font-bold text-slate-700 leading-relaxed">${m.message.replace(/\n/g, '<br>')}</p>
+                            <p class="font-bold leading-relaxed">${m.message.replace(/\n/g, '<br>')}</p>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
+                if(wasAtBottom) box.scrollTop = box.scrollHeight;
             }
         }
 
@@ -103,7 +116,6 @@
             loadMsgs();
         }
 
-        function addEmoji(e) { document.getElementById('admin-msg').value += e; }
         function openRedPacketModal() { document.getElementById('rpModal').classList.remove('hidden'); }
         function closeRp() { document.getElementById('rpModal').classList.add('hidden'); }
         async function submitRp() {
