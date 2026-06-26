@@ -1,7 +1,7 @@
 <?php
 return [
     'host' => 'localhost',
-    'dbname' => 'pc28_db',
+    'dbname' => '东爷国际_db',
     'user' => 'root',
     'password' => 'password',
     'port' => 3306,

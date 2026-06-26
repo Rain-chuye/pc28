@@ -3,91 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>账户中心 - PC28</title>
+    <title>账户中心 - 东爷国际</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8fafc; color: #1e293b; font-family: -apple-system, sans-serif; }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-        .avatar-img { width: 80px; height: 80px; border-radius: 2rem; object-fit: cover; border: 4px solid rgba(255,255,255,0.2); }
+        .card { background: white; border: 1px solid #f1f5f9; border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .avatar-img { width: 70px; height: 70px; border-radius: 2rem; object-fit: cover; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header-bg { background: linear-gradient(135deg, #fff 0%, #f1f5f9 100%); }
     </style>
 </head>
 <body class="pb-32">
-    <header class="bg-blue-600 p-8 pt-12 pb-20 text-white relative overflow-hidden">
+    <header class="header-bg p-8 pt-12 pb-16 relative overflow-hidden border-b border-slate-100">
         <div class="relative z-10 flex justify-between items-center mb-8">
-            <h1 class="text-lg font-black tracking-widest uppercase">Member</h1>
-            <button onclick="location.href='/api/logout.php'" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10"><i class="fas fa-power-off"></i></button>
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white text-[10px] font-black italic">DY</div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Personal Center</span>
+            </div>
+            <button onclick="location.href='/api/logout.php'" class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-slate-100 text-rose-500 shadow-sm"><i class="fas fa-power-off"></i></button>
         </div>
-        <div class="relative z-10 flex items-center gap-6">
+        <div class="relative z-10 flex items-center gap-5">
             <div class="relative group" onclick="document.getElementById('avatar-input').click()">
                 <img id="user-avatar" src="/assets/default_avatar.png" class="avatar-img cursor-pointer hover:opacity-80 transition-opacity">
                 <input type="file" id="avatar-input" class="hidden" accept="image/*" onchange="uploadAvatar(this)">
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100"><i class="fas fa-camera text-white text-xl"></i></div>
             </div>
             <div>
-                <h2 class="text-2xl font-black" id="nickname-display">Loading...</h2>
-                <div class="flex items-center gap-3 mt-2">
-                    <span class="text-[10px] bg-white/20 px-3 py-1 rounded-full font-black">至尊会员</span>
-                    <span class="text-[10px] opacity-60 font-bold italic">UID: <span id="user-id">0000</span></span>
+                <h2 class="text-xl font-black text-slate-800" id="nickname-display">Loading...</h2>
+                <div class="flex items-center gap-3 mt-1.5">
+                    <span class="text-[9px] bg-blue-600 text-white px-2.5 py-0.5 rounded-full font-black uppercase">Vip Member</span>
+                    <span class="text-[9px] text-slate-400 font-bold tracking-tighter">UID: <span id="user-id">0000</span></span>
                 </div>
             </div>
         </div>
-        <i class="fas fa-gem absolute -right-10 -bottom-10 text-[14rem] text-white/5 rotate-12"></i>
     </header>
 
-    <div class="px-6 -mt-10 space-y-6 relative z-20">
-        <div class="card p-8 flex justify-between items-center" onclick="location.href='/stats.html'">
+    <div class="px-5 -mt-6 space-y-5 relative z-20">
+        <div class="card p-6 flex justify-between items-center" onclick="location.href='/stats.html'">
             <div>
-                <p class="text-[10px] text-slate-400 font-black uppercase mb-1">可用分值余额 (点击查看报表)</p>
-                <h3 class="text-4xl font-black text-blue-600">¥ <span id="balance">0.00</span></h3>
+                <p class="text-[9px] text-slate-400 font-black uppercase mb-1 tracking-widest">Available Balance</p>
+                <h3 class="text-3xl font-black text-blue-600">¥ <span id="balance">0.00</span></h3>
             </div>
-            <div class="flex gap-2">
-                <button onclick="location.href='/recharge.html'" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200"><i class="fas fa-add"></i></button>
-            </div>
+            <button onclick="location.href='/recharge.html'" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-100 transition-transform active:scale-90"><i class="fas fa-add"></i></button>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <div onclick="location.href='/stats.html'" class="card p-6 text-center space-y-2 cursor-pointer active:scale-95 transition-all border-blue-100 bg-blue-50/20">
-                <i class="fas fa-chart-bar text-blue-600 text-xl"></i>
-                <p class="text-xs font-black text-slate-800">统计报表</p>
+            <div onclick="location.href='/stats.html'" class="card p-5 text-center space-y-2 cursor-pointer active:scale-95 transition-all">
+                <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mx-auto"><i class="fas fa-chart-pie"></i></div>
+                <p class="text-[10px] font-black text-slate-800 uppercase">Stats Report</p>
             </div>
-            <div onclick="location.href='/wallet_logs.html'" class="card p-6 text-center space-y-2 cursor-pointer active:scale-95 transition-all">
-                <i class="fas fa-receipt text-slate-400 text-xl"></i>
-                <p class="text-xs font-black text-slate-800">账单明细</p>
+            <div onclick="location.href='/wallet_logs.html'" class="card p-5 text-center space-y-2 cursor-pointer active:scale-95 transition-all">
+                <div class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center mx-auto"><i class="fas fa-list-ul"></i></div>
+                <p class="text-[10px] font-black text-slate-800 uppercase">Wallet Logs</p>
             </div>
         </div>
 
-        <div class="card overflow-hidden divide-y divide-slate-100">
-            <a href="/agent.html" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
+        <div class="card overflow-hidden divide-y divide-slate-50">
+            <a href="/agent.html" class="p-5 flex items-center justify-between hover:bg-slate-50">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 text-xs"><i class="fas fa-users"></i></div>
-                    <span class="text-sm font-black text-slate-800">代理中心 (推广赚金)</span>
+                    <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-500 text-[10px]"><i class="fas fa-share-nodes"></i></div>
+                    <span class="text-xs font-black text-slate-700">代理中心 / Affiliate</span>
                 </div>
-                <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
+                <i class="fas fa-chevron-right text-slate-200 text-[10px]"></i>
             </a>
-            <a href="/withdraw.html" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
+            <a href="/withdraw.html" class="p-5 flex items-center justify-between hover:bg-slate-50">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500 text-xs"><i class="fas fa-university"></i></div>
-                    <span class="text-sm font-black text-slate-800">回分申请 (提现)</span>
+                    <div class="w-8 h-8 bg-rose-50 rounded-lg flex items-center justify-center text-rose-500 text-[10px]"><i class="fas fa-credit-card"></i></div>
+                    <span class="text-xs font-black text-slate-700">回分申请 / Withdraw</span>
                 </div>
-                <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
+                <i class="fas fa-chevron-right text-slate-200 text-[10px]"></i>
             </a>
-            <a href="/settings.html" class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
+            <a href="/settings.html" class="p-5 flex items-center justify-between hover:bg-slate-50">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-xs"><i class="fas fa-cog"></i></div>
-                    <span class="text-sm font-black text-slate-800">个性化设置 (修改昵称)</span>
+                    <div class="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 text-[10px]"><i class="fas fa-sliders"></i></div>
+                    <span class="text-xs font-black text-slate-700">账号设置 / Settings</span>
                 </div>
-                <i class="fas fa-chevron-right text-slate-200 text-xs"></i>
+                <i class="fas fa-chevron-right text-slate-200 text-[10px]"></i>
             </a>
         </div>
     </div>
 
     <!-- Nav -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 pb-8 flex justify-around">
-        <a href="/" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold">大厅</span></a>
-        <a href="/recharge.html" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-add text-lg"></i><span class="text-[9px] font-bold">充值</span></a>
-        <a href="/withdraw.html" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-wallet text-lg"></i><span class="text-[9px] font-bold">回分</span></a>
-        <a href="/profile.html" class="flex flex-col items-center gap-1 text-blue-600"><i class="fas fa-user text-lg"></i><span class="text-[9px] font-bold">我的</span></a>
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 pb-8 flex justify-around items-center z-[500] shadow-2xl">
+        <a href="/" class="flex flex-col items-center gap-1 text-slate-300"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold">大厅</span></a>
+        <a href="/recharge.html" class="flex flex-col items-center gap-1 text-slate-300"><i class="fas fa-plus-circle text-lg"></i><span class="text-[9px] font-bold">充值</span></a>
+        <a href="/withdraw.html" class="flex flex-col items-center gap-1 text-slate-300"><i class="fas fa-university text-lg"></i><span class="text-[9px] font-bold">回分</span></a>
+        <a href="/profile.html" class="flex flex-col items-center gap-1 text-blue-600"><i class="fas fa-user-circle text-lg"></i><span class="text-[9px] font-bold">我的</span></a>
     </nav>
 
     <script>

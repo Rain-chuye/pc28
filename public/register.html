@@ -2,91 +2,76 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>注册 - PC28</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>注册 - 东爷国际</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>body { background-color: #f8fafc; font-family: -apple-system, sans-serif; }</style>
+    <style>
+        body { background: #fff; font-family: -apple-system, sans-serif; }
+        .login-card { min-height: 100vh; display: flex; flex-direction: column; padding: 2.5rem; justify-content: center; }
+        .input-group { border-bottom: 2px solid #f8fafc; padding: 1rem 0; margin-bottom: 0.5rem; transition: border-color 0.3s; }
+        .input-group:focus-within { border-color: #2563eb; }
+        .input-field { width: 100%; border: none; outline: none; font-weight: 800; font-size: 1rem; color: #1e293b; padding: 0.5rem 0; background: transparent; }
+        .btn-login { width: 100%; background: #2563eb; color: white; padding: 1.25rem; border-radius: 1.5rem; font-weight: 900; margin-top: 2rem; box-shadow: 0 10px 20px -5px rgba(37,99,235,0.2); }
+    </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
-    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-2xl text-sm font-bold shadow-2xl opacity-0 transition-opacity pointer-events-none z-50"></div>
-
-    <div class="w-full max-w-sm bg-white rounded-[2.5rem] p-10 border border-slate-200 shadow-xl">
-        <h1 class="text-2xl font-black text-center mb-10 text-slate-800">创建新账户</h1>
-        <div class="space-y-5">
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
-                <i class="fas fa-user-plus text-slate-300 text-xs"></i>
-                <input type="text" id="username" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="设置登录账号">
-            </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
-                <i class="fas fa-id-card text-slate-300 text-xs"></i>
-                <input type="text" id="nickname" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="设置您的昵称">
-            </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
-                <i class="fas fa-lock text-slate-300 text-xs"></i>
-                <input type="password" id="password" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="设置密码">
-            </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
-                <i class="fab fa-qq text-slate-300 text-xs"></i>
-                <input type="text" id="qq" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="QQ号 (找回密码凭证)">
-            </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl px-6 flex items-center">
-                <i class="fas fa-gift text-slate-300 text-xs"></i>
-                <input type="text" id="inviter_id" class="w-full bg-transparent px-4 py-4 outline-none text-sm font-bold" placeholder="邀请码 (可选)">
-            </div>
-            <button id="regBtn" onclick="register()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all">立即注册</button>
+<body>
+    <div class="login-card">
+        <div class="mb-10">
+            <h1 class="text-3xl font-black text-slate-800 tracking-tighter">加入我们</h1>
+            <p class="text-slate-400 font-bold text-sm mt-2">开启您的 东爷国际 尊享之旅</p>
         </div>
-        <p class="mt-8 text-center text-xs text-slate-400 font-bold">已有账号？ <a href="/login.html" class="text-blue-600">返回登录</a></p>
-    </div>
-    <script>
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.classList.remove('opacity-0');
-            setTimeout(() => t.classList.add('opacity-0'), 3000);
-        }
 
-        (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const ref = urlParams.get('ref');
-            if(ref) {
-                window.addEventListener('DOMContentLoaded', () => {
-                    const i = document.getElementById('inviter_id');
-                    if(i) { i.value = ref; i.readOnly = true; }
-                });
-            }
-        })();
+        <div class="space-y-3">
+            <div class="input-group">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">账号 / Username</p>
+                <input type="text" id="username" class="input-field" placeholder="6-12位字母或数字">
+            </div>
+            <div class="input-group">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">密码 / Password</p>
+                <input type="password" id="password" class="input-field" placeholder="请输入您的登录密码">
+            </div>
+            <div class="input-group">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">确认密码 / Confirm</p>
+                <input type="password" id="confirm_password" class="input-field" placeholder="请再次输入密码">
+            </div>
+            <div class="input-group">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">邀请码 / Invitation (可选)</p>
+                <input type="text" id="ref" class="input-field" placeholder="如有请填写">
+            </div>
+        </div>
+
+        <button onclick="register()" class="btn-login">立即注册</button>
+
+        <div class="mt-8 text-center text-xs font-black uppercase tracking-tighter">
+            <span class="text-slate-300">已有账号？</span>
+            <a href="/login.html" class="text-blue-600 ml-1">前往登录</a>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        if(params.has('ref')) document.getElementById('ref').value = params.get('ref');
 
         async function register() {
-            const u = document.getElementById('username').value.trim();
-            const n = document.getElementById('nickname').value.trim();
-            const p = document.getElementById('password').value;
-            const q = document.getElementById('qq').value.trim();
-            const r = document.getElementById('inviter_id').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const confirm_password = document.getElementById('confirm_password').value;
+            const ref = document.getElementById('ref').value;
 
-            if(!u || !n || !p || !q) return showToast('请填写完整信息');
+            if(!username || !password) return alert('请填写完整');
+            if(password !== confirm_password) return alert('两次密码不一致');
 
-            const btn = document.getElementById('regBtn');
-            btn.disabled = true;
+            const res = await fetch('/api/register.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username, password, inviter_id: ref })
+            }).then(r => r.json());
 
-            try {
-                const res = await fetch('/api/register.php', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({username: u, nickname: n, password: p, qq: q, inviter_id: r})
-                }).then(r => r.json());
-
-                if(res.success) {
-                    alert('注册成功，请登录');
-                    location.href = '/login.html';
-                } else {
-                    showToast(res.message);
-                }
-            } catch (err) {
-                showToast('网络错误');
-            } finally {
-                btn.disabled = false;
-            }
+            if(res.success) {
+                alert('注册成功');
+                location.href = '/login.html';
+            } else alert(res.message);
         }
     </script>
 </body>

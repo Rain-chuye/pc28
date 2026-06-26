@@ -16,7 +16,7 @@ try {
     $conn_status = '<span style="color:red">× 连接失败: ' . $e->getMessage() . '</span>';
 }
 
-echo "<h1>PC28 系统运行环境自检</h1>";
+echo "<h1>东爷国际 系统运行环境自检</h1>";
 echo "<ul>";
 echo "<li><b>PHP 版本:</b> " . PHP_VERSION . "</li>";
 echo "<li><b>当前运行目录:</b> " . __DIR__ . " (应为 .../public)</li>";

@@ -25,6 +25,6 @@ require_once __DIR__ . '/auth_logic.php';
     <a href="/admin/index.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'index.php') !== false ? 'active' : '' ?>"><i class="fas fa-th-large"></i><span>概览</span></a>
     <a href="/admin/pages/users.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'users.php') !== false ? 'active' : '' ?>"><i class="fas fa-users"></i><span>会员</span></a>
     <a href="/admin/pages/chat_admin.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'chat_admin.php') !== false ? 'active' : '' ?>"><i class="fas fa-comments"></i><span>聊天</span></a>
-    <a href="/admin/pages/chat.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'chat.php') !== false ? 'active' : '' ?>"><i class="fas fa-headset"></i><span>客服</span></a>
+    <a href="/admin/pages/chat_admin_list.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'chat_admin_list.php') !== false ? 'active' : '' ?>"><i class="fas fa-headset"></i><span>客服</span></a>
     <a href="/admin/pages/finance_list.php" class="nav-link <?= strpos($_SERVER['PHP_SELF'], 'finance_list.php') !== false ? 'active' : '' ?>"><i class="fas fa-exchange-alt"></i><span>财务</span></a>
 </div>

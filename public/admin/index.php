@@ -22,13 +22,13 @@ $todayNet = $todayProfit - $todayRebates;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理大盘 - PC28 PRO</title>
+    <title>管理大盘 - 东爷国际 PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header class="admin-header">
-        <h1>PC28 管理大盘</h1>
+        <h1>东爷国际 管理大盘</h1>
         <div class="flex items-center gap-2">
             <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded">PRO v8</span>
         </div>

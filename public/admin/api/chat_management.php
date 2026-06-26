@@ -29,7 +29,6 @@ try {
         $type = $data['type'] ?? 'text'; // 'text' or 'red_packet'
 
         if ($type === 'red_packet') {
-            // Special logic for admin red packet in specific room
             $amount = (float)$data['amount'];
             $count = (int)$data['count'];
             $req = (float)($data['min_turnover'] ?? 0);

@@ -9,7 +9,7 @@ $latest = \App\Model\Lottery::getLatest();
 
 // Get settings
 $settings = $db->query("SELECT setting_key, setting_value FROM system_settings")->fetchAll(PDO::FETCH_KEY_PAIR);
-$announcement = $settings['announcement'] ?? "欢迎来到 PC28 商业版，祝您游戏愉快！";
+$announcement = $settings['announcement'] ?? "欢迎来到 东爷国际 商业版，祝您游戏愉快！";
 $drawInterval = (int)($settings['custom_draw_interval'] ?? 300);
 
 if (!$latest) {
